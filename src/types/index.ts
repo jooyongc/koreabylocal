@@ -13,6 +13,7 @@ export type FeaturedCollection = Tables<"featured_collections">;
 export type Order = Tables<"orders">;
 export type OrderItem = Tables<"order_items">;
 export type DigitalMagazine = Tables<"digital_magazines">;
+export type Inquiry = Tables<"inquiries">;
 export type SiteSetting = Tables<"site_settings">;
 
 // Status union types
@@ -23,3 +24,5 @@ export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type PaymentStatus = "unpaid" | "paid" | "refunded" | "partial_refund";
 export type UserRole = "customer" | "admin";
 export type ProductBadge = "NEW" | "BEST" | "HOT" | "MD" | "SALE";
+export type InquiryCategory = "General" | "Tour Inquiry" | "Transportation" | "Custom Request" | "Other";
+export type InquiryStatus = "pending" | "replied";

@@ -5,6 +5,7 @@ import {
   FileText,
   ShoppingCart,
   BookOpen,
+  MessageSquare,
   Settings,
   X,
 } from "lucide-react";
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/blog", icon: FileText, label: "Blog" },
   { to: "/admin/orders", icon: ShoppingCart, label: "Orders" },
+  { to: "/admin/inquiries", icon: MessageSquare, label: "Inquiries" },
   { to: "/admin/magazines", icon: BookOpen, label: "Magazines" },
   { to: "/admin/settings", icon: Settings, label: "Settings" },
 ];

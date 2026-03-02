@@ -109,6 +109,51 @@ export type Database = {
           },
         ]
       }
+      inquiries: {
+        Row: {
+          id: number
+          name: string
+          email: string
+          subject: string | null
+          category: string
+          message: string
+          attachment_url: string | null
+          status: string
+          admin_reply: string | null
+          replied_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: never
+          name: string
+          email: string
+          subject?: string | null
+          category?: string
+          message: string
+          attachment_url?: string | null
+          status?: string
+          admin_reply?: string | null
+          replied_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: never
+          name?: string
+          email?: string
+          subject?: string | null
+          category?: string
+          message?: string
+          attachment_url?: string | null
+          status?: string
+          admin_reply?: string | null
+          replied_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       digital_magazines: {
         Row: {
           cover_image_url: string | null
