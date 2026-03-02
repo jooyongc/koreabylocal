@@ -1,8 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" fill="none">
-  <!-- KBL Icon Mark -->
-  <rect x="0" y="4" width="40" height="40" rx="8" fill="#00005a"/>
-  <text x="20" y="31" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="white">KBL</text>
-  <!-- Wordmark -->
-  <text x="52" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#00005a">Korea by Local</text>
-  <text x="52" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="400" fill="#6312ff" letter-spacing="2">TRAVEL MEANINGFULLY</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 50" fill="none">
+  <!-- Korea -->
+  <text x="0" y="36" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="32" font-weight="800" fill="#1B2541" letter-spacing="-0.5">Korea</text>
+  <!-- by -->
+  <text x="108" y="36" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="20" font-weight="400" fill="#1B2541">by</text>
+  <!-- Local -->
+  <text x="135" y="36" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="32" font-weight="800" fill="#1B2541" letter-spacing="-0.5">Local</text>
+  <!-- Pink smile curve under "by" -->
+  <path d="M112 40 Q120 48 128 40" stroke="#E84B8A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
 </svg>
