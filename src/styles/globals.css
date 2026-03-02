@@ -2,15 +2,14 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-primary: #1a1a2e;
-  --color-primary-dark: #12121f;
-  --color-primary-light: #2a2a4e;
-  --color-accent: #e8751a;
-  --color-accent-dark: #c96215;
-  --color-accent-light: #f09040;
+  --color-primary: #00005a;
+  --color-primary-light: #6312ff;
+  --color-accent: #f430ff;
+  --color-accent-purple: #d930ff;
+  --color-accent-indigo: #6312ff;
   --color-background: #ffffff;
   --color-background-gray: #f8f9fa;
-  --color-text: #1a1a2e;
+  --color-text: #00005a;
   --color-text-secondary: #6b7280;
 
   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,

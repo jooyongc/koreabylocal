@@ -4,21 +4,21 @@ export default function HomePage() {
   return (
     <>
       <Helmet>
-        <title>코리아바이로컬 - Korea By Local</title>
+        <title>Korea By Local - Authentic Korean Experiences by Locals</title>
         <meta
           name="description"
-          content="로컬이 추천하는 진짜 한국 여행 경험"
+          content="Discover authentic Korean travel experiences curated by locals"
         />
       </Helmet>
       <div className="min-h-screen flex items-center justify-center bg-background-gray">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-primary mb-4">
-            코리아바이로컬
+            Korea By Local
           </h1>
           <p className="text-text-secondary text-lg">
-            로컬이 추천하는 진짜 한국 여행 경험
+            Discover authentic Korean travel experiences curated by locals
           </p>
-          <div className="mt-8 inline-block bg-accent text-white px-6 py-3 rounded-lg font-semibold">
+          <div className="mt-8 inline-block bg-gradient-to-r from-accent-indigo via-accent-purple to-accent text-white px-6 py-3 rounded-lg font-semibold">
             Coming Soon
           </div>
         </div>
