@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Facebook, Twitter } from "lucide-react";
 import FooterColumn from "./FooterColumn";
+import Logo from "../Header/Logo";
 
 const QUICK_LINKS = [
   { label: "Curated Tours", href: "/tours" },
@@ -55,7 +56,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* About */}
           <FooterColumn title="About">
-            <img src="/logo-white.svg" alt="Korea by Local" className="h-10 mb-3" />
+            <div className="mb-3">
+              <Logo white />
+            </div>
             <p className="text-sm leading-relaxed text-white/60">
               Korea by Local connects travellers with authentic Korean
               experiences curated by locals who know and love their cities.

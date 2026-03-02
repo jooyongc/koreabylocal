@@ -1,8 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <!-- L -->
-  <text x="8" y="32" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="30" font-weight="800" fill="#E84B8A">L</text>
-  <!-- O -->
-  <text x="23" y="32" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="30" font-weight="800" fill="#1B2541">O</text>
-  <!-- Pink smile curve -->
-  <path d="M10 36 Q24 46 38 36" stroke="#E84B8A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#1B2541"/>
+  <!-- Simplified "L" shape -->
+  <path d="M8 7h4v14h8v3.5H8V7z" fill="#E84B8A"/>
+  <!-- Smile curve -->
+  <path d="M9 26C13 30 19 30 23 26" stroke="#E84B8A" stroke-width="2" stroke-linecap="round" fill="none"/>
 </svg>
