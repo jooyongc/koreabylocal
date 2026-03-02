@@ -261,6 +261,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          admin_notes: string | null
           created_at: string
           currency: string
           customer_note: string | null
@@ -276,6 +277,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           currency?: string
           customer_note?: string | null
@@ -291,6 +293,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           currency?: string
           customer_note?: string | null
@@ -354,6 +357,7 @@ export type Database = {
           name: string
           product_id: number
           sort_order: number
+          type: string
         }
         Insert: {
           id?: never
@@ -361,6 +365,7 @@ export type Database = {
           name: string
           product_id: number
           sort_order?: number
+          type?: string
         }
         Update: {
           id?: never
@@ -368,6 +373,7 @@ export type Database = {
           name?: string
           product_id?: number
           sort_order?: number
+          type?: string
         }
         Relationships: [
           {

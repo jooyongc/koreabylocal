@@ -48,6 +48,7 @@ const AdminBlog = lazy(() => import("@/pages/admin/AdminBlogPage"));
 const AdminBlogNew = lazy(() => import("@/pages/admin/BlogNewPage"));
 const AdminBlogEdit = lazy(() => import("@/pages/admin/BlogEditPage"));
 const AdminOrders = lazy(() => import("@/pages/admin/AdminOrdersPage"));
+const AdminOrderDetail = lazy(() => import("@/pages/admin/AdminOrderDetailPage"));
 const AdminSettings = lazy(() => import("@/pages/admin/SettingsPage"));
 
 // ── 404 ───────────────────────────────────────────────────────
@@ -122,6 +123,7 @@ function App() {
             <Route path="/admin/blog/new" element={<AdminBlogNew />} />
             <Route path="/admin/blog/:id/edit" element={<AdminBlogEdit />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>
