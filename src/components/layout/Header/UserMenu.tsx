@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { User, CircleUser, Settings, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { User, CircleUser, Settings, ShoppingBag, LogOut } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useClickOutside } from "@/hooks/useClickOutside";
 
 export default function UserMenu() {
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const signOut = useAuthStore((s) => s.signOut);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -49,10 +51,19 @@ export default function UserMenu() {
             <Settings className="h-4 w-4" />
             My Account
           </Link>
+          <Link
+            to="/account/orders"
+            className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background-gray transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            My Orders
+          </Link>
           <button
-            onClick={() => {
+            onClick={async () => {
               setOpen(false);
-              // TODO: sign out via Supabase
+              await signOut();
+              navigate("/");
             }}
             className="flex w-full items-center gap-2 px-4 py-2 text-sm text-text hover:bg-background-gray transition-colors"
           >

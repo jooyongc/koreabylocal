@@ -1,8 +1,9 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // ── Public pages ──────────────────────────────────────────────
 const HomePage = lazy(() => import("@/pages/HomePage"));
@@ -29,6 +30,8 @@ const TermsPage = lazy(() => import("@/pages/legal/TermsPage"));
 // ── Auth pages ────────────────────────────────────────────────
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const SignupPage = lazy(() => import("@/pages/auth/SignupPage"));
+const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPasswordPage"));
 
 // ── Account pages (requires auth) ────────────────────────────
 const AccountPage = lazy(() => import("@/pages/account/AccountPage"));
@@ -50,6 +53,13 @@ const AdminSettings = lazy(() => import("@/pages/admin/SettingsPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 function App() {
+  const initialize = useAuthStore((s) => s.initialize);
+
+  useEffect(() => {
+    const unsubscribe = initialize();
+    return unsubscribe;
+  }, [initialize]);
+
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
@@ -86,6 +96,8 @@ function App() {
           {/* ── Auth ────────────────────────────────────── */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
           {/* ── Account (requires login) ────────────────── */}
           <Route element={<ProtectedRoute />}>
