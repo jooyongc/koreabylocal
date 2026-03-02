@@ -55,6 +55,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {/* About */}
           <FooterColumn title="About">
+            <img src="/logo-white.svg" alt="Korea by Local" className="h-10 mb-3" />
             <p className="text-sm leading-relaxed text-white/60">
               Korea by Local connects travellers with authentic Korean
               experiences curated by locals who know and love their cities.

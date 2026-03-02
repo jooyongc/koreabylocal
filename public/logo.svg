@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 48" fill="none">
+  <!-- KBL Icon Mark -->
+  <rect x="0" y="4" width="40" height="40" rx="8" fill="#00005a"/>
+  <text x="20" y="31" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="white">KBL</text>
+  <!-- Wordmark -->
+  <text x="52" y="24" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#00005a">Korea by Local</text>
+  <text x="52" y="40" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="400" fill="#6312ff" letter-spacing="2">TRAVEL MEANINGFULLY</text>
+</svg>

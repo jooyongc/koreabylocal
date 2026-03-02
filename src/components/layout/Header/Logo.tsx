@@ -6,10 +6,12 @@ interface LogoProps {
 
 export default function Logo({ shrink = false }: LogoProps) {
   return (
-    <Link to="/" className="flex items-center gap-1 font-bold tracking-tight text-primary transition-all duration-300">
-      <span className={shrink ? "text-xl" : "text-2xl"}>
-        Korea by Local
-      </span>
+    <Link to="/" className="flex items-center transition-all duration-300">
+      <img
+        src="/logo.svg"
+        alt="Korea by Local"
+        className={shrink ? "h-8" : "h-10"}
+      />
     </Link>
   );
 }

@@ -13,21 +13,21 @@ const HERO_SLIDES = [
     title: "More than travel,\nit's connection.",
     subtitle: "Travel meaningfully.",
     cta: { text: "for more Information — Click here!", href: "/about" },
-    bg: "bg-gradient-to-br from-[#00005a] via-[#2a1a6e] to-[#6312ff]",
+    image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1600&q=80",
   },
   {
     id: 2,
     title: "Discover Korea\nthrough locals.",
     subtitle: "Authentic experiences, local expertise.",
     cta: { text: "Explore Tours", href: "/tours" },
-    bg: "bg-gradient-to-br from-[#6312ff] via-[#3a0f7a] to-[#00005a]",
+    image: "https://images.unsplash.com/photo-1546874177-9e664107314e?w=1600&q=80",
   },
   {
     id: 3,
     title: "Your Korean\nadventure starts here.",
     subtitle: "Curated by people who call Korea home.",
     cta: { text: "Browse Shop", href: "/shop" },
-    bg: "bg-gradient-to-br from-[#00005a] via-[#4a1490] to-[#d930ff]",
+    image: "https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1600&q=80",
   },
 ];
 
@@ -44,10 +44,11 @@ export default function HeroSection() {
         {HERO_SLIDES.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div
-              className={`relative flex min-h-[70vh] items-center justify-center px-4 md:min-h-[80vh] ${slide.bg}`}
+              className="relative flex min-h-[70vh] items-center justify-center px-4 md:min-h-[80vh] bg-cover bg-center"
+              style={{ backgroundImage: `url(${slide.image})` }}
             >
               {/* Dark overlay for text readability */}
-              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute inset-0 bg-black/50" />
 
               <div className="relative z-10 mx-auto max-w-3xl text-center text-white">
                 <h1 className="whitespace-pre-line text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
