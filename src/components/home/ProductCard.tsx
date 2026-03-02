@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import type { Product } from "@/types";
 
 const BADGE_COLORS: Record<string, string> = {
@@ -33,11 +34,11 @@ export default function ProductCard({ product }: { product: Product }) {
       {/* Thumbnail */}
       <div className="relative aspect-[4/3] overflow-hidden bg-background-gray">
         {product.thumbnail_url ? (
-          <img
+          <OptimizedImage
             src={product.thumbnail_url}
             alt={product.title}
+            preset="card"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-text-secondary/40">

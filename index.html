@@ -2,9 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>myapp</title>
+    <meta name="theme-color" content="#00005a" />
+
+    <!-- Default meta (overridden by react-helmet-async per page) -->
+    <title>Korea By Local - Authentic Korean Experiences by Locals</title>
+    <meta name="description" content="Discover authentic Korean travel experiences curated by locals. Tours, transfers, K-goods, and more." />
+
+    <!-- Default OG -->
+    <meta property="og:site_name" content="Korea By Local" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://koreabylocal.com/og-default.png" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Default Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Font preloading -->
+    <link
+      rel="preload"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+      as="style"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+
+    <!-- DNS prefetch for Supabase storage -->
+    <link rel="dns-prefetch" href="https://vgrranljxugpvoblqkzu.supabase.co" />
+    <link rel="preconnect" href="https://vgrranljxugpvoblqkzu.supabase.co" crossorigin />
   </head>
   <body>
     <div id="root"></div>

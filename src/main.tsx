@@ -11,8 +11,10 @@ import "./i18n";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60 * 5, // 5 min default
+      gcTime: 1000 * 60 * 15, // 15 min garbage collection
       retry: 1,
+      refetchOnWindowFocus: false,
     },
   },
 });

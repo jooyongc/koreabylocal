@@ -6,6 +6,7 @@ export function useBlogPost(slug: string | undefined) {
   return useQuery<BlogPost | null>({
     queryKey: ["blog-post", slug],
     enabled: !!slug,
+    staleTime: 10 * 60 * 1000, // 10 min — blog posts change rarely
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")

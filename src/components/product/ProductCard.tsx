@@ -1,4 +1,6 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import type { ProductWithCategory } from "@/hooks/useProductList";
 
 const BADGE_COLORS: Record<string, string> = {
@@ -30,7 +32,7 @@ interface ProductCardProps {
   view?: "grid" | "list";
 }
 
-export default function ProductCard({ product, view = "grid" }: ProductCardProps) {
+function ProductCardInner({ product, view = "grid" }: ProductCardProps) {
   const hasDiscount =
     product.compare_price != null && product.compare_price > product.price;
   const discountPct = hasDiscount
@@ -51,11 +53,11 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
         {/* Thumbnail */}
         <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-background-gray sm:h-36 sm:w-36">
           {product.thumbnail_url ? (
-            <img
+            <OptimizedImage
               src={product.thumbnail_url}
               alt={product.title}
+              preset="thumbnail"
               className="h-full w-full object-cover"
-              loading="lazy"
             />
           ) : (
             <ImagePlaceholder />
@@ -95,20 +97,20 @@ export default function ProductCard({ product, view = "grid" }: ProductCardProps
       <div className="relative aspect-square overflow-hidden bg-background-gray">
         {product.thumbnail_url ? (
           <>
-            <img
+            <OptimizedImage
               src={product.thumbnail_url}
               alt={product.title}
+              preset="card"
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
                 secondImage ? "group-hover:opacity-0" : ""
               }`}
-              loading="lazy"
             />
             {secondImage && (
-              <img
+              <OptimizedImage
                 src={secondImage}
                 alt={`${product.title} - alternate`}
+                preset="card"
                 className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                loading="lazy"
               />
             )}
           </>
@@ -236,3 +238,6 @@ function ImagePlaceholder() {
     </div>
   );
 }
+
+const ProductCard = memo(ProductCardInner);
+export default ProductCard;

@@ -1,16 +1,14 @@
-import { Helmet } from "react-helmet-async";
+import PageSEO from "@/components/common/PageSEO";
 import { ProductListPage } from "@/components/product";
 
 export default function ToursPage() {
   return (
     <>
-      <Helmet>
-        <title>Curated Tours | Korea By Local</title>
-        <meta
-          name="description"
-          content="Explore curated Korean tours designed by locals for an authentic experience."
-        />
-      </Helmet>
+      <PageSEO
+        title="Curated Tours | Korea By Local"
+        description="Explore curated Korean tours designed by locals for an authentic experience. Discover hidden gems, cultural sites, and unique Korean adventures."
+        path="/tours"
+      />
       <ProductListPage
         rootCategorySlug="tours"
         title="Curated Tours"

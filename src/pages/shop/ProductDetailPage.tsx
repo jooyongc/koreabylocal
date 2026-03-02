@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Helmet } from "react-helmet-async";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
 import {
   ShoppingCart,
   Minus,
@@ -194,13 +194,22 @@ export default function ProductDetailPage() {
     : 0;
   const isSoldOut = product.status === "sold_out";
 
+  const pageTitle = `${product.seo_title ?? product.title} | Korea By Local`;
+  const pageDesc = product.seo_description ?? product.description ?? "View product details.";
+  const pagePath = `/product/${product.slug}`;
+
   // JSON-LD structured data
-  const jsonLd = {
+  const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
-    description: product.seo_description ?? product.description ?? "",
+    description: pageDesc,
     image: product.thumbnail_url ?? undefined,
+    url: `${SITE_URL}${pagePath}`,
+    brand: {
+      "@type": "Brand",
+      name: "Korea By Local",
+    },
     offers: {
       "@type": "Offer",
       price: product.price,
@@ -208,23 +217,46 @@ export default function ProductDetailPage() {
       availability: isSoldOut
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
+      url: `${SITE_URL}${pagePath}`,
+      seller: {
+        "@type": "Organization",
+        name: "Korea By Local",
+      },
     },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
+      ...(product.categories
+        ? [{
+            "@type": "ListItem",
+            position: 3,
+            name: product.categories.name,
+            item: `${SITE_URL}/shop`,
+          }]
+        : []),
+      {
+        "@type": "ListItem",
+        position: product.categories ? 4 : 3,
+        name: product.title,
+      },
+    ],
   };
 
   return (
     <>
-      <Helmet>
-        <title>
-          {product.seo_title ?? product.title} | Korea By Local
-        </title>
-        <meta
-          name="description"
-          content={
-            product.seo_description ?? product.description ?? "View product details."
-          }
-        />
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
+      <PageSEO
+        title={pageTitle}
+        description={pageDesc}
+        path={pagePath}
+        ogImage={product.thumbnail_url ?? undefined}
+        ogType="product"
+        jsonLd={[productSchema, breadcrumbSchema]}
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-6 lg:py-10">
         {/* Breadcrumb */}

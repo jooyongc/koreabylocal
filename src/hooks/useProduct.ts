@@ -41,6 +41,7 @@ export function useProduct(slug: string | undefined) {
   return useQuery<ProductDetail | null>({
     queryKey: ["product", slug],
     enabled: !!slug,
+    staleTime: 10 * 60 * 1000, // 10 min — detail pages change rarely
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")

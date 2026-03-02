@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
+import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
 import { ChevronRight, Eye, Calendar, User } from "lucide-react";
 import { format } from "date-fns";
 import { useBlogPost } from "@/hooks/useBlogPost";
@@ -76,46 +76,54 @@ export default function BlogDetailPage() {
     );
   }
 
-  const pageUrl = typeof window !== "undefined" ? window.location.href : "";
+  const pageTitle = `${post.seo_title ?? post.title} | Korea By Local`;
+  const pageDesc = post.seo_description ?? post.excerpt ?? "";
+  const pagePath = `/blog/${post.slug}`;
+  const pageUrl = `${SITE_URL}${pagePath}`;
 
-  const jsonLd = {
+  const articleSchema = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
-    description: post.seo_description ?? post.excerpt ?? "",
+    description: pageDesc,
     image: post.thumbnail_url ?? undefined,
+    url: pageUrl,
     datePublished: post.published_at,
     dateModified: post.updated_at,
     author: post.author
       ? { "@type": "Person", name: post.author }
-      : undefined,
+      : { "@type": "Organization", name: "Korea By Local" },
     publisher: {
       "@type": "Organization",
       name: "Korea By Local",
+      url: SITE_URL,
     },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 3, name: post.title },
+    ],
   };
 
   return (
     <>
-      <Helmet>
-        <title>
-          {post.seo_title ?? post.title} | Korea By Local
-        </title>
-        <meta
-          name="description"
-          content={post.seo_description ?? post.excerpt ?? ""}
-        />
-        <meta property="og:title" content={post.seo_title ?? post.title} />
-        <meta
-          property="og:description"
-          content={post.seo_description ?? post.excerpt ?? ""}
-        />
-        {post.thumbnail_url && (
-          <meta property="og:image" content={post.thumbnail_url} />
-        )}
-        <meta property="og:type" content="article" />
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      </Helmet>
+      <PageSEO
+        title={pageTitle}
+        description={pageDesc}
+        path={pagePath}
+        ogImage={post.thumbnail_url ?? undefined}
+        ogType="article"
+        jsonLd={[articleSchema, breadcrumbSchema]}
+      />
 
       <article className="mx-auto max-w-4xl px-4 py-6 lg:py-10">
         {/* Breadcrumb */}

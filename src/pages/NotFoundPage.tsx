@@ -1,13 +1,15 @@
-import { Helmet } from "react-helmet-async";
+import PageSEO from "@/components/common/PageSEO";
 import { Link } from "react-router-dom";
 
 export default function NotFoundPage() {
   return (
     <>
-      <Helmet>
-        <title>404 - Page Not Found | Korea By Local</title>
-        <meta name="description" content="The page you are looking for does not exist." />
-      </Helmet>
+      <PageSEO
+        title="404 - Page Not Found | Korea By Local"
+        description="The page you are looking for does not exist."
+        path="/404"
+        noindex
+      />
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
         <h1 className="text-7xl font-bold text-primary">404</h1>
         <p className="mt-4 text-xl text-text-secondary">

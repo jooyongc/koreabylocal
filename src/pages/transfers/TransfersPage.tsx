@@ -1,16 +1,14 @@
-import { Helmet } from "react-helmet-async";
+import PageSEO from "@/components/common/PageSEO";
 import { ProductListPage } from "@/components/product";
 
 export default function TransfersPage() {
   return (
     <>
-      <Helmet>
-        <title>Transfers | Korea By Local</title>
-        <meta
-          name="description"
-          content="Browse all transfer services including transportation and tour planning."
-        />
-      </Helmet>
+      <PageSEO
+        title="Transfers | Korea By Local"
+        description="Reliable airport transfers, private transportation, and tour planning services across Korea. Comfortable rides with local drivers."
+        path="/transfers"
+      />
       <ProductListPage
         rootCategorySlug="transfers"
         title="Transfers"

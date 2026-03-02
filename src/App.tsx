@@ -51,6 +51,7 @@ const AdminOrders = lazy(() => import("@/pages/admin/AdminOrdersPage"));
 const AdminOrderDetail = lazy(() => import("@/pages/admin/AdminOrderDetailPage"));
 const AdminInquiries = lazy(() => import("@/pages/admin/AdminInquiriesPage"));
 const AdminInquiryDetail = lazy(() => import("@/pages/admin/AdminInquiryDetailPage"));
+const AdminMagazines = lazy(() => import("@/pages/admin/AdminMagazinesPage"));
 const AdminSettings = lazy(() => import("@/pages/admin/SettingsPage"));
 
 // ── 404 ───────────────────────────────────────────────────────
@@ -128,6 +129,7 @@ function App() {
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
             <Route path="/admin/inquiries" element={<AdminInquiries />} />
             <Route path="/admin/inquiries/:id" element={<AdminInquiryDetail />} />
+            <Route path="/admin/magazines" element={<AdminMagazines />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>

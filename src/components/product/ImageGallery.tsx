@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import OptimizedImage from "@/components/common/OptimizedImage";
 // @ts-expect-error -- CSS module imports handled by Vite
 import "swiper/css";
 // @ts-expect-error -- CSS module imports handled by Vite
@@ -99,9 +100,11 @@ export default function ImageGallery({
           onClick={() => openLightbox(selectedIndex)}
           className="w-full cursor-zoom-in overflow-hidden rounded-xl bg-background-gray"
         >
-          <img
+          <OptimizedImage
             src={allImages[selectedIndex]}
             alt={`${title} - ${selectedIndex + 1}`}
+            preset="detail"
+            priority={selectedIndex === 0}
             className="aspect-square w-full object-cover transition-transform duration-300 hover:scale-105"
           />
         </button>
@@ -120,9 +123,10 @@ export default function ImageGallery({
                     : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
-                <img
+                <OptimizedImage
                   src={url}
                   alt={`${title} thumbnail ${i + 1}`}
+                  preset="thumbnail"
                   className="h-full w-full object-cover"
                 />
               </button>
@@ -146,9 +150,11 @@ export default function ImageGallery({
                 onClick={() => openLightbox(i)}
                 className="w-full cursor-zoom-in"
               >
-                <img
+                <OptimizedImage
                   src={url}
                   alt={`${title} - ${i + 1}`}
+                  preset="detail"
+                  priority={i === 0}
                   className="aspect-square w-full object-cover"
                 />
               </button>
@@ -199,9 +205,11 @@ export default function ImageGallery({
           )}
 
           {/* Image */}
-          <img
+          <OptimizedImage
             src={allImages[selectedIndex]}
             alt={`${title} - ${selectedIndex + 1}`}
+            preset="full"
+            priority
             className="max-h-[85vh] max-w-[90vw] object-contain"
             onClick={(e) => e.stopPropagation()}
           />

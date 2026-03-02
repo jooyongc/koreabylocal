@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { Search, X } from "lucide-react";
+import PageSEO from "@/components/common/PageSEO";
 import { useBlogList, BLOG_PAGE_SIZE } from "@/hooks/useBlogList";
 import { CategoryTabs, BlogListCard, BlogListSkeleton } from "@/components/blog";
 import Pagination from "@/components/product/Pagination";
@@ -70,13 +70,11 @@ export default function BlogPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Blog | Korea By Local</title>
-        <meta
-          name="description"
-          content="Read stories, tips, and insights about Korea from local experts."
-        />
-      </Helmet>
+      <PageSEO
+        title="Blog | Korea By Local"
+        description="Read stories, tips, and insights about Korea from local experts. Travel guides, cultural highlights, and hidden gems."
+        path="/blog"
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-12">
         {/* Header */}

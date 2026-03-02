@@ -1,16 +1,14 @@
-import { Helmet } from "react-helmet-async";
+import PageSEO from "@/components/common/PageSEO";
 import { ProductListPage } from "@/components/product";
 
 export default function ShopPage() {
   return (
     <>
-      <Helmet>
-        <title>Shop | Korea By Local</title>
-        <meta
-          name="description"
-          content="Shop authentic Korean goods, magazines, and prints curated by locals."
-        />
-      </Helmet>
+      <PageSEO
+        title="Shop | Korea By Local"
+        description="Shop authentic Korean goods, magazines, and prints curated by locals. From K-beauty to traditional crafts, find unique Korean products."
+        path="/shop"
+      />
       <ProductListPage
         rootCategorySlug="shop"
         title="Shop"

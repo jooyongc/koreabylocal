@@ -1,6 +1,8 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { Eye } from "lucide-react";
 import { format } from "date-fns";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import type { BlogPost } from "@/types";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -15,7 +17,7 @@ function formatViews(count: number): string {
   return String(count);
 }
 
-export default function BlogListCard({ post }: { post: BlogPost }) {
+function BlogListCardInner({ post }: { post: BlogPost }) {
   return (
     <Link
       to={`/blog/${post.slug}`}
@@ -24,11 +26,11 @@ export default function BlogListCard({ post }: { post: BlogPost }) {
       {/* Thumbnail */}
       <div className="relative aspect-[16/10] overflow-hidden bg-background-gray">
         {post.thumbnail_url ? (
-          <img
+          <OptimizedImage
             src={post.thumbnail_url}
             alt={post.title}
+            preset="card"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-text-secondary/40">
@@ -76,3 +78,6 @@ export default function BlogListCard({ post }: { post: BlogPost }) {
     </Link>
   );
 }
+
+const BlogListCard = memo(BlogListCardInner);
+export default BlogListCard;

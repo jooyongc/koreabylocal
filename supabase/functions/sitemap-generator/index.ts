@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SITE_URL = Deno.env.get("SITE_URL") || "https://koreabylocal.com";
 
-Deno.serve(async (req: Request) => {
+Deno.serve(async (_req: Request) => {
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -36,10 +36,19 @@ Deno.serve(async (req: Request) => {
   // Static pages
   const staticPages = [
     { loc: "/", priority: "1.0", changefreq: "daily" },
+    { loc: "/tours", priority: "0.9", changefreq: "daily" },
     { loc: "/shop", priority: "0.9", changefreq: "daily" },
+    { loc: "/shop/magazine", priority: "0.7", changefreq: "monthly" },
+    { loc: "/shop/k-goods", priority: "0.7", changefreq: "weekly" },
+    { loc: "/shop/print", priority: "0.7", changefreq: "weekly" },
     { loc: "/blog", priority: "0.8", changefreq: "daily" },
+    { loc: "/transfers", priority: "0.7", changefreq: "weekly" },
+    { loc: "/transfers/transportation", priority: "0.7", changefreq: "weekly" },
+    { loc: "/transfers/tour-planning", priority: "0.7", changefreq: "weekly" },
     { loc: "/about", priority: "0.5", changefreq: "monthly" },
-    { loc: "/contact", priority: "0.5", changefreq: "monthly" },
+    { loc: "/ask-a-local", priority: "0.6", changefreq: "monthly" },
+    { loc: "/privacy", priority: "0.2", changefreq: "yearly" },
+    { loc: "/terms", priority: "0.2", changefreq: "yearly" },
   ];
 
   for (const page of staticPages) {

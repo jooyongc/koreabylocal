@@ -1,13 +1,16 @@
 import { supabase } from "./supabase";
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export async function uploadImage(
   file: File,
   bucket = "product-images"
 ): Promise<string> {
-  if (file.size > MAX_SIZE) {
-    throw new Error("File size must be under 5MB");
+  const isImage = file.type.startsWith("image/");
+  const limit = isImage ? MAX_IMAGE_SIZE : MAX_FILE_SIZE;
+  if (file.size > limit) {
+    throw new Error(`File size must be under ${isImage ? "5MB" : "50MB"}`);
   }
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";

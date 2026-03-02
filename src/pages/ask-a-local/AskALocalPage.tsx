@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { Send, Upload, X, Loader2, CheckCircle } from "lucide-react";
+import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
@@ -96,9 +96,12 @@ export default function AskALocalPage() {
   if (submitted) {
     return (
       <>
-        <Helmet>
-          <title>Thank You | Ask a Local | Korea By Local</title>
-        </Helmet>
+        <PageSEO
+          title="Thank You | Ask a Local | Korea By Local"
+          description="Your inquiry has been submitted. We'll get back to you soon."
+          path="/ask-a-local"
+          noindex
+        />
         <div className="mx-auto max-w-2xl px-4 py-20 text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
             <CheckCircle className="h-8 w-8 text-emerald-600" />
@@ -120,13 +123,11 @@ export default function AskALocalPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Ask a Local | Korea By Local</title>
-        <meta
-          name="description"
-          content="Have a question about Korea? Ask a local for personalized recommendations."
-        />
-      </Helmet>
+      <PageSEO
+        title="Ask a Local | Korea By Local"
+        description="Have a question about Korea? Ask our local experts for personalized travel recommendations, tips, and custom trip planning."
+        path="/ask-a-local"
+      />
 
       <div className="mx-auto max-w-2xl px-4 py-10 lg:py-16">
         {/* Header */}
