@@ -21,3 +21,24 @@ body {
   color: var(--color-text);
   background-color: var(--color-background);
 }
+
+/* Swiper hero customization */
+.hero-swiper .swiper-pagination-bullet {
+  background: white;
+  opacity: 0.5;
+  width: 10px;
+  height: 10px;
+}
+.hero-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: white;
+}
+
+/* Hide scrollbar for horizontal scroll sections */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
