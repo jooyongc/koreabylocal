@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary: #1a1a2e;
+  --color-primary-dark: #12121f;
+  --color-primary-light: #2a2a4e;
+  --color-accent: #e8751a;
+  --color-accent-dark: #c96215;
+  --color-accent-light: #f09040;
+  --color-background: #ffffff;
+  --color-background-gray: #f8f9fa;
+  --color-text: #1a1a2e;
+  --color-text-secondary: #6b7280;
+
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background-color: var(--color-background);
+}

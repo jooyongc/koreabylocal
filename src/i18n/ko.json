@@ -1,0 +1,12 @@
+{
+  "common": {
+    "home": "홈",
+    "products": "상품",
+    "blog": "블로그",
+    "cart": "장바구니",
+    "login": "로그인",
+    "signup": "회원가입",
+    "search": "검색",
+    "loading": "로딩 중..."
+  }
+}

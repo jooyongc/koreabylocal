@@ -1,0 +1,12 @@
+{
+  "common": {
+    "home": "Home",
+    "products": "Products",
+    "blog": "Blog",
+    "cart": "Cart",
+    "login": "Login",
+    "signup": "Sign Up",
+    "search": "Search",
+    "loading": "Loading..."
+  }
+}
