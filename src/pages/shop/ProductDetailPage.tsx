@@ -112,16 +112,18 @@ export default function ProductDetailPage() {
     const optionLabels = Object.values(selectedOptions)
       .map((o) => o.label)
       .filter(Boolean);
-    const name = optionLabels.length
-      ? `${product.title} (${optionLabels.join(", ")})`
-      : product.title;
 
     addItem({
       id: cartId,
-      name,
+      productId: product.id,
+      slug: product.slug,
+      title: product.title,
       price: unitPrice,
       quantity,
-      image: product.thumbnail_url ?? undefined,
+      selectedOptions: optionLabels.length
+        ? optionLabels.join(", ")
+        : undefined,
+      thumbnail: product.thumbnail_url ?? undefined,
     });
 
     toast.success("Added to cart!");
