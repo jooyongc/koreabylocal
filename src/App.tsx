@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/layout";
+import { AdminLayout } from "@/components/admin";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -106,8 +107,13 @@ function App() {
             <Route path="/account/orders/:id" element={<OrderDetailPage />} />
           </Route>
 
-          {/* ── Admin (requires admin role) ──────────────── */}
-          <Route element={<ProtectedRoute requiredRole="admin" />}>
+          {/* ── 404 ─────────────────────────────────────── */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+
+        {/* ── Admin (requires admin role + dedicated layout) ── */}
+        <Route element={<ProtectedRoute requiredRole="admin" />}>
+          <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/products/new" element={<AdminProductNew />} />
@@ -118,9 +124,6 @@ function App() {
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
-
-          {/* ── 404 ─────────────────────────────────────── */}
-          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </Suspense>
