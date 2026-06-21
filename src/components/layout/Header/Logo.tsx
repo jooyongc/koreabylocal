@@ -2,13 +2,11 @@ import { Link } from "react-router-dom";
 
 interface LogoProps {
   shrink?: boolean;
-  /** Use the all-white wordmark (for dark backgrounds). */
-  white?: boolean;
   className?: string;
 }
 
 /** Official "Korea by Local" wordmark. Source manual: brand/koreabylocal-logo-manual.ai */
-export default function Logo({ shrink = false, white = false, className = "" }: LogoProps) {
+export default function Logo({ shrink = false, className = "" }: LogoProps) {
   return (
     <Link
       to="/"
@@ -16,7 +14,7 @@ export default function Logo({ shrink = false, white = false, className = "" }: 
       className={`inline-flex items-center ${className}`}
     >
       <img
-        src={white ? "/logo-white.png" : "/logo.png"}
+        src="/logo.png"
         alt="Korea by Local"
         width={606}
         height={120}

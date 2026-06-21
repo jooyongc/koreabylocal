@@ -43,8 +43,10 @@ export default function Footer() {
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-8">
           {/* Brand */}
           <div className="min-w-[200px]">
-            <Link to="/" className="inline-flex" aria-label="Korea by Local — home">
-              <img src="/logo-white.png" alt="Korea by Local" className="h-7 w-auto" width={177} height={15} />
+            <Link to="/" className="flex items-baseline gap-[2px]" aria-label="Korea by Local — home">
+              <span className="font-display text-[22px] font-extrabold">Korea</span>
+              <span className="font-serif-accent px-[3px] text-[19px] italic">by</span>
+              <span className="font-display text-[22px] font-extrabold text-accent">Local</span>
             </Link>
             <p className="mt-3.5 max-w-[34ch] text-[13.5px] leading-relaxed text-white/60">
               Authentic Korean experiences, designed and hosted by verified locals
