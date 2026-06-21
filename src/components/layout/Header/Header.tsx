@@ -1,4 +1,5 @@
-import { useScrollDirection } from "@/hooks/useScrollDirection";
+import { Link } from "react-router-dom";
+import { Search } from "lucide-react";
 import Logo from "./Logo";
 import DesktopNav from "./DesktopNav";
 import MobileNav from "./MobileNav";
@@ -6,29 +7,27 @@ import CartButton from "./CartButton";
 import UserMenu from "./UserMenu";
 
 export default function Header() {
-  const { direction, pastThreshold } = useScrollDirection(200);
-
-  const hidden = direction === "down" && pastThreshold;
-  const shrink = pastThreshold;
-
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 transition-all duration-300 ${
-        hidden ? "-translate-y-full" : "translate-y-0"
-      } ${shrink ? "py-2 shadow-sm" : "py-4"}`}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4">
-        {/* Mobile: hamburger left */}
-        <div className="flex items-center gap-2 lg:gap-0">
+    <header className="sticky top-0 z-50 border-b border-ink/10 bg-paper/80 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6 lg:px-8">
+        {/* Left: mobile menu + logo */}
+        <div className="flex items-center gap-1">
           <MobileNav />
-          <Logo shrink={shrink} />
+          <Logo />
         </div>
 
-        {/* Desktop: center nav */}
+        {/* Center: nav */}
         <DesktopNav />
 
-        {/* Actions: right */}
-        <div className="flex items-center gap-1">
+        {/* Right: actions */}
+        <div className="flex items-center gap-1.5">
+          <Link
+            to="/blog"
+            aria-label="Search stories"
+            className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-ink/5 text-ink transition-colors hover:bg-ink/10"
+          >
+            <Search className="h-[18px] w-[18px]" />
+          </Link>
           <CartButton />
           <UserMenu />
         </div>

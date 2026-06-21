@@ -17,10 +17,10 @@ export default function UserMenu() {
     return (
       <Link
         to="/login"
-        className="p-2 text-primary hover:text-primary-light transition-colors"
+        className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-ink/5 text-ink transition-colors hover:bg-ink/10"
         aria-label="Sign in"
       >
-        <User className="h-5 w-5" />
+        <User className="h-[18px] w-[18px]" />
       </Link>
     );
   }
@@ -29,16 +29,16 @@ export default function UserMenu() {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="p-2 text-primary hover:text-primary-light transition-colors"
+        className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-ink/5 text-ink transition-colors hover:bg-ink/10"
         aria-label="Account menu"
         aria-expanded={open}
       >
-        <CircleUser className="h-5 w-5" />
+        <CircleUser className="h-[18px] w-[18px]" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-48 rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
-          <div className="border-b border-gray-100 px-4 py-2">
+        <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-2xl border border-ink/10 bg-white py-1 shadow-[0_16px_44px_rgba(16,15,44,0.16)]">
+          <div className="border-b border-ink/10 px-4 py-2.5">
             <p className="text-sm font-medium text-primary truncate">
               {user.name ?? user.email}
             </p>

@@ -12,7 +12,7 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
-  public: {
+  koreabylocal: {
     Tables: {
       blog_posts: {
         Row: {
@@ -562,12 +562,36 @@ export type Database = {
         }
         Relationships: []
       }
+      view_logs: {
+        Row: {
+          id: number
+          ip_hash: string
+          target_id: number
+          target_type: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: never
+          ip_hash: string
+          target_id: number
+          target_type: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: never
+          ip_hash?: string
+          target_id?: number
+          target_type?: string
+          viewed_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      is_admin: { Args: never; Returns: boolean }
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
@@ -580,7 +604,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "koreabylocal">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends

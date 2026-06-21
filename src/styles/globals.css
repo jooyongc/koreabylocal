@@ -1,25 +1,128 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* ===========================================================================
+   Korea by Local — design system (2026 renewal)
+   Brand: magazine-first local platform. Warm paper surface, ink navy,
+   hot-pink accent. Display: Bricolage Grotesque · Serif: Newsreader ·
+   Body/Korean: Pretendard.
+   =========================================================================== */
 @theme {
-  --color-primary: #00005a;
-  --color-primary-light: #6312ff;
-  --color-accent: #f430ff;
-  --color-accent-purple: #d930ff;
-  --color-accent-indigo: #6312ff;
-  --color-background: #ffffff;
-  --color-background-gray: #f8f9fa;
-  --color-text: #00005a;
-  --color-text-secondary: #6b7280;
+  /* ── Brand palette ──────────────────────────────────────────── */
+  --color-ink: #100f2c;        /* near-black navy — primary text/surfaces */
+  --color-paper: #f6f1e7;      /* warm cream — app surface */
+  --color-canvas: #cfcabd;     /* deeper taupe — section/edge backdrop */
+  --color-accent: #ff2d78;     /* hot pink — primary accent */
+  --color-purple: #5b2bff;
+  --color-green: #0e8c6a;
+  --color-gold: #f2b705;
+  --color-coral: #e8452a;
 
+  /* ── Warm neutral scale ─────────────────────────────────────── */
+  --color-muted: #5d5949;
+  --color-muted-2: #8a8676;
+  --color-muted-3: #a39e8c;
+  --color-cream-200: #e7e1d3;
+  --color-cream-300: #efe9dc;
+
+  /* ── Back-compat semantic tokens (existing components) ──────────
+     Remapped to the new brand so legacy pages adopt the renewal. */
+  --color-primary: #100f2c;
+  --color-primary-light: #5b2bff;
+  --color-accent-purple: #5b2bff;
+  --color-accent-indigo: #5b2bff;
+  --color-background: #f6f1e7;
+  --color-background-gray: #efe9dc;
+  --color-text: #100f2c;
+  --color-text-secondary: #6b6757;
+
+  /* ── Type ───────────────────────────────────────────────────── */
   --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
     sans-serif;
+  --font-display: "Bricolage Grotesque", "Pretendard", system-ui, sans-serif;
+  --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+
+  /* ── Radii / shadow tokens ──────────────────────────────────── */
+  --radius-card: 18px;
+  --shadow-card: 0 8px 26px rgba(16, 15, 44, 0.08);
+  --shadow-card-hover: 0 20px 44px rgba(16, 15, 44, 0.16);
+  --shadow-float: 0 16px 44px rgba(16, 15, 44, 0.13);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-sans);
-  color: var(--color-text);
-  background-color: var(--color-background);
+  color: var(--color-ink);
+  background-color: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* ── Keyframes (from the renewal design) ──────────────────────── */
+@keyframes kbl-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes kbl-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.35); }
+}
+@keyframes kbl-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes kbl-rise {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.animate-marquee { animation: kbl-marquee 32s linear infinite; }
+.animate-pulse-dot { animation: kbl-pulse 1.8s ease-in-out infinite; }
+.animate-float { animation: kbl-float 6s ease-in-out infinite; }
+
+/* Scroll-reveal: elements start hidden, .is-visible reveals them */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .animate-marquee, .animate-pulse-dot, .animate-float { animation: none; }
+}
+
+/* ── Utilities ────────────────────────────────────────────────── */
+.font-display { font-family: var(--font-display); }
+.font-serif-accent { font-family: var(--font-serif); }
+
+/* Hot-pink hand-drawn underline accent (logo / headings) */
+.accent-underline {
+  position: relative;
+  white-space: nowrap;
+}
+.accent-underline::after {
+  content: "";
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  bottom: 0.06em;
+  height: 0.14em;
+  background: var(--color-accent);
+  border-radius: 6px;
+  z-index: -1;
 }
 
 /* Swiper hero customization */

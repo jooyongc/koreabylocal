@@ -28,3 +28,11 @@ dist-ssr
 # Design files
 *.ai
 *.psd
+
+# Design handoff artifacts (local only)
+.design-handoff/
+*-handoff.zip
+Korea by Local 리뉴얼 프로젝트*.zip
+
+# bkit plugin state (local only)
+.bkit/

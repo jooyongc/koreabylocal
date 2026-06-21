@@ -36,7 +36,7 @@ Deno.serve(async (req: Request) => {
       || req.headers.get("cf-connecting-ip")
       || "unknown";
     const encoder = new TextEncoder();
-    const data = encoder.encode(clientIp + Deno.env.get("IP_HASH_SALT") || "kbl-salt");
+    const data = encoder.encode(clientIp + (Deno.env.get("IP_HASH_SALT") ?? "kbl-salt"));
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const ipHash = Array.from(new Uint8Array(hashBuffer))
       .map((b) => b.toString(16).padStart(2, "0"))
@@ -46,6 +46,7 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      { db: { schema: "koreabylocal" } },
     );
 
     // Check rate limit: same IP + target within 5 minutes
@@ -82,11 +83,8 @@ Deno.serve(async (req: Request) => {
     });
 
     if (error) {
-      // Fallback: direct update
-      await supabase
-        .from(table)
-        .update({ view_count: supabase.rpc ? undefined : 0 })
-        .eq("id", id);
+      // View counting is best-effort; log and continue (don't fail the request).
+      console.error("increment_view_count failed:", error.message);
     }
 
     // Periodic cleanup (1% chance per request)

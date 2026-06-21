@@ -1,60 +1,30 @@
-import { Link } from "react-router-dom";
-import NavDropdown from "./NavDropdown";
-import type { DropdownItem } from "./NavDropdown";
+import { NavLink } from "react-router-dom";
 
-interface NavItem {
-  label: string;
-  href: string;
-  dropdown?: DropdownItem[];
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { label: "CURATED TOURS", href: "/tours" },
-  {
-    label: "TRANSFERS",
-    href: "/transfers",
-    dropdown: [
-      { label: "All", href: "/transfers" },
-      { label: "Transportation", href: "/transfers/transportation" },
-      { label: "Tour Planning", href: "/transfers/tour-planning" },
-    ],
-  },
-  { label: "BLOG", href: "/blog" },
-  { label: "ASK A LOCAL", href: "/ask-a-local" },
-  {
-    label: "SHOP",
-    href: "/shop",
-    dropdown: [
-      { label: "All", href: "/shop" },
-      { label: "Magazine", href: "/shop/magazine" },
-      { label: "K-Goods", href: "/shop/k-goods" },
-      { label: "Print", href: "/shop/print" },
-    ],
-  },
-  { label: "ABOUT US", href: "/about" },
+// Magazine-led IA (matches the 2026 renewal design).
+export const NAV_ITEMS = [
+  { label: "Magazine", to: "/blog" },
+  { label: "Ask a Local", to: "/ask-a-local" },
+  { label: "Experiences", to: "/tours" },
+  { label: "Transfers", to: "/transfers" },
+  { label: "Shop", to: "/shop" },
 ];
 
 export default function DesktopNav() {
   return (
-    <nav className="hidden lg:flex items-center gap-6">
-      {NAV_ITEMS.map((item) =>
-        item.dropdown ? (
-          <NavDropdown
-            key={item.href}
-            label={item.label}
-            href={item.href}
-            items={item.dropdown}
-          />
-        ) : (
-          <Link
-            key={item.href}
-            to={item.href}
-            className="text-sm font-medium tracking-wide text-primary hover:text-primary-light transition-colors"
-          >
-            {item.label}
-          </Link>
-        ),
-      )}
+    <nav className="hidden items-center gap-[clamp(14px,1.8vw,26px)] lg:flex">
+      {NAV_ITEMS.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) =>
+            `text-[14.5px] font-semibold tracking-[-0.01em] transition-colors ${
+              isActive ? "text-accent" : "text-ink hover:text-accent"
+            }`
+          }
+        >
+          {item.label}
+        </NavLink>
+      ))}
     </nav>
   );
 }
