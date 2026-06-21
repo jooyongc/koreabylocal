@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Search, Star, SlidersHorizontal } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import ExperienceCard, { experienceToCard } from "@/components/experiences/ExperienceCard";
-import { SAMPLE_EXPERIENCES } from "@/data/sampleExperiences";
 import { useExperiences } from "@/hooks/useConcepts";
 import { useReveal } from "@/hooks/useReveal";
 
@@ -21,11 +20,8 @@ export default function ToursPage() {
   const [sort, setSort] = useState("pop");
   const [cat, setCat] = useState<string | null>(null);
 
-  const rows = data && data.length ? data : null;
-
   const items = useMemo(() => {
-    if (!rows) return SAMPLE_EXPERIENCES;
-    return rows
+    return (data ?? [])
       .filter((r) => (cat ? r.category === cat : true))
       .slice()
       .sort((a, b) => {
@@ -35,7 +31,7 @@ export default function ToursPage() {
         return b.reviews_count - a.reviews_count; // popular
       })
       .map(experienceToCard);
-  }, [rows, cat, sort]);
+  }, [data, cat, sort]);
 
   return (
     <>
@@ -96,7 +92,7 @@ export default function ToursPage() {
           <div className="mb-[22px] flex flex-col gap-[11px]">
             {CATEGORIES.map((c) => {
               const on = cat === c;
-              const count = rows?.filter((r) => r.category === c).length;
+              const count = (data ?? []).filter((r) => r.category === c).length;
               return (
                 <button
                   key={c}

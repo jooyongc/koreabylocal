@@ -14,33 +14,24 @@ interface Region {
   left: string;
 }
 
-const FALLBACK_REGIONS: Region[] = [
-  { key: "seoul", name: "Seoul", count: 120, hosts: 32, rating: "4.95", tag: "Capital · 서울", blurb: "Palaces at dawn, neon alleys at night. The widest range of local experiences in the country.", top: "30%", left: "46%" },
-  { key: "gangwon", name: "Gangwon", count: 29, hosts: 9, rating: "4.9", tag: "Mountains · 강원", blurb: "Alpine trails, surf towns and the quiet east coast that Koreans escape to.", top: "24%", left: "66%" },
-  { key: "gyeongju", name: "Gyeongju", count: 22, hosts: 7, rating: "4.92", tag: "Heritage · 경주", blurb: "The thousand-year Silla capital — royal tombs, temples and gold under open sky.", top: "58%", left: "63%" },
-  { key: "jeonju", name: "Jeonju", count: 18, hosts: 6, rating: "4.93", tag: "Food · 전주", blurb: "Korea’s gastronomy capital and the largest preserved hanok village.", top: "62%", left: "40%" },
-  { key: "busan", name: "Busan", count: 48, hosts: 14, rating: "4.91", tag: "Coast · 부산", blurb: "Seaside cliffs, the freshest markets and a colour-soaked hillside village.", top: "72%", left: "62%" },
-  { key: "jeju", name: "Jeju", count: 36, hosts: 11, rating: "4.96", tag: "Island · 제주", blurb: "Volcanic island of sunrise peaks, lava tubes and tangerine groves.", top: "92%", left: "40%" },
-];
-
 export default function RegionMap() {
   const navigate = useNavigate();
-  const [active, setActive] = useState("seoul");
+  const [active, setActive] = useState<string | null>(null);
   const { data } = useRegions();
-  const regions: Region[] =
-    data && data.length
-      ? data.map((r) => ({
-          key: r.key,
-          name: r.name,
-          count: r.experiences_count,
-          hosts: r.hosts_count,
-          rating: r.rating != null ? String(r.rating) : "—",
-          tag: r.tag ?? "",
-          blurb: r.blurb ?? "",
-          top: r.map_top ?? "50%",
-          left: r.map_left ?? "50%",
-        }))
-      : FALLBACK_REGIONS;
+
+  if (!data || data.length === 0) return null;
+
+  const regions: Region[] = data.map((r) => ({
+    key: r.key,
+    name: r.name,
+    count: r.experiences_count,
+    hosts: r.hosts_count,
+    rating: r.rating != null ? String(r.rating) : "—",
+    tag: r.tag ?? "",
+    blurb: r.blurb ?? "",
+    top: r.map_top ?? "50%",
+    left: r.map_left ?? "50%",
+  }));
   const cur = regions.find((r) => r.key === active) ?? regions[0];
 
   return (
@@ -99,7 +90,7 @@ export default function RegionMap() {
             />
           </svg>
           {regions.map((r) => {
-            const on = r.key === active;
+            const on = r.key === cur.key;
             return (
               <button
                 key={r.key}

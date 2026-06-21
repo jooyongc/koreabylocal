@@ -14,13 +14,6 @@ import {
 import { Skeleton } from "@/components/common/Skeleton";
 import { supabase } from "@/lib/supabase";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  NEWS: "bg-blue-100 text-blue-700",
-  LOCALS: "bg-emerald-100 text-emerald-700",
-  KOREAN: "bg-orange-100 text-orange-700",
-  "K-CULTURE": "bg-purple-100 text-purple-700",
-};
-
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading } = useBlogPost(slug);
@@ -33,7 +26,7 @@ export default function BlogDetailPage() {
   useEffect(() => {
     if (!post?.id) return;
     supabase.functions
-      .invoke("increment-view", {
+      .invoke("increment-view-count", {
         body: { type: "blog", id: post.id },
       })
       .catch(() => {});
@@ -142,13 +135,11 @@ export default function BlogDetailPage() {
         {/* Header */}
         <header className="mb-8">
           {/* Category badge */}
-          <span
-            className={`inline-block rounded px-2.5 py-1 text-xs font-bold uppercase ${CATEGORY_COLORS[post.category] ?? "bg-gray-100 text-gray-700"}`}
-          >
+          <span className="inline-block rounded-[7px] bg-accent px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-white">
             {post.category}
           </span>
 
-          <h1 className="mt-4 text-3xl font-bold leading-tight text-primary lg:text-4xl">
+          <h1 className="mt-4 font-display text-[clamp(28px,4.5vw,46px)] font-extrabold leading-[1.05] tracking-[-0.02em] text-ink">
             {post.title}
           </h1>
 

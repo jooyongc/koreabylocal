@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search } from "lucide-react";
+import { useSiteStats } from "@/hooks/useConcepts";
 
 const POPULAR = ["Seoul", "Busan", "Jeju", "Food", "Hanbok"];
 const MARQUEE = [
@@ -11,6 +12,7 @@ const MARQUEE = [
 export default function Hero() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const { data: stats } = useSiteStats();
 
   const search = (term?: string) => {
     const query = (term ?? q).trim();
@@ -81,11 +83,13 @@ export default function Hero() {
         </div>
 
         <div className="mt-[26px] flex flex-wrap gap-x-[30px] gap-y-[22px]">
-          <Stat value="1,284" label="local stories" />
-          <Stat value="412k" label="monthly readers" />
-          <div className="flex items-center gap-2 text-[13px] text-white/80">
-            ✦ Written by 60 verified locals
-          </div>
+          <Stat value={stats ? stats.posts.toLocaleString() : "—"} label="local stories" />
+          <Stat value={stats ? stats.experiences.toLocaleString() : "—"} label="experiences" />
+          {stats && stats.hosts > 0 && (
+            <div className="flex items-center gap-2 text-[13px] text-white/80">
+              ✦ Written by {stats.hosts} verified locals
+            </div>
+          )}
         </div>
       </div>
 

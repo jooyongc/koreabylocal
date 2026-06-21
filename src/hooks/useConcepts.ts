@@ -72,3 +72,37 @@ export function useRegions() {
     },
   });
 }
+
+export interface SiteStats {
+  posts: number;
+  experiences: number;
+  hosts: number;
+}
+
+/** Live counts for the hero stats (no fabricated marketing numbers). */
+export function useSiteStats() {
+  return useQuery({
+    queryKey: ["site-stats"],
+    staleTime: 10 * 60 * 1000,
+    queryFn: async (): Promise<SiteStats> => {
+      const count = async (
+        table: "blog_posts" | "experiences" | "hosts",
+        col: "status" | "is_active",
+        val: string | boolean,
+      ) => {
+        const { count, error } = await supabase
+          .from(table)
+          .select("*", { count: "exact", head: true })
+          .eq(col, val as never);
+        if (error) throw error;
+        return count ?? 0;
+      };
+      const [posts, experiences, hosts] = await Promise.all([
+        count("blog_posts", "status", "published"),
+        count("experiences", "is_active", true),
+        count("hosts", "is_active", true),
+      ]);
+      return { posts, experiences, hosts };
+    },
+  });
+}
