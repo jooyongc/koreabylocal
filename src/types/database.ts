@@ -586,6 +586,265 @@ export type Database = {
         }
         Relationships: []
       }
+      hosts: {
+        Row: {
+          id: number
+          slug: string
+          name: string
+          city: string | null
+          region: string | null
+          avatar_url: string | null
+          rating: number
+          trips_count: number
+          languages: string[]
+          bio: string | null
+          verified: boolean
+          is_active: boolean
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          slug: string
+          name: string
+          city?: string | null
+          region?: string | null
+          avatar_url?: string | null
+          rating?: number
+          trips_count?: number
+          languages?: string[]
+          bio?: string | null
+          verified?: boolean
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          slug?: string
+          name?: string
+          city?: string | null
+          region?: string | null
+          avatar_url?: string | null
+          rating?: number
+          trips_count?: number
+          languages?: string[]
+          bio?: string | null
+          verified?: boolean
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      experiences: {
+        Row: {
+          id: number
+          slug: string
+          title: string
+          location: string | null
+          region: string | null
+          duration: string | null
+          price: number
+          compare_price: number | null
+          currency: string
+          rating: number | null
+          reviews_count: number
+          badge: string | null
+          thumbnail_url: string | null
+          images: Json | null
+          category: string | null
+          host_id: number | null
+          affiliate_network: string | null
+          affiliate_url: string | null
+          instant: boolean
+          description: string | null
+          highlights: Json | null
+          itinerary: Json | null
+          included: string[] | null
+          excluded: string[] | null
+          is_active: boolean
+          sort_order: number
+          view_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: never
+          slug: string
+          title: string
+          location?: string | null
+          region?: string | null
+          duration?: string | null
+          price?: number
+          compare_price?: number | null
+          currency?: string
+          rating?: number | null
+          reviews_count?: number
+          badge?: string | null
+          thumbnail_url?: string | null
+          images?: Json | null
+          category?: string | null
+          host_id?: number | null
+          affiliate_network?: string | null
+          affiliate_url?: string | null
+          instant?: boolean
+          description?: string | null
+          highlights?: Json | null
+          itinerary?: Json | null
+          included?: string[] | null
+          excluded?: string[] | null
+          is_active?: boolean
+          sort_order?: number
+          view_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: never
+          slug?: string
+          title?: string
+          location?: string | null
+          region?: string | null
+          duration?: string | null
+          price?: number
+          compare_price?: number | null
+          currency?: string
+          rating?: number | null
+          reviews_count?: number
+          badge?: string | null
+          thumbnail_url?: string | null
+          images?: Json | null
+          category?: string | null
+          host_id?: number | null
+          affiliate_network?: string | null
+          affiliate_url?: string | null
+          instant?: boolean
+          description?: string | null
+          highlights?: Json | null
+          itinerary?: Json | null
+          included?: string[] | null
+          excluded?: string[] | null
+          is_active?: boolean
+          sort_order?: number
+          view_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "experiences_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "hosts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regions: {
+        Row: {
+          key: string
+          name: string
+          name_ko: string | null
+          tag: string | null
+          blurb: string | null
+          experiences_count: number
+          hosts_count: number
+          rating: number | null
+          map_top: string | null
+          map_left: string | null
+          sort_order: number
+          is_active: boolean
+        }
+        Insert: {
+          key: string
+          name: string
+          name_ko?: string | null
+          tag?: string | null
+          blurb?: string | null
+          experiences_count?: number
+          hosts_count?: number
+          rating?: number | null
+          map_top?: string | null
+          map_left?: string | null
+          sort_order?: number
+          is_active?: boolean
+        }
+        Update: {
+          key?: string
+          name?: string
+          name_ko?: string | null
+          tag?: string | null
+          blurb?: string | null
+          experiences_count?: number
+          hosts_count?: number
+          rating?: number | null
+          map_top?: string | null
+          map_left?: string | null
+          sort_order?: number
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      content_jobs: {
+        Row: {
+          id: number
+          topic: string
+          keywords: string[]
+          tone: string
+          status: string
+          category: string | null
+          word_count: number
+          links_count: number
+          model: string | null
+          generated_title: string | null
+          generated_body: string | null
+          blog_post_id: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: never
+          topic: string
+          keywords?: string[]
+          tone?: string
+          status?: string
+          category?: string | null
+          word_count?: number
+          links_count?: number
+          model?: string | null
+          generated_title?: string | null
+          generated_body?: string | null
+          blog_post_id?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: never
+          topic?: string
+          keywords?: string[]
+          tone?: string
+          status?: string
+          category?: string | null
+          word_count?: number
+          links_count?: number
+          model?: string | null
+          generated_title?: string | null
+          generated_body?: string | null
+          blog_post_id?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_jobs_blog_post_id_fkey"
+            columns: ["blog_post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -5,6 +5,7 @@ import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
+import RecentlyAnswered from "@/components/ask/RecentlyAnswered";
 
 const CATEGORIES = [
   "General",
@@ -93,6 +94,12 @@ export default function AskALocalPage() {
     }
   };
 
+  // ── Shared field styling (renewal) ──────────────────────────────
+  const fieldClass =
+    "w-full rounded-[12px] border border-ink/15 bg-white px-3.5 py-3 text-[15px] text-ink placeholder:text-muted-3 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20";
+  const labelClass = "mb-1.5 block text-[13px] font-semibold text-ink";
+  const errorClass = "mt-1 text-[12px] text-coral";
+
   if (submitted) {
     return (
       <>
@@ -102,19 +109,25 @@ export default function AskALocalPage() {
           path="/ask-a-local"
           noindex
         />
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-            <CheckCircle className="h-8 w-8 text-emerald-600" />
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green/10">
+            <CheckCircle className="h-8 w-8 text-green" />
           </div>
-          <h1 className="text-2xl font-bold text-primary">Thank You!</h1>
-          <p className="mt-3 text-text-secondary">
-            Your inquiry has been received. We'll get back to you within 24 hours.
+          <h1 className="font-display text-[clamp(28px,4vw,40px)] font-extrabold tracking-[-0.02em] text-ink">
+            Thank you!{" "}
+            <span className="font-serif-accent font-medium italic text-accent">
+              A local’s on it.
+            </span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-[46ch] text-[16px] text-muted">
+            Your question has been received. A verified Korean host will reply —
+            usually within a few hours.
           </p>
           <a
             href="/"
-            className="mt-8 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary/90"
+            className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,45,120,0.35)] transition-transform hover:scale-[1.03]"
           >
-            Back to Home
+            Back to home
           </a>
         </div>
       </>
@@ -129,130 +142,72 @@ export default function AskALocalPage() {
         path="/ask-a-local"
       />
 
-      <div className="mx-auto max-w-2xl px-4 py-10 lg:py-16">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-primary lg:text-4xl">Ask a Local</h1>
-          <p className="mt-3 text-text-secondary">
-            Have a question about Korea? Get personalized recommendations from our local experts.
-          </p>
-        </div>
+      {/* ── Hero + form card ───────────────────────────────────────── */}
+      <section className="mx-auto max-w-[880px] px-4 pt-[clamp(34px,5vw,72px)] text-center sm:px-6 lg:px-8">
+        <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-accent">
+          현지인에게 물어보세요
+        </p>
+        <h1 className="mt-3 font-display text-[clamp(32px,5.5vw,60px)] font-extrabold leading-[1.02] tracking-[-0.02em] text-ink">
+          Stuck planning?{" "}
+          <span className="font-serif-accent font-medium italic">
+            Ask a real local.
+          </span>
+        </h1>
+        <p className="mx-auto mt-4 max-w-[50ch] text-[clamp(15px,1.7vw,18px)] text-muted">
+          Free, no account needed. A verified Korean host replies — usually
+          within a few hours — with honest, specific advice for your trip.
+        </p>
 
-        {/* Form */}
+        {/* Question form card */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:p-8"
+          className="mt-7 rounded-[20px] bg-white p-[18px] text-left shadow-[0_16px_44px_rgba(16,15,44,0.12)]"
         >
-          <div className="space-y-5">
-            {/* Name & Email - 2 col */}
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("name", { required: "Name is required" })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  placeholder="Your name"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>
-                )}
-              </div>
+          {/* Message — the prominent "ask" textarea */}
+          <div>
+            <label htmlFor="ask-message" className="sr-only">
+              Your question
+            </label>
+            <textarea
+              id="ask-message"
+              {...register("message", { required: "Please write your question" })}
+              rows={3}
+              className="min-h-[90px] w-full resize-y rounded-[14px] border border-ink/12 bg-white p-4 text-[15px] leading-[1.5] text-ink placeholder:text-muted-3 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
+              placeholder="e.g. “4 days in Korea with kids — Seoul + one more city. What would you do?”"
+            />
+            {errors.message && (
+              <p className={errorClass} role="alert">
+                {errors.message.message}
+              </p>
+            )}
+          </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="email"
-                  {...register("email", {
-                    required: "Email is required",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Invalid email address",
-                    },
-                  })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  placeholder="your@email.com"
-                />
-                {errors.email && (
-                  <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Subject & Category - 2 col */}
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Subject</label>
-                <input
-                  {...register("subject")}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                  placeholder="Brief subject (optional)"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Category</label>
-                <select
-                  {...register("category")}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Message */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Message <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                {...register("message", { required: "Message is required" })}
-                rows={6}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-                placeholder="Tell us what you need help with..."
-              />
-              {errors.message && (
-                <p className="mt-1 text-xs text-red-500">{errors.message.message}</p>
-              )}
-            </div>
-
-            {/* File Attachment */}
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                Attachment <span className="text-xs text-gray-400">(optional, image or PDF, max 5MB)</span>
-              </label>
+          {/* Chips row + attachment + submit */}
+          <div className="mt-3.5 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex flex-wrap gap-2">
               {attachmentUrl ? (
-                <div className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
-                  <span className="flex-1 truncate text-sm text-gray-700">{attachmentName}</span>
+                <span className="inline-flex max-w-[220px] items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2">
+                  <span className="truncate">📎 {attachmentName}</span>
                   <button
                     type="button"
+                    aria-label="Remove attachment"
                     onClick={() => {
                       setAttachmentUrl("");
                       setAttachmentName("");
                     }}
-                    className="rounded p-1 text-gray-400 hover:text-red-500"
+                    className="shrink-0 rounded-full p-0.5 text-muted-2 transition-colors hover:text-coral"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
-                </div>
+                </span>
               ) : (
-                <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-3 transition-colors hover:border-primary/50">
+                <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2 transition-colors hover:bg-cream-200">
                   {uploading ? (
-                    <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Upload className="h-5 w-5 text-gray-400" />
+                    <Upload className="h-3.5 w-3.5" />
                   )}
-                  <span className="text-sm text-gray-500">
-                    {uploading ? "Uploading..." : "Click to attach a file"}
-                  </span>
+                  <span>{uploading ? "Uploading…" : "📎 Attach dates"}</span>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -262,24 +217,111 @@ export default function AskALocalPage() {
                   />
                 </label>
               )}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2">
+                👥 Group size
+              </span>
             </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting || uploading}
+              className="inline-flex items-center gap-2 rounded-[12px] bg-accent px-[26px] py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,45,120,0.35)] transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+            >
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {isSubmitting ? "Sending…" : "Ask a local →"}
+            </button>
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isSubmitting || uploading}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSubmitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-            {isSubmitting ? "Submitting..." : "Send Inquiry"}
-          </button>
+          {/* Contact + categorisation details */}
+          <div className="mt-4 grid grid-cols-1 gap-4 border-t border-ink/10 pt-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="ask-name" className={labelClass}>
+                Name <span className="text-accent">*</span>
+              </label>
+              <input
+                id="ask-name"
+                {...register("name", { required: "Name is required" })}
+                className={fieldClass}
+                placeholder="Your name"
+              />
+              {errors.name && (
+                <p className={errorClass} role="alert">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="ask-email" className={labelClass}>
+                Email <span className="text-accent">*</span>
+              </label>
+              <input
+                id="ask-email"
+                type="email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address",
+                  },
+                })}
+                className={fieldClass}
+                placeholder="your@email.com"
+              />
+              {errors.email && (
+                <p className={errorClass} role="alert">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="ask-subject" className={labelClass}>
+                Subject
+              </label>
+              <input
+                id="ask-subject"
+                {...register("subject")}
+                className={fieldClass}
+                placeholder="Brief subject (optional)"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="ask-category" className={labelClass}>
+                Category
+              </label>
+              <select
+                id="ask-category"
+                {...register("category")}
+                className={fieldClass}
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </form>
-      </div>
+
+        {/* Trust row */}
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[12.5px] text-muted-2">
+          <span>⚡ Avg reply 3h</span>
+          <span aria-hidden="true">·</span>
+          <span>★ 4.9 helpfulness</span>
+          <span aria-hidden="true">·</span>
+          <span>✦ 60 verified hosts</span>
+        </div>
+      </section>
+
+      {/* ── Recently answered ──────────────────────────────────────── */}
+      <RecentlyAnswered />
     </>
   );
 }

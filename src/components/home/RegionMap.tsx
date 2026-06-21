@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRegions } from "@/hooks/useConcepts";
 
 interface Region {
   key: string;
@@ -13,8 +14,7 @@ interface Region {
   left: string;
 }
 
-// TODO(db): region counts from live experiences once available.
-const REGIONS: Region[] = [
+const FALLBACK_REGIONS: Region[] = [
   { key: "seoul", name: "Seoul", count: 120, hosts: 32, rating: "4.95", tag: "Capital · 서울", blurb: "Palaces at dawn, neon alleys at night. The widest range of local experiences in the country.", top: "30%", left: "46%" },
   { key: "gangwon", name: "Gangwon", count: 29, hosts: 9, rating: "4.9", tag: "Mountains · 강원", blurb: "Alpine trails, surf towns and the quiet east coast that Koreans escape to.", top: "24%", left: "66%" },
   { key: "gyeongju", name: "Gyeongju", count: 22, hosts: 7, rating: "4.92", tag: "Heritage · 경주", blurb: "The thousand-year Silla capital — royal tombs, temples and gold under open sky.", top: "58%", left: "63%" },
@@ -26,7 +26,22 @@ const REGIONS: Region[] = [
 export default function RegionMap() {
   const navigate = useNavigate();
   const [active, setActive] = useState("seoul");
-  const cur = REGIONS.find((r) => r.key === active) ?? REGIONS[0];
+  const { data } = useRegions();
+  const regions: Region[] =
+    data && data.length
+      ? data.map((r) => ({
+          key: r.key,
+          name: r.name,
+          count: r.experiences_count,
+          hosts: r.hosts_count,
+          rating: r.rating != null ? String(r.rating) : "—",
+          tag: r.tag ?? "",
+          blurb: r.blurb ?? "",
+          top: r.map_top ?? "50%",
+          left: r.map_left ?? "50%",
+        }))
+      : FALLBACK_REGIONS;
+  const cur = regions.find((r) => r.key === active) ?? regions[0];
 
   return (
     <section className="mt-[clamp(52px,7vw,96px)] bg-ink text-white">
@@ -83,7 +98,7 @@ export default function RegionMap() {
               strokeWidth="1.5"
             />
           </svg>
-          {REGIONS.map((r) => {
+          {regions.map((r) => {
             const on = r.key === active;
             return (
               <button

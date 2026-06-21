@@ -1,10 +1,24 @@
 import { Link } from "react-router-dom";
 import SectionHeading from "./SectionHeading";
 import { SAMPLE_HOSTS } from "@/data/sampleHosts";
+import { useHosts } from "@/hooks/useConcepts";
 import { useReveal } from "@/hooks/useReveal";
 
 export default function LocalHosts() {
   const ref = useReveal<HTMLElement>();
+  const { data } = useHosts(4);
+
+  const hosts =
+    data && data.length
+      ? data.map((h) => ({
+          name: h.name,
+          city: h.city ?? "",
+          rating: String(h.rating),
+          img: h.avatar_url ?? "",
+          langs: h.languages ?? [],
+        }))
+      : SAMPLE_HOSTS;
+
   return (
     <section
       ref={ref}
@@ -16,7 +30,7 @@ export default function LocalHosts() {
         link={{ label: "All 60 hosts", to: "/tours" }}
       />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
-        {SAMPLE_HOSTS.map((h) => (
+        {hosts.map((h) => (
           <Link
             key={h.name}
             to="/tours"

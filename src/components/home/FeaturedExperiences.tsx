@@ -1,10 +1,14 @@
 import SectionHeading from "./SectionHeading";
-import ExperienceCard from "@/components/experiences/ExperienceCard";
+import ExperienceCard, { experienceToCard } from "@/components/experiences/ExperienceCard";
 import { SAMPLE_EXPERIENCES } from "@/data/sampleExperiences";
+import { useExperiences } from "@/hooks/useConcepts";
 import { useReveal } from "@/hooks/useReveal";
 
 export default function FeaturedExperiences() {
   const ref = useReveal<HTMLElement>();
+  const { data } = useExperiences({ limit: 6 });
+  const items = data && data.length ? data.map(experienceToCard) : SAMPLE_EXPERIENCES;
+
   return (
     <section
       ref={ref}
@@ -16,7 +20,7 @@ export default function FeaturedExperiences() {
         link={{ label: "Browse all", to: "/tours" }}
       />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(270px,1fr))] gap-[18px]">
-        {SAMPLE_EXPERIENCES.map((x) => (
+        {items.map((x) => (
           <ExperienceCard key={x.title} x={x} />
         ))}
       </div>

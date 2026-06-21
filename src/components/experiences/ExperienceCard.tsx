@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Star, Heart } from "lucide-react";
+import type { Tables } from "@/types/database";
 
 export interface Experience {
   title: string;
@@ -20,6 +21,25 @@ const BADGE_BG: Record<NonNullable<Experience["badge"]>, string> = {
   NEW: "#0e8c6a",
   SALE: "#ff2d78",
 };
+
+const money = (n: number | null) =>
+  n == null ? undefined : `$${Number(n) % 1 === 0 ? n : Number(n).toFixed(2)}`;
+
+/** Map a koreabylocal.experiences row to the presentational card shape. */
+export function experienceToCard(r: Tables<"experiences">): Experience {
+  return {
+    title: r.title,
+    loc: r.location ?? "",
+    dur: r.duration ?? "",
+    price: money(r.price) ?? "$0",
+    old: money(r.compare_price),
+    rating: r.rating != null ? String(r.rating) : "—",
+    reviews: r.reviews_count.toLocaleString(),
+    badge: (r.badge as Experience["badge"]) ?? undefined,
+    img: r.thumbnail_url ?? "",
+    to: `/tours`,
+  };
+}
 
 /** Affiliate-partner experience card — shared by Home + Experiences list. */
 export default function ExperienceCard({ x }: { x: Experience }) {

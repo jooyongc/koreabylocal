@@ -7,11 +7,13 @@ import {
   BookOpen,
   MessageSquare,
   Settings,
+  Sparkles,
   X,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
+  { to: "/admin/content-studio", icon: Sparkles, label: "Content Studio" },
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/blog", icon: FileText, label: "Blog" },
   { to: "/admin/orders", icon: ShoppingCart, label: "Orders" },

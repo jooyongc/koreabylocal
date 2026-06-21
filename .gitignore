@@ -36,3 +36,6 @@ Korea by Local 리뉴얼 프로젝트*.zip
 
 # bkit plugin state (local only)
 .bkit/
+
+# supabase CLI local state
+supabase/.temp/

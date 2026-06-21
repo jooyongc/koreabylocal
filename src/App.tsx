@@ -53,6 +53,7 @@ const AdminInquiries = lazy(() => import("@/pages/admin/AdminInquiriesPage"));
 const AdminInquiryDetail = lazy(() => import("@/pages/admin/AdminInquiryDetailPage"));
 const AdminMagazines = lazy(() => import("@/pages/admin/AdminMagazinesPage"));
 const AdminSettings = lazy(() => import("@/pages/admin/SettingsPage"));
+const AdminContentStudio = lazy(() => import("@/pages/admin/ContentStudioPage"));
 
 // ── 404 ───────────────────────────────────────────────────────
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
@@ -130,6 +131,7 @@ function App() {
             <Route path="/admin/inquiries" element={<AdminInquiries />} />
             <Route path="/admin/inquiries/:id" element={<AdminInquiryDetail />} />
             <Route path="/admin/magazines" element={<AdminMagazines />} />
+            <Route path="/admin/content-studio" element={<AdminContentStudio />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>
