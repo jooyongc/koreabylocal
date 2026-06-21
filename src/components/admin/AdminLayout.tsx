@@ -9,7 +9,7 @@ export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-paper">
       <AdminSidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -17,10 +17,10 @@ export default function AdminLayout() {
 
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar */}
-        <header className="flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 lg:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-ink/10 bg-white px-4 lg:px-6">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-2 text-text-secondary hover:bg-gray-100 lg:hidden"
+            className="rounded-lg p-2 text-text-secondary hover:bg-ink/5 lg:hidden"
             aria-label="Open sidebar"
           >
             <Menu className="h-5 w-5" />
@@ -33,7 +33,7 @@ export default function AdminLayout() {
               to="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-text-secondary transition-colors hover:bg-gray-100 hover:text-primary"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-text-secondary transition-colors hover:bg-ink/5 hover:text-primary"
             >
               <ExternalLink className="h-4 w-4" />
               <span className="hidden sm:inline">View Site</span>
