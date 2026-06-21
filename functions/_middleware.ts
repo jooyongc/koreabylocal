@@ -1,6 +1,6 @@
-// AUTO-GENERATED (.design-handoff/db/gen-redirects.mjs). 301 redirects for
-// legacy Imweb blog URLs (/blog/?bmode=view&idx=NNN) -> new /blog/<slug>.
-// Preserves SEO from the old site after the domain cutover.
+// AUTO-GENERATED (.design-handoff/db/gen-redirects.mjs). Do not edit by hand.
+// (1) 301 legacy Imweb blog URLs -> new slugs (SEO continuity after cutover)
+// (2) /sitemap.xml proxied from the sitemap-generator edge function
 const MAP: Record<string, string> = {
   "12587233": "korean-kimchi-and-where-to-buy",
   "13258456": "what-to-eat-poupular-snacksbunsik-in-korea",
@@ -46,8 +46,13 @@ const MAP: Record<string, string> = {
   "171046164": "guide-to-the-ultimate-hangang-night-fireworks-cruise"
 };
 
+const SUPABASE_URL = "https://agkkvtfwqmzgbrqhvohs.supabase.co";
+const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna2t2dGZ3cW16Z2JycWh2b2hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MTU5MDIsImV4cCI6MjA4NjE5MTkwMn0.nZZ8Qrt0dU_v4CSeiVy4DM1IQLAEGBmKldtiotb6Oh8";
+
 export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) => {
   const url = new URL(context.request.url);
+
+  // 301: legacy /blog/?bmode=view&idx=NNN -> /blog/<slug>
   if (url.searchParams.get("bmode") === "view") {
     const idx = url.searchParams.get("idx");
     const slug = idx ? MAP[idx] : undefined;
@@ -55,5 +60,17 @@ export const onRequest = async (context: { request: Request; next: () => Promise
       return new Response(null, { status: 301, headers: { Location: `${url.origin}/blog/${slug}` } });
     }
   }
+
+  // sitemap.xml -> proxy the edge function (kept same-origin for SEO)
+  if (url.pathname === "/sitemap.xml") {
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/sitemap-generator`, {
+      headers: { Authorization: `Bearer ${ANON}`, apikey: ANON },
+    });
+    return new Response(await res.text(), {
+      status: res.status,
+      headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" },
+    });
+  }
+
   return context.next();
 };
