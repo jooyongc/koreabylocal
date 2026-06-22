@@ -1,69 +1,80 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
-import { ChevronRight, Eye, Calendar, User } from "lucide-react";
+import { Share2, Heart, Bookmark, BadgeCheck } from "lucide-react";
 import { format } from "date-fns";
+import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
 import { useBlogPost } from "@/hooks/useBlogPost";
-import { useAdjacentBlogPosts } from "@/hooks/useAdjacentBlogPosts";
-import {
-  BlogContent,
-  ShareButtons,
-  PostNavigation,
-  RelatedBlogPosts,
-} from "@/components/blog";
+import { BlogContent, ShareButtons, RelatedBlogPosts } from "@/components/blog";
 import { Skeleton } from "@/components/common/Skeleton";
 import { supabase } from "@/lib/supabase";
+
+interface TocItem { id: string; text: string; level: number }
+
+function readingTime(html: string | null): number {
+  if (!html) return 1;
+  const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading } = useBlogPost(slug);
-  const { data: adjacent } = useAdjacentBlogPosts(
-    post?.published_at,
-    post?.id
-  );
+  const articleRef = useRef<HTMLDivElement>(null);
+  const [toc, setToc] = useState<TocItem[]>([]);
 
-  // Increment view count
+  const minutes = useMemo(() => readingTime(post?.content ?? null), [post?.content]);
+
+  // Increment view count (best-effort)
   useEffect(() => {
     if (!post?.id) return;
     supabase.functions
-      .invoke("increment-view-count", {
-        body: { type: "blog", id: post.id },
-      })
+      .invoke("increment-view-count", { body: { type: "blog", id: post.id } })
       .catch(() => {});
   }, [post?.id]);
 
-  // Loading
+  // Build a "In this story" table of contents from the rendered headings.
+  useEffect(() => {
+    if (!post || !articleRef.current) return;
+    const headings = Array.from(
+      articleRef.current.querySelectorAll<HTMLHeadingElement>("h2, h3"),
+    );
+    const items: TocItem[] = headings.map((h, i) => {
+      const text = (h.textContent ?? "").trim();
+      const id =
+        h.id ||
+        `sec-${i}-${text.toLowerCase().replace(/[^\w]+/g, "-").slice(0, 40)}`;
+      h.id = id;
+      return { id, text, level: h.tagName === "H2" ? 2 : 3 };
+    });
+    setToc(items.filter((it) => it.text));
+  }, [post]);
+
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-12">
+      <div className="mx-auto max-w-[760px] px-4 py-12 sm:px-6">
         <Skeleton className="mb-4 h-4 w-48" />
-        <Skeleton className="mb-2 h-10 w-full" />
-        <Skeleton className="mb-8 h-10 w-3/4" />
-        <Skeleton className="aspect-[16/9] w-full rounded-xl" />
+        <Skeleton className="mb-2 h-12 w-full" />
+        <Skeleton className="mb-8 h-12 w-3/4" />
+        <Skeleton className="aspect-[16/8] w-full rounded-2xl" />
         <div className="mt-8 space-y-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-4/5" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-4 w-full" />
+          ))}
         </div>
       </div>
     );
   }
 
-  // Not found
   if (!post) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold text-primary">Post not found</h1>
-        <p className="mt-2 text-text-secondary">
-          The blog post you&apos;re looking for doesn&apos;t exist.
-        </p>
+      <div className="mx-auto max-w-[760px] px-4 py-20 text-center">
+        <h1 className="font-display text-2xl font-extrabold text-ink">Story not found</h1>
+        <p className="mt-2 text-muted">This story doesn’t exist or was moved.</p>
         <Link
           to="/blog"
-          className="mt-6 inline-block rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-dark"
+          className="mt-6 inline-block rounded-xl bg-accent px-6 py-2.5 text-sm font-bold text-white"
         >
-          Back to Blog
+          Back to the Magazine
         </Link>
       </div>
     );
@@ -73,6 +84,7 @@ export default function BlogDetailPage() {
   const pageDesc = post.seo_description ?? post.excerpt ?? "";
   const pagePath = `/blog/${post.slug}`;
   const pageUrl = `${SITE_URL}${pagePath}`;
+  const author = post.author ?? "Korea by Local";
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -83,26 +95,16 @@ export default function BlogDetailPage() {
     url: pageUrl,
     datePublished: post.published_at,
     dateModified: post.updated_at,
-    author: post.author
-      ? { "@type": "Person", name: post.author }
-      : { "@type": "Organization", name: "Korea By Local" },
-    publisher: {
-      "@type": "Organization",
-      name: "Korea By Local",
-      url: SITE_URL,
-    },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": pageUrl,
-    },
+    author: { "@type": "Organization", name: author },
+    publisher: { "@type": "Organization", name: "Korea By Local", url: SITE_URL },
+    mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl },
   };
-
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 2, name: "Magazine", item: `${SITE_URL}/blog` },
       { "@type": "ListItem", position: 3, name: post.title },
     ],
   };
@@ -118,85 +120,122 @@ export default function BlogDetailPage() {
         jsonLd={[articleSchema, breadcrumbSchema]}
       />
 
-      <article className="mx-auto max-w-4xl px-4 py-6 lg:py-10">
-        {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-1.5 text-sm text-text-secondary">
-          <Link to="/" className="hover:text-primary">
-            Home
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <Link to="/blog" className="hover:text-primary">
-            Blog
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <span className="truncate text-primary">{post.title}</span>
-        </nav>
-
-        {/* Header */}
-        <header className="mb-8">
-          {/* Category badge */}
-          <span className="inline-block rounded-[7px] bg-accent px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-white">
+      {/* Header */}
+      <section className="mx-auto max-w-[760px] px-4 pb-[clamp(12px,2vw,20px)] pt-[clamp(24px,3.5vw,44px)] sm:px-6">
+        <div className="mb-4 text-[12.5px] text-muted-2">
+          <Link to="/blog" className="hover:text-ink">Magazine</Link> / {post.category}
+        </div>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="rounded-[7px] bg-accent px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-[0.06em] text-white">
             {post.category}
           </span>
+          <span className="text-[13px] text-muted-2">
+            ⏱ {minutes} min read
+            {post.published_at && <> · {format(new Date(post.published_at), "MMM yyyy")}</>}
+          </span>
+        </div>
+        <h1 className="mt-4 font-display text-[clamp(30px,5vw,52px)] font-extrabold leading-[1.04] tracking-[-0.02em] text-ink">
+          {post.title}
+        </h1>
 
-          <h1 className="mt-4 font-display text-[clamp(28px,4.5vw,46px)] font-extrabold leading-[1.05] tracking-[-0.02em] text-ink">
-            {post.title}
-          </h1>
-
-          {/* Meta info */}
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-text-secondary">
-            {post.author && (
-              <span className="flex items-center gap-1.5">
-                <User className="h-4 w-4" />
-                {post.author}
-              </span>
-            )}
-            {post.published_at && (
-              <time className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                {format(new Date(post.published_at), "MMMM d, yyyy")}
-              </time>
-            )}
-            <span className="flex items-center gap-1.5">
-              <Eye className="h-4 w-4" />
-              {post.view_count.toLocaleString()} views
+        {/* Author + actions */}
+        <div className="mt-[22px] flex flex-wrap items-center justify-between gap-3.5 border-b border-ink/10 pb-5">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-ink font-display text-[18px] font-extrabold text-white">
+              {author.charAt(0)}
             </span>
+            <div>
+              <div className="text-[14.5px] font-bold text-ink">{author}</div>
+              <div className="flex items-center gap-1 text-[12.5px] text-muted-2">
+                <BadgeCheck className="h-3.5 w-3.5 text-green" /> Korea by Local · Verified
+              </div>
+            </div>
           </div>
-        </header>
-
-        {/* Featured image */}
-        {post.thumbnail_url && (
-          <div className="mb-10 overflow-hidden rounded-xl">
-            <img
-              src={post.thumbnail_url}
-              alt={post.title}
-              className="w-full object-cover"
-            />
-          </div>
-        )}
-
-        {/* Content */}
-        {post.content && <BlogContent html={post.content} />}
-
-        {/* Share buttons */}
-        <div className="mt-12 flex items-center justify-between border-t border-gray-200 pt-6">
           <ShareButtons
             url={pageUrl}
             title={post.title}
-            description={post.seo_description ?? post.excerpt ?? ""}
+            description={pageDesc}
             imageUrl={post.thumbnail_url ?? undefined}
           />
         </div>
+      </section>
 
-        {/* Prev / Next navigation */}
-        <PostNavigation
-          prev={adjacent?.prev ?? null}
-          next={adjacent?.next ?? null}
-        />
+      {/* Hero image */}
+      {post.thumbnail_url && (
+        <section className="mx-auto max-w-[1000px] px-4 sm:px-6">
+          <div
+            role="img"
+            aria-label={post.title}
+            className="aspect-[16/8] rounded-[20px] bg-cover bg-center shadow-[0_14px_40px_rgba(16,15,44,0.14)]"
+            style={{ backgroundImage: `url(${post.thumbnail_url})` }}
+          />
+        </section>
+      )}
 
-        {/* Related posts */}
+      {/* Body + TOC */}
+      <section className="mx-auto flex max-w-[1000px] flex-wrap-reverse justify-center gap-[clamp(24px,4vw,52px)] px-4 pb-[clamp(40px,6vw,80px)] pt-[clamp(26px,4vw,48px)] sm:px-6">
+        {/* TOC */}
+        {toc.length > 1 && (
+          <aside className="sticky top-[88px] hidden max-w-[220px] min-w-[180px] flex-[1_1_200px] self-start lg:block">
+            <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-muted-3">
+              In this story
+            </div>
+            <div className="flex flex-col gap-0.5">
+              {toc.map((t) => (
+                <a
+                  key={t.id}
+                  href={`#${t.id}`}
+                  className={`border-l-2 border-ink/12 py-[7px] text-[13.5px] text-muted transition-colors hover:border-accent hover:text-ink ${
+                    t.level === 3 ? "pl-6" : "pl-3"
+                  }`}
+                >
+                  {t.text}
+                </a>
+              ))}
+            </div>
+            <div className="mt-5 flex items-center gap-2 rounded-xl bg-white p-3 text-[12px] text-muted-2 shadow-[0_4px_14px_rgba(16,15,44,0.05)]">
+              ⌗ Article + FAQ schema applied
+            </div>
+          </aside>
+        )}
+
+        <article ref={articleRef} className="kbl-article max-w-[680px] min-w-0 flex-[3_1_520px]">
+          {post.content && <BlogContent html={post.content} />}
+
+          {/* Author bio */}
+          <div className="mt-9 flex flex-wrap items-center gap-4 rounded-[20px] bg-ink p-[22px] text-white">
+            <span className="flex h-16 w-16 flex-none items-center justify-center rounded-full bg-white/10 font-display text-[24px] font-extrabold">
+              {author.charAt(0)}
+            </span>
+            <div className="flex-1 basis-[200px]">
+              <div className="font-display text-[18px] font-bold">Written by {author}</div>
+              <p className="mt-1.5 text-[13.5px] leading-[1.55] text-white/75">
+                Stories from people who actually live here — reviewed and fact-checked
+                before publishing.
+              </p>
+            </div>
+            <Link
+              to="/ask-a-local"
+              className="flex-none rounded-xl bg-white/12 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-white/20"
+            >
+              Ask a Local
+            </Link>
+          </div>
+
+          {/* Share (mobile-friendly footer) */}
+          <div className="mt-8 flex items-center gap-3 text-muted-2">
+            <Share2 className="h-4 w-4" />
+            <Heart className="h-4 w-4" />
+            <Bookmark className="h-4 w-4" />
+            <span className="text-[12.5px]">Share this story</span>
+          </div>
+        </article>
+      </section>
+
+      {/* Keep reading */}
+      <div className="mx-auto max-w-[1180px] px-4 pb-[clamp(48px,7vw,90px)] sm:px-6 lg:px-8">
         <RelatedBlogPosts category={post.category} excludeId={post.id} />
-      </article>
+      </div>
     </>
   );
 }

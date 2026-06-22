@@ -1,7 +1,6 @@
 import PageSEO from "@/components/common/PageSEO";
 import Hero from "@/components/home/Hero";
 import CategoryGrid from "@/components/home/CategoryGrid";
-import LocalHosts from "@/components/home/LocalHosts";
 import FeaturedExperiences from "@/components/home/FeaturedExperiences";
 import RegionMap from "@/components/home/RegionMap";
 import MagazineStrip from "@/components/home/MagazineStrip";
@@ -61,7 +60,6 @@ export default function HomePage() {
       />
       <Hero />
       <CategoryGrid />
-      <LocalHosts />
       <FeaturedExperiences />
       <RegionMap />
       <MagazineStrip />

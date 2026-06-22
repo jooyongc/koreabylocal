@@ -145,3 +145,56 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Article (blog detail) reading typography — matches the renewal design ── */
+.kbl-article :where(p) {
+  font-family: var(--font-sans);
+  font-size: clamp(16px, 1.7vw, 18.5px);
+  line-height: 1.78;
+  color: #26241c;
+  margin: 0 0 22px;
+}
+.kbl-article :where(h2) {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(22px, 2.6vw, 30px);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  margin: 36px 0 14px;
+  scroll-margin-top: 90px;
+}
+.kbl-article :where(h3) {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(18px, 2.2vw, 23px);
+  color: var(--color-ink);
+  margin: 28px 0 12px;
+  scroll-margin-top: 90px;
+}
+.kbl-article :where(blockquote) {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(20px, 2.6vw, 28px);
+  line-height: 1.4;
+  color: var(--color-ink);
+  margin: 30px 0;
+  padding-left: 22px;
+  border-left: 4px solid var(--color-accent);
+}
+.kbl-article :where(a) {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.kbl-article :where(img) {
+  border-radius: 16px;
+  margin: 24px 0;
+}
+.kbl-article :where(ul, ol) {
+  margin: 0 0 22px;
+  padding-left: 1.3em;
+  color: #26241c;
+  font-size: clamp(16px, 1.7vw, 18px);
+  line-height: 1.7;
+}
+.kbl-article :where(li) { margin: 6px 0; }
