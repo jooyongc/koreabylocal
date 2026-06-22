@@ -1,3 +1,9 @@
+# Service workers — never cache (self-destroying kill-switch must always update)
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
 # Static assets — long cache with immutable (Vite hashes filenames)
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
