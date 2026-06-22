@@ -198,3 +198,23 @@ body {
   line-height: 1.7;
 }
 .kbl-article :where(li) { margin: 6px 0; }
+.kbl-article :where(strong) { color: var(--color-ink); font-weight: 700; }
+.kbl-article :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 14.5px;
+}
+.kbl-article :where(th, td) {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(16, 15, 44, 0.1);
+  vertical-align: top;
+}
+.kbl-article :where(thead th) {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-ink);
+  border-bottom: 2px solid rgba(16, 15, 44, 0.16);
+}
+.kbl-article :where(tbody tr:hover) { background: rgba(16, 15, 44, 0.02); }
