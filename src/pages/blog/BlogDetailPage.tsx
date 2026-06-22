@@ -109,15 +109,29 @@ export default function BlogDetailPage() {
     ],
   };
 
+  const heroImage = post.hero_image_url ?? post.thumbnail_url;
+  const faqs = Array.isArray(post.faqs) ? (post.faqs as { q: string; a: string }[]) : [];
+  const faqSchema = faqs.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }
+    : null;
+
   return (
     <>
       <PageSEO
         title={pageTitle}
         description={pageDesc}
         path={pagePath}
-        ogImage={post.thumbnail_url ?? undefined}
+        ogImage={heroImage ?? undefined}
         ogType="article"
-        jsonLd={[articleSchema, breadcrumbSchema]}
+        jsonLd={[articleSchema, breadcrumbSchema, ...(faqSchema ? [faqSchema] : [])]}
       />
 
       {/* Header */}
@@ -160,14 +174,14 @@ export default function BlogDetailPage() {
         </div>
       </section>
 
-      {/* Hero image */}
-      {post.thumbnail_url && (
+      {/* Hero image — a topic-relevant image (not the list thumbnail) */}
+      {heroImage && (
         <section className="mx-auto max-w-[1000px] px-4 sm:px-6">
           <div
             role="img"
             aria-label={post.title}
             className="aspect-[16/8] rounded-[20px] bg-cover bg-center shadow-[0_14px_40px_rgba(16,15,44,0.14)]"
-            style={{ backgroundImage: `url(${post.thumbnail_url})` }}
+            style={{ backgroundImage: `url(${heroImage})` }}
           />
         </section>
       )}
