@@ -1,7 +1,15 @@
-# Service workers — never cache (self-destroying kill-switch must always update)
+# Service workers — never cache (self-destroying kill-switches must always update)
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
 /service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/serviceworker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/OneSignalSDKWorker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/OneSignalSDKUpdaterWorker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+/firebase-messaging-sw.js
   Cache-Control: no-cache, no-store, must-revalidate
 
 # Static assets — long cache with immutable (Vite hashes filenames)
