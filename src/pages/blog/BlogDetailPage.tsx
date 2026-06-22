@@ -36,7 +36,7 @@ export default function BlogDetailPage() {
   useEffect(() => {
     if (!post || !articleRef.current) return;
     const headings = Array.from(
-      articleRef.current.querySelectorAll<HTMLHeadingElement>("h2, h3"),
+      articleRef.current.querySelectorAll<HTMLHeadingElement>("h2"),
     );
     const items: TocItem[] = headings.map((h, i) => {
       const text = (h.textContent ?? "").trim();
@@ -44,10 +44,19 @@ export default function BlogDetailPage() {
         h.id ||
         `sec-${i}-${text.toLowerCase().replace(/[^\w]+/g, "-").slice(0, 40)}`;
       h.id = id;
-      return { id, text, level: h.tagName === "H2" ? 2 : 3 };
+      return { id, text, level: 2 };
     });
     setToc(items.filter((it) => it.text));
   }, [post]);
+
+  const scrollToSection = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.replaceState(null, "", `#${id}`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -199,9 +208,8 @@ export default function BlogDetailPage() {
                 <a
                   key={t.id}
                   href={`#${t.id}`}
-                  className={`border-l-2 border-ink/12 py-[7px] text-[13.5px] text-muted transition-colors hover:border-accent hover:text-ink ${
-                    t.level === 3 ? "pl-6" : "pl-3"
-                  }`}
+                  onClick={(e) => scrollToSection(e, t.id)}
+                  className="block border-l-2 border-ink/12 py-[7px] pl-3 text-left text-[13.5px] text-muted transition-colors hover:border-accent hover:text-ink"
                 >
                   {t.text}
                 </a>
