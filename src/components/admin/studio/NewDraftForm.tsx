@@ -1,10 +1,14 @@
 import { useState, type FormEvent, type KeyboardEvent } from "react";
-import { Sparkles, Check, X, Plus } from "lucide-react";
+import { Sparkles, Check, X, Plus, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 
 type Tone = "informative" | "editorial";
 
 export default function NewDraftForm() {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
   const [topic, setTopic] = useState("Best day trips from Seoul by train");
   const [keywords, setKeywords] = useState<string[]>([
     "seoul day trips",
@@ -36,14 +40,38 @@ export default function NewDraftForm() {
     }
   }
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    // Stub: real Claude generation is wired up later.
-    toast("Claude generation is coming soon", { icon: "✶" });
+    if (busy || !topic.trim()) return;
+    setBusy(true);
+    const t = toast.loading("Claude is writing your draft…");
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-article", {
+        body: { topic: topic.trim(), keywords, tone, publish: false },
+      });
+      if (error) {
+        let msg = error.message;
+        try {
+          const ctx = (error as { context?: Response }).context;
+          if (ctx) msg = (await ctx.json())?.error ?? msg;
+        } catch { /* keep msg */ }
+        toast.error(msg, { id: t });
+      } else if (data?.success) {
+        toast.success("Draft created — review & publish it in Blog admin.", { id: t });
+        qc.invalidateQueries({ queryKey: ["admin", "content-jobs"] });
+      } else {
+        toast.error("Generation failed.", { id: t });
+      }
+    } catch (err) {
+      toast.error(String((err as Error).message), { id: t });
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <form
+      id="new-draft"
       onSubmit={onSubmit}
       className="min-w-[260px] flex-[1_1_280px] rounded-[18px] border border-white/10 bg-white/[0.04] p-[22px]"
     >
@@ -154,10 +182,20 @@ export default function NewDraftForm() {
       {/* Generate button */}
       <button
         type="submit"
-        className="mt-[18px] flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple to-accent py-3.5 text-[14.5px] font-bold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+        disabled={busy}
+        className="mt-[18px] flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple to-accent py-3.5 text-[14.5px] font-bold text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <Sparkles className="h-[18px] w-[18px]" />
-        Generate draft with Claude
+        {busy ? (
+          <>
+            <Loader2 className="h-[18px] w-[18px] animate-spin" />
+            Generating with Claude Haiku…
+          </>
+        ) : (
+          <>
+            <Sparkles className="h-[18px] w-[18px]" />
+            Generate draft with Claude
+          </>
+        )}
       </button>
     </form>
   );

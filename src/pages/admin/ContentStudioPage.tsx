@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, Target, PenLine, Link2, Share2 } from "lucide-react";
-import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import PageSEO from "@/components/common/PageSEO";
 import StudioStatCard from "@/components/admin/studio/StudioStatCard";
@@ -197,9 +196,10 @@ export default function ContentStudioPage() {
     queue.length === 1 ? "" : "s"
   } · ${readyCount} ready`;
 
-  function comingSoon() {
-    toast("Claude generation is coming soon", { icon: "✶" });
-  }
+  const focusDraftForm = () => {
+    document.getElementById("new-draft")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    (document.getElementById("studio-topic") as HTMLInputElement | null)?.focus();
+  };
 
   return (
     <>
@@ -229,7 +229,7 @@ export default function ContentStudioPage() {
             </div>
             <button
               type="button"
-              onClick={comingSoon}
+              onClick={focusDraftForm}
               className="flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,45,120,0.3)] transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
             >
               <Sparkles className="h-4 w-4" />
