@@ -8,5 +8,16 @@ const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY ?? "").replace(/
 export const supabase = createClient<Database, "koreabylocal">(
   supabaseUrl,
   supabaseAnonKey,
-  { db: { schema: "koreabylocal" } },
+  {
+    db: { schema: "koreabylocal" },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      // Bypass the Web Locks API. Its contention ("lock not released within
+      // 5000ms" / "lock broken by 'steal'") was aborting in-flight queries in
+      // the browser, leaving pages empty. Run the callback without locking.
+      lock: async <R,>(_name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => fn(),
+    },
+  },
 );
