@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { Check } from "lucide-react";
+import { Check, BarChart3 } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import { supabase } from "@/lib/supabase";
 import { FONT_PAIRS, applyFontPair, preloadAllFontPairs } from "@/lib/fontPairs";
 import { useFontPairSetting } from "@/hooks/useSiteFont";
+import { useGa4Setting } from "@/hooks/useSiteAnalytics";
 
 export default function SettingsPage() {
   const qc = useQueryClient();
   const { data: current } = useFontPairSetting();
+  const { data: ga4Current } = useGa4Setting();
   const [selected, setSelected] = useState<string>("modern");
   const [saving, setSaving] = useState<string | null>(null);
+  const [ga4, setGa4] = useState("");
+  const [ga4Saving, setGa4Saving] = useState(false);
 
   useEffect(() => {
     preloadAllFontPairs();
@@ -19,6 +23,29 @@ export default function SettingsPage() {
   useEffect(() => {
     if (current) setSelected(current);
   }, [current]);
+  useEffect(() => {
+    if (ga4Current !== undefined) setGa4(ga4Current ?? "");
+  }, [ga4Current]);
+
+  const saveGa4 = async (e: FormEvent) => {
+    e.preventDefault();
+    const id = ga4.trim();
+    if (id && !/^G-[A-Z0-9]+$/i.test(id)) {
+      toast.error("GA4 ID must look like G-XXXXXXXXXX");
+      return;
+    }
+    setGa4Saving(true);
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: "ga4_id", value: id }, { onConflict: "key" });
+    setGa4Saving(false);
+    if (error) {
+      toast.error("Could not save GA4 ID");
+      return;
+    }
+    qc.invalidateQueries({ queryKey: ["site-settings", "ga4_id"] });
+    toast.success("GA4 ID saved — reload the site to start tracking.");
+  };
 
   const choose = async (key: string) => {
     setSelected(key);
@@ -44,6 +71,37 @@ export default function SettingsPage() {
           Site Settings
         </h1>
         <p className="mt-1.5 text-[14px] text-muted">Configure global site options.</p>
+
+        {/* Analytics */}
+        <section className="mt-8">
+          <div className="text-xs font-bold uppercase tracking-[0.12em] text-accent">Analytics</div>
+          <h2 className="mt-1.5 flex items-center gap-2 font-display text-[22px] font-bold text-ink">
+            <BarChart3 className="h-5 w-5" /> Google Analytics (GA4)
+          </h2>
+          <p className="mt-1 max-w-[60ch] text-[13.5px] text-muted">
+            Measurement ID for site-wide tracking. Applied at runtime — no redeploy needed.
+          </p>
+          <form onSubmit={saveGa4} className="mt-4 flex flex-wrap items-center gap-2.5">
+            <input
+              value={ga4}
+              onChange={(e) => setGa4(e.target.value)}
+              placeholder="G-XXXXXXXXXX"
+              className="w-[240px] rounded-xl border border-ink/15 bg-white px-4 py-2.5 font-mono text-[14px] text-ink outline-none focus:border-accent"
+            />
+            <button
+              type="submit"
+              disabled={ga4Saving}
+              className="rounded-xl bg-ink px-5 py-2.5 text-[13.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            >
+              {ga4Saving ? "Saving…" : "Save"}
+            </button>
+            {ga4Current ? (
+              <span className="text-[12.5px] font-semibold text-green">● Active: {ga4Current}</span>
+            ) : (
+              <span className="text-[12.5px] text-muted-3">Not set</span>
+            )}
+          </form>
+        </section>
 
         {/* Typography */}
         <section className="mt-8">

@@ -34,6 +34,25 @@ const IMAGE_POOL = [
 const slugify = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 64);
 
+// Structured-output schema (forces valid JSON via Anthropic tool use / Gemini responseSchema).
+const ARTICLE_SCHEMA = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    category: { type: "string" },
+    seo_title: { type: "string" },
+    seo_description: { type: "string" },
+    excerpt: { type: "string" },
+    hero_image_url: { type: "string" },
+    content: { type: "string", description: "Full article body as HTML" },
+    faqs: {
+      type: "array",
+      items: { type: "object", properties: { q: { type: "string" }, a: { type: "string" } }, required: ["q", "a"] },
+    },
+  },
+  required: ["title", "category", "seo_title", "seo_description", "excerpt", "hero_image_url", "content", "faqs"],
+};
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -41,7 +60,10 @@ Deno.serve(async (req: Request) => {
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
   const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY");
+  const GEMINI = Deno.env.get("GEMINI_API_KEY");
   const MODEL = Deno.env.get("CONTENT_MODEL") || "claude-haiku-4-5-20251001";
+  const GEMINI_MODEL = Deno.env.get("GEMINI_MODEL") || "gemini-2.0-flash";
+  const modelUsed = ANTHROPIC ? MODEL : GEMINI_MODEL;
 
   const svc = createClient(SUPABASE_URL, SERVICE, {
     db: { schema: "koreabylocal" },
@@ -56,7 +78,7 @@ Deno.serve(async (req: Request) => {
   const { data: prof } = await svc.from("profiles").select("role").eq("id", userData.user.id).maybeSingle();
   if (prof?.role !== "admin") return json({ error: "forbidden" }, 403);
 
-  if (!ANTHROPIC) return json({ error: "ANTHROPIC_API_KEY not configured (supabase secrets set ANTHROPIC_API_KEY=...)" }, 400);
+  if (!ANTHROPIC && !GEMINI) return json({ error: "No AI key configured (set ANTHROPIC_API_KEY or GEMINI_API_KEY via supabase secrets)" }, 400);
 
   let body: { topic?: string; keywords?: string[]; tone?: string; publish?: boolean };
   try { body = await req.json(); } catch { return json({ error: "bad_request" }, 400); }
@@ -84,20 +106,42 @@ ${IMAGE_POOL.map(([t, u]) => `- ${t}: ${u}`).join("\n")}
 Respond with ONLY a JSON object (no markdown fences):
 {"title": "...", "category": "City Guide|Food|Itinerary|Culture|Transport|Nature|News", "seo_title": "<=60 chars", "seo_description": "<=160 chars", "excerpt": "1-2 sentences", "hero_image_url": "<one url from the pool>", "content": "<HTML>", "faqs": [{"q":"...","a":"..."}]}`;
 
-  // ── Anthropic ──
+  // ── Generate (Anthropic tool-use primary, Gemini structured fallback) ──
   let article: Record<string, unknown>;
   try {
-    const ai = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": ANTHROPIC, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 8000, messages: [{ role: "user", content: prompt }] }),
-    });
-    if (!ai.ok) return json({ error: "ai_error", detail: (await ai.text()).slice(0, 300) }, 502);
-    const data = await ai.json();
-    let text: string = data?.content?.[0]?.text ?? "";
-    text = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
-    const start = text.indexOf("{"), end = text.lastIndexOf("}");
-    article = JSON.parse(text.slice(start, end + 1));
+    if (ANTHROPIC) {
+      const ai = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": ANTHROPIC, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 8000,
+          tools: [{ name: "save_article", description: "Save the finished article.", input_schema: ARTICLE_SCHEMA }],
+          tool_choice: { type: "tool", name: "save_article" },
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+      if (!ai.ok) return json({ error: "ai_error", detail: (await ai.text()).slice(0, 300) }, 502);
+      const data = await ai.json();
+      const tool = (data?.content ?? []).find((c: { type: string }) => c.type === "tool_use");
+      if (!tool?.input) return json({ error: "ai_no_output" }, 502);
+      article = tool.input as Record<string, unknown>;
+    } else {
+      const ai = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 8000, responseMimeType: "application/json", responseSchema: ARTICLE_SCHEMA },
+          }),
+        },
+      );
+      if (!ai.ok) return json({ error: "ai_error", detail: (await ai.text()).slice(0, 300) }, 502);
+      const txt = (await ai.json())?.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+      article = JSON.parse(txt) as Record<string, unknown>;
+    }
   } catch (e) {
     return json({ error: "ai_parse_failed", detail: String((e as Error).message) }, 502);
   }
@@ -135,7 +179,7 @@ Respond with ONLY a JSON object (no markdown fences):
     status: body.publish ? "published" : "ready",
     category: String(article.category || "News"),
     word_count: wordCount, links_count: linksCount,
-    model: MODEL, generated_title: title, blog_post_id: post.id,
+    model: modelUsed, generated_title: title, blog_post_id: post.id,
   });
 
   return json({ success: true, post });

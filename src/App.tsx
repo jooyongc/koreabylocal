@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useSiteFont } from "@/hooks/useSiteFont";
+import { useSiteAnalytics } from "@/hooks/useSiteAnalytics";
 
 // ── Public pages ──────────────────────────────────────────────
 const HomePage = lazy(() => import("@/pages/HomePage"));
@@ -62,6 +63,7 @@ const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 function App() {
   const initialize = useAuthStore((s) => s.initialize);
   useSiteFont();
+  useSiteAnalytics();
 
   useEffect(() => {
     const unsubscribe = initialize();
