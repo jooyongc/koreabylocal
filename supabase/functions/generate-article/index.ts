@@ -53,6 +53,38 @@ const ARTICLE_SCHEMA = {
   required: ["title", "category", "seo_title", "seo_description", "excerpt", "hero_image_url", "content", "faqs"],
 };
 
+// Resolve a topic-relevant hero image: Unsplash → Pexels → null (caller falls back).
+async function searchHero(query: string): Promise<string | null> {
+  const UNSPLASH = Deno.env.get("UNSPLASH_ACCESS_KEY");
+  const PEXELS = Deno.env.get("PEXELS_API_KEY");
+  const q = encodeURIComponent(query);
+  if (UNSPLASH) {
+    try {
+      const r = await fetch(
+        `https://api.unsplash.com/search/photos?query=${q}&per_page=1&orientation=landscape&content_filter=high`,
+        { headers: { Authorization: `Client-ID ${UNSPLASH}` } },
+      );
+      if (r.ok) {
+        const u = (await r.json())?.results?.[0]?.urls?.raw;
+        if (u) return `${u}&w=1600&q=80&fit=crop`;
+      }
+    } catch { /* fall through */ }
+  }
+  if (PEXELS) {
+    try {
+      const r = await fetch(
+        `https://api.pexels.com/v1/search?query=${q}&per_page=1&orientation=landscape`,
+        { headers: { Authorization: PEXELS } },
+      );
+      if (r.ok) {
+        const p = (await r.json())?.photos?.[0]?.src;
+        if (p?.large2x || p?.large) return p.large2x ?? p.large;
+      }
+    } catch { /* fall through */ }
+  }
+  return null;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -152,6 +184,10 @@ Respond with ONLY a JSON object (no markdown fences):
   const clip = (s: unknown, n: number) => (s ? String(s).slice(0, n) : null);
 
   // ── Save draft blog post + content_jobs row ──
+  const hero =
+    (await searchHero(`${title} South Korea`)) ??
+    (typeof article.hero_image_url === "string" ? article.hero_image_url : null);
+
   const slug = `${slugify(title)}-${Date.now().toString(36).slice(-4)}`;
   const { data: post, error: postErr } = await svc
     .from("blog_posts")
@@ -164,7 +200,7 @@ Respond with ONLY a JSON object (no markdown fences):
       status: body.publish ? "published" : "draft",
       seo_title: clip(article.seo_title, 60),
       seo_description: clip(article.seo_description, 160),
-      hero_image_url: typeof article.hero_image_url === "string" ? article.hero_image_url : null,
+      hero_image_url: hero,
       faqs,
       published_at: body.publish ? new Date().toISOString() : null,
     })
