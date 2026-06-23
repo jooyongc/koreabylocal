@@ -1,13 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { Upload, X, Loader2 } from "lucide-react";
+import { X, ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import BlogContentEditor from "./BlogContentEditor";
 import BlogFormActions from "./BlogFormActions";
+import ImagePicker from "@/components/admin/common/ImagePicker";
 import { useCreateBlogPost, useUpdateBlogPost } from "@/hooks/useBlogMutation";
 import { slugify } from "@/lib/slugify";
-import { uploadImage } from "@/lib/uploadImage";
 import type { BlogFormData } from "@/types/admin";
 import type { BlogCategory } from "@/types";
 
@@ -28,7 +28,7 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
   const navigate = useNavigate();
   const createMutation = useCreateBlogPost();
   const updateMutation = useUpdateBlogPost();
-  const [thumbnailUploading, setThumbnailUploading] = useState(false);
+  const [thumbPicker, setThumbPicker] = useState(false);
 
   const methods = useForm<BlogFormData>({
     defaultValues: {
@@ -69,23 +69,6 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
       setValue("slug", slugify(val));
     }
   };
-
-  const handleThumbnailUpload = useCallback(
-    async (files: FileList | null) => {
-      const file = files?.[0];
-      if (!file) return;
-      setThumbnailUploading(true);
-      try {
-        const url = await uploadImage(file, "product-images");
-        setValue("thumbnail_url", url);
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Upload failed");
-      } finally {
-        setThumbnailUploading(false);
-      }
-    },
-    [setValue]
-  );
 
   const doSubmit = async (data: BlogFormData) => {
     try {
@@ -173,39 +156,49 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
             <section className="rounded-xl border border-gray-200 bg-white p-6">
               <h2 className="mb-4 text-lg font-semibold text-primary">Thumbnail Image</h2>
               {thumbnailUrl ? (
-                <div className="relative inline-block">
-                  <img
-                    src={thumbnailUrl}
-                    alt="Thumbnail"
-                    className="h-40 rounded-lg object-cover"
-                  />
+                <div className="space-y-3">
+                  <div className="relative inline-block">
+                    <img
+                      src={thumbnailUrl}
+                      alt="Thumbnail"
+                      className="h-40 rounded-lg object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setValue("thumbnail_url", "")}
+                      className="absolute -right-2 -top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setValue("thumbnail_url", "")}
-                    className="absolute -right-2 -top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+                    onClick={() => setThumbPicker(true)}
+                    className="flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-600 hover:border-primary/50 hover:text-primary"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <ImageIcon className="h-4 w-4" /> Replace image
                   </button>
                 </div>
               ) : (
-                <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-primary/50">
-                  {thumbnailUploading ? (
-                    <Loader2 className="mb-2 h-8 w-8 animate-spin text-gray-400" />
-                  ) : (
-                    <Upload className="mb-2 h-8 w-8 text-gray-400" />
-                  )}
-                  <p className="text-sm text-gray-500">
-                    {thumbnailUploading ? "Uploading..." : "Click to upload thumbnail"}
-                  </p>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => handleThumbnailUpload(e.target.files)}
-                    disabled={thumbnailUploading}
-                  />
-                </label>
+                <button
+                  type="button"
+                  onClick={() => setThumbPicker(true)}
+                  className="flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-primary/50"
+                >
+                  <ImageIcon className="mb-2 h-8 w-8 text-gray-400" />
+                  <p className="text-sm text-gray-500">Search or upload a thumbnail</p>
+                  <p className="mt-0.5 text-xs text-gray-400">Unsplash / Pexels search or file upload</p>
+                </button>
               )}
+
+              <ImagePicker
+                open={thumbPicker}
+                onClose={() => setThumbPicker(false)}
+                onSelect={(url) => setValue("thumbnail_url", url)}
+                orientation="landscape"
+                initialQuery={title}
+                title="Thumbnail image"
+              />
             </section>
           </div>
 

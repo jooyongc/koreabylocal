@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type KeyboardEvent } from "react";
+import { useState, type FormEvent, type KeyboardEvent, type Dispatch, type SetStateAction } from "react";
 import { Sparkles, Check, X, Plus, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -6,14 +6,16 @@ import { supabase } from "@/lib/supabase";
 
 type Tone = "informative" | "editorial";
 
-export default function NewDraftForm() {
+interface NewDraftFormProps {
+  topic: string;
+  setTopic: (v: string) => void;
+  keywords: string[];
+  setKeywords: Dispatch<SetStateAction<string[]>>;
+}
+
+export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }: NewDraftFormProps) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
-  const [topic, setTopic] = useState("Best day trips from Seoul by train");
-  const [keywords, setKeywords] = useState<string[]>([
-    "seoul day trips",
-    "ktx from seoul",
-  ]);
   const [keywordDraft, setKeywordDraft] = useState("");
   const [tone, setTone] = useState<Tone>("informative");
   const [autoLink, setAutoLink] = useState(true);

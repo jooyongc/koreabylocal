@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Sparkles, Target, PenLine, Link2, Share2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import PageSEO from "@/components/common/PageSEO";
@@ -6,6 +7,7 @@ import StudioStatCard from "@/components/admin/studio/StudioStatCard";
 import PipelineStepCard from "@/components/admin/studio/PipelineStepCard";
 import QueueRow from "@/components/admin/studio/QueueRow";
 import NewDraftForm from "@/components/admin/studio/NewDraftForm";
+import TopicIdeas from "@/components/admin/studio/TopicIdeas";
 import type {
   ContentJob,
   PipelineStep,
@@ -196,9 +198,17 @@ export default function ContentStudioPage() {
     queue.length === 1 ? "" : "s"
   } · ${readyCount} ready`;
 
+  const [topic, setTopic] = useState("Best day trips from Seoul by train");
+  const [keywords, setKeywords] = useState<string[]>(["seoul day trips", "ktx from seoul"]);
+
   const focusDraftForm = () => {
     document.getElementById("new-draft")?.scrollIntoView({ behavior: "smooth", block: "start" });
     (document.getElementById("studio-topic") as HTMLInputElement | null)?.focus();
+  };
+  const handlePickTopic = (title: string, kw: string[]) => {
+    setTopic(title);
+    setKeywords(kw.length ? kw : []);
+    focusDraftForm();
   };
 
   return (
@@ -259,9 +269,12 @@ export default function ContentStudioPage() {
           </div>
         </section>
 
+        {/* Topic ideas (AEO/SEO/GEO) */}
+        <TopicIdeas onPick={handlePickTopic} />
+
         {/* Two-column: draft form + content queue */}
         <section className="mx-auto flex max-w-[1180px] flex-wrap items-start gap-[18px] px-4 pb-12 pt-7 sm:px-6 lg:px-8 lg:pb-[90px] lg:pt-10">
-          <NewDraftForm />
+          <NewDraftForm topic={topic} setTopic={setTopic} keywords={keywords} setKeywords={setKeywords} />
 
           <div className="min-w-[300px] flex-[2_1_420px] rounded-[18px] border border-white/10 bg-white/[0.04] p-2">
             <div className="flex items-center justify-between px-4 pb-3 pt-3.5">

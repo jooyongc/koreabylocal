@@ -19,11 +19,10 @@ import {
   Quote,
   Youtube,
   ShoppingBag,
-  Loader2,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { uploadImage } from "@/lib/uploadImage";
 import ProductSearchModal from "./ProductSearchModal";
+import ImagePicker from "@/components/admin/common/ImagePicker";
 import type { BlogFormData } from "@/types/admin";
 import type { Product } from "@/types";
 import "@/styles/editor.css";
@@ -49,7 +48,7 @@ export default function BlogContentEditor() {
   const content = watch("content") ?? "";
   const [isHtml, setIsHtml] = useState(false);
   const [productModalOpen, setProductModalOpen] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -67,25 +66,12 @@ export default function BlogContentEditor() {
     },
   });
 
-  const handleImageUpload = useCallback(async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file || !editor) return;
-      setImageUploading(true);
-      try {
-        const url = await uploadImage(file, "product-images");
-        editor.chain().focus().setImage({ src: url }).run();
-      } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Upload failed");
-      } finally {
-        setImageUploading(false);
-      }
-    };
-    input.click();
-  }, [editor]);
+  const insertImage = useCallback(
+    (url: string) => {
+      editor?.chain().focus().setImage({ src: url }).run();
+    },
+    [editor]
+  );
 
   const handleVideoEmbed = useCallback(() => {
     if (!editor) return;
@@ -171,8 +157,8 @@ export default function BlogContentEditor() {
         <button type="button" onClick={addLink} className={btnCls(editor.isActive("link"))} title="Link">
           <LinkIcon className="h-4 w-4" />
         </button>
-        <button type="button" onClick={handleImageUpload} disabled={imageUploading} className={btnCls(false)} title="Upload Image">
-          {imageUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+        <button type="button" onClick={() => setImageModalOpen(true)} className={btnCls(false)} title="Insert image (search or upload)">
+          <ImageIcon className="h-4 w-4" />
         </button>
         <button type="button" onClick={handleVideoEmbed} className={btnCls(false)} title="YouTube / Vimeo">
           <Youtube className="h-4 w-4" />
@@ -203,6 +189,14 @@ export default function BlogContentEditor() {
         open={productModalOpen}
         onClose={() => setProductModalOpen(false)}
         onSelect={handleProductEmbed}
+      />
+
+      <ImagePicker
+        open={imageModalOpen}
+        onClose={() => setImageModalOpen(false)}
+        onSelect={insertImage}
+        orientation="landscape"
+        title="Insert image"
       />
     </section>
   );
