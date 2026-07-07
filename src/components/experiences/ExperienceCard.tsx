@@ -37,7 +37,7 @@ export function experienceToCard(r: Tables<"experiences">): Experience {
     reviews: r.reviews_count.toLocaleString(),
     badge: (r.badge as Experience["badge"]) ?? undefined,
     img: r.thumbnail_url ?? "",
-    to: `/tours`,
+    to: `/tours/${r.slug}`,
   };
 }
 
