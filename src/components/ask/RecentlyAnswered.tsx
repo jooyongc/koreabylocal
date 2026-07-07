@@ -1,28 +1,11 @@
-interface AnsweredQuestion {
-  q: string;
-  a: string;
-  by: string;
-}
+import { Link } from "react-router-dom";
+import { useBlogPosts } from "@/hooks/useBlogPosts";
 
-const ANSWERED: AnsweredQuestion[] = [
-  {
-    q: "Is 4 days enough for Seoul + Busan?",
-    a: "Yes — 2.5 days Seoul, fast train down, 1.5 in Busan. I’ll send a day-by-day.",
-    by: "Answered by Minho · 2h",
-  },
-  {
-    q: "Best area to stay for first-timers?",
-    a: "Myeongdong or Euljiro for transit + food. Avoid being too far north.",
-    by: "Answered by Jiwon · 5h",
-  },
-  {
-    q: "Vegetarian-friendly local food?",
-    a: "Temple cuisine, bibimbap, and Gwangjang market has great options.",
-    by: "Answered by Soyeon · 1d",
-  },
-];
-
+/** Real answered questions — pulled from the blog (canonical home) and linked out. */
 export default function RecentlyAnswered() {
+  const { data: posts } = useBlogPosts(undefined, 6);
+  if (!posts || posts.length === 0) return null;
+
   return (
     <section
       aria-labelledby="recently-answered-heading"
@@ -35,21 +18,22 @@ export default function RecentlyAnswered() {
         Recently answered
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {ANSWERED.map((item) => (
-          <article
-            key={item.q}
-            className="rounded-[18px] bg-white p-[22px] shadow-[0_8px_26px_rgba(16,15,44,0.07)]"
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            to={`/blog/${post.slug}`}
+            className="group flex flex-col rounded-[18px] bg-white p-[22px] shadow-[0_8px_26px_rgba(16,15,44,0.07)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(16,15,44,0.14)]"
           >
-            <h3 className="font-display text-[16px] font-bold leading-[1.3] text-ink">
-              {item.q}
+            <h3 className="font-display text-[16px] font-bold leading-[1.3] text-ink group-hover:text-accent">
+              {post.title}
             </h3>
-            <p className="my-3 mb-3.5 text-[14px] leading-[1.6] text-[#3a3730]">
-              {item.a}
+            <p className="my-3 mb-3.5 line-clamp-3 text-[14px] leading-[1.6] text-[#3a3730]">
+              {post.excerpt}
             </p>
-            <p className="text-[12px] font-semibold text-accent">
-              ✦ {item.by}
+            <p className="mt-auto text-[12px] font-semibold text-accent">
+              ✦ Answered by {post.author || "Korea by Local"}
             </p>
-          </article>
+          </Link>
         ))}
       </div>
     </section>
