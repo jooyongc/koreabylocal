@@ -22,3 +22,24 @@ export async function uploadImage(
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);
   return data.publicUrl;
 }
+
+/**
+ * Uploads a paid e-book's PDF into the private `ebooks` bucket and returns
+ * its storage path (not a public URL — the bucket isn't public). The
+ * download-ebook edge function turns this path into a short-lived signed
+ * URL on each valid download request.
+ */
+export async function uploadEbookFile(file: File): Promise<string> {
+  if (file.type !== "application/pdf") {
+    throw new Error("Please upload a PDF file");
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error("File must be under 50MB");
+  }
+
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.pdf`;
+  const { error } = await supabase.storage.from("ebooks").upload(path, file);
+  if (error) throw error;
+
+  return path;
+}

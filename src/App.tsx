@@ -45,6 +45,11 @@ const OrderDetailPage = lazy(() => import("@/pages/account/OrderDetailPage"));
 
 // ── Admin pages (requires admin role) ─────────────────────────
 const AdminDashboard = lazy(() => import("@/pages/admin/DashboardPage"));
+const AdminSpots = lazy(() => import("@/pages/admin/SpotsPage"));
+const AdminSpotNew = lazy(() => import("@/pages/admin/SpotNewPage"));
+const AdminSpotEdit = lazy(() => import("@/pages/admin/SpotEditPage"));
+const AdminSubscribers = lazy(() => import("@/pages/admin/SubscribersPage"));
+const AdminEbooks = lazy(() => import("@/pages/admin/EbooksPage"));
 const AdminProducts = lazy(() => import("@/pages/admin/ProductsPage"));
 const AdminProductNew = lazy(() => import("@/pages/admin/ProductNewPage"));
 const AdminProductEdit = lazy(() => import("@/pages/admin/ProductEditPage"));
@@ -142,6 +147,11 @@ function App() {
         <Route element={<ProtectedRoute requiredRole="admin" />}>
           <Route element={<AdminLayout />}>
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/spots" element={<AdminSpots />} />
+            <Route path="/admin/spots/new" element={<AdminSpotNew />} />
+            <Route path="/admin/spots/:id/edit" element={<AdminSpotEdit />} />
+            <Route path="/admin/subscribers" element={<AdminSubscribers />} />
+            <Route path="/admin/ebooks" element={<AdminEbooks />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/products/new" element={<AdminProductNew />} />
             <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />

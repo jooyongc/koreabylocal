@@ -8,17 +8,23 @@ import {
   MessageSquare,
   Settings,
   Sparkles,
+  MapPin,
+  Mail,
+  Library,
   X,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
   { to: "/admin/content-studio", icon: Sparkles, label: "Content Studio", accent: true },
+  { to: "/admin/spots", icon: MapPin, label: "Spots" },
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/blog", icon: FileText, label: "Blog" },
   { to: "/admin/orders", icon: ShoppingCart, label: "Orders" },
   { to: "/admin/inquiries", icon: MessageSquare, label: "Inquiries" },
   { to: "/admin/magazines", icon: BookOpen, label: "Magazines" },
+  { to: "/admin/subscribers", icon: Mail, label: "Subscribers" },
+  { to: "/admin/ebooks", icon: Library, label: "E-books" },
   { to: "/admin/settings", icon: Settings, label: "Settings" },
 ];
 

@@ -11,6 +11,9 @@ import {
   ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
+  MapPin,
+  UserPlus,
+  Library,
 } from "lucide-react";
 import { format, subDays, startOfDay } from "date-fns";
 import { supabase } from "@/lib/supabase";
@@ -52,6 +55,9 @@ interface DashboardStats {
   productCounts: { active: number; hidden: number; soldOut: number };
   blogCount: number;
   magazineCount: number;
+  activeSpots: number;
+  newSubscribersWeek: number;
+  ebookSalesTotal: number;
   recentOrders: Order[];
 }
 
@@ -75,6 +81,9 @@ function useDashboardStats() {
         productsSoldOut,
         blogPosts,
         magazines,
+        activeSpots,
+        newSubscribersWeek,
+        ebookSalesTotal,
         recentOrders,
       ] = await Promise.all([
         supabase
@@ -115,6 +124,18 @@ function useDashboardStats() {
           .select("id", { count: "exact", head: true })
           .eq("is_active", true),
         supabase
+          .from("experiences")
+          .select("id", { count: "exact", head: true })
+          .eq("is_active", true),
+        supabase
+          .from("subscribers")
+          .select("id", { count: "exact", head: true })
+          .gte("subscribed_at", weekStart),
+        supabase
+          .from("ebook_purchases")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "completed"),
+        supabase
           .from("orders")
           .select("*")
           .order("created_at", { ascending: false })
@@ -139,6 +160,9 @@ function useDashboardStats() {
         },
         blogCount: blogPosts.count ?? 0,
         magazineCount: magazines.count ?? 0,
+        activeSpots: activeSpots.count ?? 0,
+        newSubscribersWeek: newSubscribersWeek.count ?? 0,
+        ebookSalesTotal: ebookSalesTotal.count ?? 0,
         recentOrders: (recentOrders.data ?? []) as Order[],
       };
     },
@@ -238,7 +262,7 @@ export default function DashboardPage() {
         {/* Stat cards */}
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {isLoading ? (
-            Array.from({ length: 4 }, (_, i) => (
+            Array.from({ length: 7 }, (_, i) => (
               <Skeleton key={i} className="h-[120px] rounded-xl" />
             ))
           ) : (
@@ -275,6 +299,21 @@ export default function DashboardPage() {
                 icon={
                   <TrendingUp className="h-5 w-5 text-amber-500" />
                 }
+              />
+              <StatCard
+                label="Active Spots"
+                value={String(stats?.activeSpots ?? 0)}
+                icon={<MapPin className="h-5 w-5 text-coral" />}
+              />
+              <StatCard
+                label="New Subscribers (7d)"
+                value={String(stats?.newSubscribersWeek ?? 0)}
+                icon={<UserPlus className="h-5 w-5 text-emerald-500" />}
+              />
+              <StatCard
+                label="E-book Sales"
+                value={String(stats?.ebookSalesTotal ?? 0)}
+                icon={<Library className="h-5 w-5 text-purple" />}
               />
             </>
           )}
@@ -352,6 +391,12 @@ export default function DashboardPage() {
             <h2 className="mb-4 font-bold text-primary">Quick Links</h2>
             <div className="space-y-3">
               <QuickLink
+                to="/admin/spots"
+                icon={<MapPin className="h-5 w-5 text-coral" />}
+                label="Spots"
+                count={stats?.activeSpots}
+              />
+              <QuickLink
                 to="/admin/products"
                 icon={<Package className="h-5 w-5 text-primary" />}
                 label="Products"
@@ -374,6 +419,17 @@ export default function DashboardPage() {
                 icon={<BookOpen className="h-5 w-5 text-purple-500" />}
                 label="Digital Magazines"
                 count={stats?.magazineCount}
+              />
+              <QuickLink
+                to="/admin/subscribers"
+                icon={<UserPlus className="h-5 w-5 text-emerald-500" />}
+                label="Subscribers"
+              />
+              <QuickLink
+                to="/admin/ebooks"
+                icon={<Library className="h-5 w-5 text-purple" />}
+                label="E-books"
+                count={stats?.ebookSalesTotal}
               />
               <QuickLink
                 to="/admin/orders"
