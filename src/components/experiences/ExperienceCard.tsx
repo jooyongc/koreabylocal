@@ -16,10 +16,10 @@ export interface Experience {
 }
 
 const BADGE_BG: Record<NonNullable<Experience["badge"]>, string> = {
-  BEST: "#5b2bff",
-  HOT: "#e8452a",
-  NEW: "#0e8c6a",
-  SALE: "#ff2d78",
+  BEST: "bg-purple",
+  HOT: "bg-coral",
+  NEW: "bg-green",
+  SALE: "bg-accent",
 };
 
 const money = (n: number | null) =>
@@ -46,7 +46,7 @@ export default function ExperienceCard({ x }: { x: Experience }) {
   return (
     <Link
       to={x.to ?? "/tours"}
-      className="group flex flex-col overflow-hidden rounded-[18px] bg-white text-left shadow-[0_8px_26px_rgba(16,15,44,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(16,15,44,0.16)]"
+      className="group flex flex-col overflow-hidden rounded-[18px] bg-white text-left shadow-[0_8px_26px_rgba(26,26,26,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(26,26,26,0.16)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-cream-200">
         <div
@@ -57,8 +57,7 @@ export default function ExperienceCard({ x }: { x: Experience }) {
         />
         {x.badge && (
           <span
-            className="absolute left-[11px] top-[11px] rounded-[7px] px-[9px] py-[5px] text-[10.5px] font-extrabold tracking-[0.06em] text-white"
-            style={{ background: BADGE_BG[x.badge] }}
+            className={`absolute left-[11px] top-[11px] rounded-[7px] px-[9px] py-[5px] text-[10.5px] font-extrabold tracking-[0.06em] text-white ${BADGE_BG[x.badge]}`}
           >
             {x.badge}
           </span>

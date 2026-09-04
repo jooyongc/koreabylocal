@@ -293,7 +293,7 @@ export default function CheckoutPage() {
           {/* Left column: contact, traveller, payment */}
           <div className="flex w-full flex-col gap-5 lg:flex-[3]">
             {/* Contact details */}
-            <section className="rounded-[18px] bg-white p-6 shadow-[0_8px_26px_rgba(16,15,44,0.06)]">
+            <section className="rounded-[18px] bg-white p-6 shadow-[0_8px_26px_rgba(26,26,26,0.06)]">
               <h2 className="mb-4 font-display text-lg font-bold text-ink">
                 Contact details
               </h2>
@@ -381,7 +381,7 @@ export default function CheckoutPage() {
             </section>
 
             {/* Lead traveller */}
-            <section className="rounded-[18px] bg-white p-6 shadow-[0_8px_26px_rgba(16,15,44,0.06)]">
+            <section className="rounded-[18px] bg-white p-6 shadow-[0_8px_26px_rgba(26,26,26,0.06)]">
               <h2 className="mb-4 font-display text-lg font-bold text-ink">
                 Lead traveller
               </h2>
@@ -436,7 +436,7 @@ export default function CheckoutPage() {
             </section>
 
             {/* Payment method */}
-            <section className="rounded-[18px] bg-white p-6 shadow-[0_8px_26px_rgba(16,15,44,0.06)]">
+            <section className="rounded-[18px] bg-white p-6 shadow-[0_8px_26px_rgba(26,26,26,0.06)]">
               <h2 className="mb-4 font-display text-lg font-bold text-ink">
                 Payment method
               </h2>
@@ -508,7 +508,7 @@ export default function CheckoutPage() {
 
           {/* Right column: order summary */}
           <aside className="w-full lg:sticky lg:top-[88px] lg:flex-[2]">
-            <div className="rounded-[20px] bg-white p-6 shadow-[0_16px_44px_rgba(16,15,44,0.12)]">
+            <div className="rounded-[20px] bg-white p-6 shadow-[0_16px_44px_rgba(26,26,26,0.12)]">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-display text-lg font-bold text-ink">
                   Order summary

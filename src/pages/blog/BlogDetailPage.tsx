@@ -189,7 +189,7 @@ export default function BlogDetailPage() {
           <div
             role="img"
             aria-label={post.title}
-            className="aspect-[16/8] rounded-[20px] bg-cover bg-center shadow-[0_14px_40px_rgba(16,15,44,0.14)]"
+            className="aspect-[16/8] rounded-[20px] bg-cover bg-center shadow-[0_14px_40px_rgba(26,26,26,0.14)]"
             style={{ backgroundImage: `url(${heroImage})` }}
           />
         </section>
@@ -215,7 +215,7 @@ export default function BlogDetailPage() {
                 </a>
               ))}
             </div>
-            <div className="mt-5 flex items-center gap-2 rounded-xl bg-white p-3 text-[12px] text-muted-2 shadow-[0_4px_14px_rgba(16,15,44,0.05)]">
+            <div className="mt-5 flex items-center gap-2 rounded-xl bg-white p-3 text-[12px] text-muted-2 shadow-[0_4px_14px_rgba(26,26,26,0.05)]">
               ⌗ Article + FAQ schema applied
             </div>
           </aside>

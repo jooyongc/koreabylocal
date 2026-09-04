@@ -5,7 +5,7 @@ import { useReveal } from "@/hooks/useReveal";
 const TRUST: { icon: LucideIcon; title: string; desc: string; bg: string }[] = [
   { icon: BadgeCheck, title: "100% verified locals", desc: "Every host is ID-checked and rated by real travellers — no anonymous resellers.", bg: "rgba(14,140,106,0.1)" },
   { icon: ArrowDownToLine, title: "Best-price promise", desc: "Book direct and we’ll match any lower price you find for the same experience.", bg: "rgba(91,43,255,0.1)" },
-  { icon: RotateCcw, title: "Free cancellation", desc: "Plans change. Cancel up to 24 hours before for a full, no-questions refund.", bg: "rgba(255,45,120,0.1)" },
+  { icon: RotateCcw, title: "Free cancellation", desc: "Plans change. Cancel up to 24 hours before for a full, no-questions refund.", bg: "rgba(255,107,53,0.1)" },
   { icon: Phone, title: "24/7 real support", desc: "Reach a human in English or Korean any time, before and during your trip.", bg: "rgba(242,183,5,0.1)" },
 ];
 
@@ -16,7 +16,7 @@ export default function TrustBar() {
       ref={ref}
       className="reveal mx-auto max-w-[1180px] px-4 pt-[clamp(44px,6vw,80px)] sm:px-6 lg:px-8"
     >
-      <div className="rounded-[26px] bg-white p-[clamp(26px,4vw,48px)] shadow-[0_12px_40px_rgba(16,15,44,0.07)]">
+      <div className="rounded-[26px] bg-white p-[clamp(26px,4vw,48px)] shadow-[0_12px_40px_rgba(26,26,26,0.07)]">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(210px,1fr))] gap-[26px]">
           {TRUST.map(({ icon: Icon, title, desc, bg }) => (
             <div key={title}>

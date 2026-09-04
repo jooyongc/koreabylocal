@@ -130,7 +130,7 @@ export default function TourDetailPage() {
             <div className="hidden lg:block">
               <TourHeader exp={exp} />
             </div>
-            <div className="mt-5 rounded-[18px] border border-ink/10 bg-white p-5 shadow-[0_10px_30px_rgba(16,15,44,0.08)]">
+            <div className="mt-5 rounded-[18px] border border-ink/10 bg-white p-5 shadow-[0_10px_30px_rgba(26,26,26,0.08)]">
               <div className="flex items-baseline gap-2">
                 <span className="text-[13px] text-muted-2">from</span>
                 <span className="font-display text-[30px] font-extrabold text-ink">{money(Number(exp.price), exp.currency ?? "USD")}</span>

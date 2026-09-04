@@ -503,7 +503,7 @@ export default function ProductDetailPage() {
             type="button"
             onClick={handleBuyNow}
             disabled={isSoldOut}
-            className="mt-5 w-full rounded-[13px] bg-accent py-4 text-base font-bold text-white shadow-[0_10px_24px_rgba(255,45,120,0.35)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-5 w-full rounded-[13px] bg-accent py-4 text-base font-bold text-white shadow-[0_10px_24px_rgba(255,107,53,0.35)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSoldOut ? "Sold Out" : "Buy Now"}
           </button>

@@ -4,6 +4,7 @@ import { Instagram, Youtube, Facebook, Loader2, ArrowRight } from "lucide-react"
 import { supabase } from "@/lib/supabase";
 import { markSubscribed } from "@/lib/subscription";
 import { useRegions } from "@/hooks/useConcepts";
+import Logo from "@/components/layout/Header/Logo";
 
 const RESOURCE_LINKS = [
   { label: "Guidebook", href: "/guidebook" },
@@ -87,11 +88,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {/* Col 1 — Brand */}
           <div className="col-span-2 min-w-[200px] md:col-span-1">
-            <Link to="/" className="flex items-baseline gap-[2px]" aria-label="Korea by Local — home">
-              <span className="font-display text-[22px] font-extrabold">Korea</span>
-              <span className="font-serif-accent px-[3px] text-[19px] italic">by</span>
-              <span className="font-display text-[22px] font-extrabold text-accent">Local</span>
-            </Link>
+            <Logo inverted />
             <p className="mt-3.5 max-w-[34ch] text-[13.5px] leading-relaxed text-white/60">
               Korea's local travel guide since 2019.
             </p>

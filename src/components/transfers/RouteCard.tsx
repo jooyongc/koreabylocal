@@ -21,7 +21,7 @@ export default function RouteCard({ route, to }: RouteCardProps) {
     <Link
       to={to}
       aria-label={`Book transfer: ${route.route}, ${route.type}, ${route.price}`}
-      className="flex items-center gap-3.5 rounded-[18px] bg-white p-3.5 text-left shadow-[0_8px_26px_rgba(16,15,44,0.07)] transition-shadow duration-300 hover:shadow-[0_20px_44px_rgba(16,15,44,0.16)]"
+      className="flex items-center gap-3.5 rounded-[18px] bg-white p-3.5 text-left shadow-[0_8px_26px_rgba(26,26,26,0.07)] transition-shadow duration-300 hover:shadow-[0_20px_44px_rgba(26,26,26,0.16)]"
     >
       <img
         src={route.img}

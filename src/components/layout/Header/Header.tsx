@@ -3,7 +3,6 @@ import { Search, BookOpen } from "lucide-react";
 import Logo from "./Logo";
 import DesktopNav from "./DesktopNav";
 import MobileNav from "./MobileNav";
-import CartButton from "./CartButton";
 import UserMenu from "./UserMenu";
 
 export default function Header() {
@@ -39,7 +38,6 @@ export default function Header() {
           >
             <Search className="h-[18px] w-[18px]" />
           </Link>
-          <CartButton />
           <UserMenu />
         </div>
       </div>

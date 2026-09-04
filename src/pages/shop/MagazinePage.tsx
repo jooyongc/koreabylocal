@@ -68,7 +68,7 @@ export default function MagazinePage() {
       />
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#00005a] via-[#2a1a6e] to-[#6312ff] py-16 md:py-24">
+      <section className="bg-gradient-to-br from-ink to-coral py-16 md:py-24">
         <div className="mx-auto max-w-4xl px-4 text-center text-white">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm backdrop-blur-sm">
             <BookOpen className="h-4 w-4" />

@@ -39,7 +39,7 @@ export default function GoodToKnow() {
         return (
           <div
             key={faq.q}
-            className="overflow-hidden rounded-2xl bg-white shadow-[0_3px_12px_rgba(16,15,44,0.04)]"
+            className="overflow-hidden rounded-2xl bg-white shadow-[0_3px_12px_rgba(26,26,26,0.04)]"
           >
             <button
               type="button"

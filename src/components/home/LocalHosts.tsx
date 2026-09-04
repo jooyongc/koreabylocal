@@ -24,7 +24,7 @@ export default function LocalHosts() {
           <Link
             key={h.id}
             to="/tours"
-            className="relative aspect-[3/4] overflow-hidden rounded-[20px] bg-ink shadow-[0_10px_30px_rgba(16,15,44,0.12)]"
+            className="relative aspect-[3/4] overflow-hidden rounded-[20px] bg-ink shadow-[0_10px_30px_rgba(26,26,26,0.12)]"
           >
             <div
               role="img"
@@ -34,7 +34,7 @@ export default function LocalHosts() {
             />
             <div
               className="absolute inset-0"
-              style={{ background: "linear-gradient(180deg,rgba(16,15,44,0) 35%,rgba(16,15,44,.88) 100%)" }}
+              style={{ background: "linear-gradient(180deg,rgba(26,26,26,0) 35%,rgba(26,26,26,.88) 100%)" }}
             />
             {h.verified && (
               <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-paper/95 px-2.5 py-[5px] text-[11px] font-bold text-ink">

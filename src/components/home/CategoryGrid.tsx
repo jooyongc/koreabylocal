@@ -13,10 +13,10 @@ const CATEGORIES: {
   color: string;
   to: string;
 }[] = [
-  { icon: BookOpen, label: "Read the Magazine", desc: "Local stories & city guides", count: "1,284", color: "#100f2c", to: "/guidebook" },
+  { icon: BookOpen, label: "Read the Magazine", desc: "Local stories & city guides", count: "1,284", color: "#1a1a1a", to: "/guidebook" },
   { icon: Ticket, label: "Experiences", desc: "Tours & activities · affiliate", count: "240+", color: "#0e8c6a", to: "/tours" },
   { icon: Plane, label: "Transfers", desc: "Airport, intercity & chauffeur", count: "60+", color: "#5b2bff", to: "/transfers" },
-  { icon: ShoppingBag, label: "Shop", desc: "Prints & goods · affiliate", count: "300+", color: "#ff2d78", to: "/shop" },
+  { icon: ShoppingBag, label: "Shop", desc: "Prints & goods · affiliate", count: "300+", color: "#ff6b35", to: "/shop" },
   { icon: Sparkles, label: "Ask a Local", desc: "Free 1:1 trip advice", count: "Free", color: "#f2b705", to: "/ask-a-local" },
 ];
 

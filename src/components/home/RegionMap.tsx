@@ -72,7 +72,7 @@ export default function RegionMap() {
         </div>
 
         {/* Right: interactive map */}
-        <div className="relative aspect-[1/1.05] overflow-hidden rounded-[24px] border border-white/10 bg-[#0b0a22]">
+        <div className="relative aspect-[1/1.05] overflow-hidden rounded-[24px] border border-white/10 bg-ink">
           <div
             className="absolute inset-0"
             style={{
@@ -85,7 +85,7 @@ export default function RegionMap() {
             <path
               d="M150 28 C188 36 196 70 184 96 C176 114 192 128 196 150 C200 176 178 188 182 214 C186 240 160 252 150 286 C140 252 116 246 112 220 C108 196 92 188 100 162 C108 138 96 118 110 96 C122 76 112 40 150 28 Z"
               fill="rgba(91,43,255,.10)"
-              stroke="rgba(255,45,120,.35)"
+              stroke="rgba(255,107,53,.35)"
               strokeWidth="1.5"
             />
           </svg>
@@ -102,15 +102,15 @@ export default function RegionMap() {
                 <span
                   className={`rounded-full transition-all ${on ? "animate-pulse-dot h-4 w-4" : "h-3 w-3"}`}
                   style={{
-                    background: on ? "#ff2d78" : "rgba(255,255,255,.55)",
-                    boxShadow: on ? "0 0 0 6px rgba(255,45,120,.25)" : "0 0 0 3px rgba(255,255,255,.12)",
+                    background: on ? "#ff6b35" : "rgba(255,255,255,.55)",
+                    boxShadow: on ? "0 0 0 6px rgba(255,107,53,.25)" : "0 0 0 3px rgba(255,255,255,.12)",
                   }}
                 />
                 <span
                   className="whitespace-nowrap rounded-full border px-2 py-[3px] font-display text-[11px] font-bold"
                   style={{
-                    color: on ? "#100f2c" : "rgba(255,255,255,.8)",
-                    background: on ? "#ff2d78" : "rgba(255,255,255,.08)",
+                    color: on ? "#1a1a1a" : "rgba(255,255,255,.8)",
+                    background: on ? "#ff6b35" : "rgba(255,255,255,.08)",
                     borderColor: on ? "transparent" : "rgba(255,255,255,.14)",
                   }}
                 >

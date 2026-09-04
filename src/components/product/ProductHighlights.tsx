@@ -40,7 +40,7 @@ export default function ProductHighlights() {
       {HIGHLIGHTS.map(({ icon: Icon, title, subtitle }) => (
         <div
           key={title}
-          className="rounded-2xl bg-white p-4 shadow-[0_5px_18px_rgba(16,15,44,0.05)]"
+          className="rounded-2xl bg-white p-4 shadow-[0_5px_18px_rgba(26,26,26,0.05)]"
         >
           <Icon className="h-5 w-5 text-accent" strokeWidth={2} aria-hidden="true" />
           <div className="mt-2 font-display text-[15px] font-bold text-ink">

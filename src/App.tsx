@@ -21,13 +21,6 @@ const EbookSuccessPage = lazy(() => import("@/pages/ebook/EbookSuccessPage"));
 const EbookDownloadPage = lazy(() => import("@/pages/ebook/EbookDownloadPage"));
 const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
 const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
-const MagazinePage = lazy(() => import("@/pages/shop/MagazinePage"));
-const KGoodsPage = lazy(() => import("@/pages/shop/KGoodsPage"));
-const PrintPage = lazy(() => import("@/pages/shop/PrintPage"));
-const ProductDetailPage = lazy(() => import("@/pages/shop/ProductDetailPage"));
-const CartPage = lazy(() => import("@/pages/cart/CartPage"));
-const CheckoutPage = lazy(() => import("@/pages/cart/CheckoutPage"));
-const OrderConfirmationPage = lazy(() => import("@/pages/cart/OrderConfirmationPage"));
 const AboutPage = lazy(() => import("@/pages/about/AboutPage"));
 const PrivacyPage = lazy(() => import("@/pages/legal/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/legal/TermsPage"));
@@ -106,15 +99,6 @@ function App() {
           <Route path="/ebook/success" element={<EbookSuccessPage />} />
           <Route path="/ebook/download/:token" element={<EbookDownloadPage />} />
 
-          <Route path="/shop/magazine" element={<MagazinePage />} />
-          <Route path="/shop/k-goods" element={<KGoodsPage />} />
-          <Route path="/shop/print" element={<PrintPage />} />
-          <Route path="/product/:slug" element={<ProductDetailPage />} />
-
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order/confirmation" element={<OrderConfirmationPage />} />
-
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
@@ -125,6 +109,16 @@ function App() {
           <Route path="/tours" element={<Navigate to="/" replace />} />
           <Route path="/tours/:slug" element={<SlugRedirect to="/spots" />} />
           <Route path="/transfers" element={<Navigate to="/getting-there" replace />} />
+
+          {/* ── Retired storefront (v3 renewal — shop/cart/checkout are gone) ── */}
+          <Route path="/shop" element={<Navigate to="/ebook" replace />} />
+          <Route path="/shop/magazine" element={<Navigate to="/ebook" replace />} />
+          <Route path="/shop/k-goods" element={<Navigate to="/ebook" replace />} />
+          <Route path="/shop/print" element={<Navigate to="/ebook" replace />} />
+          <Route path="/product/:slug" element={<Navigate to="/ebook" replace />} />
+          <Route path="/cart" element={<Navigate to="/" replace />} />
+          <Route path="/checkout" element={<Navigate to="/" replace />} />
+          <Route path="/order/confirmation" element={<Navigate to="/" replace />} />
 
           {/* ── Auth ────────────────────────────────────── */}
           <Route path="/login" element={<LoginPage />} />

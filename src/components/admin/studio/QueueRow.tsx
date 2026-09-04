@@ -1,17 +1,17 @@
 import { ChevronRight } from "lucide-react";
 import type { ContentJob } from "./types";
 
-// Map the DB status enum to a display label + badge background color.
-const STATUS_META: Record<string, { label: string; bg: string }> = {
-  draft: { label: "AI draft", bg: "#F2B705" },
-  review: { label: "In review", bg: "#5B2BFF" },
-  ready: { label: "Ready", bg: "#0E8C6A" },
-  scheduled: { label: "Scheduled", bg: "#FF2D78" },
-  published: { label: "Published", bg: "#8a8676" },
+// Map the DB status enum to a display label + badge background token.
+const STATUS_META: Record<string, { label: string; bgClass: string }> = {
+  draft: { label: "AI draft", bgClass: "bg-gold" },
+  review: { label: "In review", bgClass: "bg-purple" },
+  ready: { label: "Ready", bgClass: "bg-green" },
+  scheduled: { label: "Scheduled", bgClass: "bg-coral" },
+  published: { label: "Published", bgClass: "bg-muted-2" },
 };
 
 function statusMeta(status: string) {
-  return STATUS_META[status] ?? { label: status, bg: "#8a8676" };
+  return STATUS_META[status] ?? { label: status, bgClass: "bg-muted-2" };
 }
 
 export default function QueueRow({ job }: { job: ContentJob }) {
@@ -30,10 +30,7 @@ export default function QueueRow({ job }: { job: ContentJob }) {
           {job.links_count} product links
         </div>
       </div>
-      <span
-        className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
-        style={{ backgroundColor: meta.bg }}
-      >
+      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold text-white ${meta.bgClass}`}>
         {meta.label}
       </span>
       <ChevronRight className="h-[18px] w-[18px] shrink-0 text-white/35" />

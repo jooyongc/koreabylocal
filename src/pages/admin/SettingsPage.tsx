@@ -119,7 +119,7 @@ export default function SettingsPage() {
                 <button
                   key={f.key}
                   onClick={() => choose(f.key)}
-                  className={`rounded-[20px] border-2 bg-white p-[26px] text-left shadow-[0_8px_26px_rgba(16,15,44,0.07)] transition-colors ${
+                  className={`rounded-[20px] border-2 bg-white p-[26px] text-left shadow-[0_8px_26px_rgba(26,26,26,0.07)] transition-colors ${
                     active ? "border-accent" : "border-transparent hover:border-ink/10"
                   }`}
                 >

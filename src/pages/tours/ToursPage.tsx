@@ -75,7 +75,7 @@ export default function ToursPage() {
         className="reveal mx-auto flex max-w-[1180px] flex-wrap items-start gap-[clamp(20px,3vw,36px)] px-4 pb-[clamp(48px,7vw,90px)] pt-[clamp(24px,3vw,40px)] sm:px-6 lg:px-8"
       >
         {/* Filters */}
-        <aside className="sticky top-[88px] min-w-[230px] max-w-[280px] flex-[1_1_240px] rounded-[20px] bg-white p-[22px] shadow-[0_8px_28px_rgba(16,15,44,0.07)]">
+        <aside className="sticky top-[88px] min-w-[230px] max-w-[280px] flex-[1_1_240px] rounded-[20px] bg-white p-[22px] shadow-[0_8px_28px_rgba(26,26,26,0.07)]">
           <div className="mb-[18px] flex items-center justify-between">
             <span className="flex items-center gap-2 font-display text-[17px] font-bold">
               <SlidersHorizontal className="h-4 w-4" /> Filters

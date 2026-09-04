@@ -240,7 +240,7 @@ export default function ContentStudioPage() {
             <button
               type="button"
               onClick={focusDraftForm}
-              className="flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,45,120,0.3)] transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+              className="flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(255,107,53,0.3)] transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
             >
               <Sparkles className="h-4 w-4" />
               Generate new article

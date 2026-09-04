@@ -28,7 +28,7 @@ export default function FaqAccordion() {
             <button
               key={f.q}
               onClick={() => setOpen(isOpen ? -1 : i)}
-              className="rounded-2xl bg-white p-[18px] px-5 text-left shadow-[0_4px_16px_rgba(16,15,44,0.05)]"
+              className="rounded-2xl bg-white p-[18px] px-5 text-left shadow-[0_4px_16px_rgba(26,26,26,0.05)]"
               aria-expanded={isOpen}
             >
               <div className="flex items-center gap-3.5">

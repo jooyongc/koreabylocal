@@ -94,7 +94,7 @@ export default function AboutPage() {
 
       {/* Hero Section */}
       <section
-        className={`relative flex min-h-[60vh] items-center justify-center px-4 md:min-h-[70vh] bg-gradient-to-br ${hero?.bg_gradient ?? "from-[#00005a] via-[#2a1a6e] to-[#6312ff]"}`}
+        className={`relative flex min-h-[60vh] items-center justify-center px-4 md:min-h-[70vh] bg-gradient-to-br ${hero?.bg_gradient ?? "from-ink to-coral"}`}
       >
         <div className="absolute inset-0 bg-black/20" />
         <div className="relative z-10 mx-auto max-w-3xl text-center text-white">
@@ -209,7 +209,7 @@ export default function AboutPage() {
       <FaqAccordion />
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-br from-[#00005a] via-[#2a1a6e] to-[#6312ff] py-16 md:py-24">
+      <section className="bg-gradient-to-br from-ink to-coral py-16 md:py-24">
         <div className="mx-auto max-w-3xl px-4 text-center text-white">
           <h2 className="text-2xl font-bold md:text-4xl">
             Ready to explore Korea like a local?

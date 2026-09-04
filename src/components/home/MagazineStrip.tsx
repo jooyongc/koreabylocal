@@ -28,7 +28,7 @@ export default function MagazineStrip() {
             <Link
               key={p.id}
               to={`/guidebook/${p.slug}`}
-              className={`group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(16,15,44,0.08)] ${
+              className={`group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(26,26,26,0.08)] ${
                 big ? "md:row-span-2" : ""
               }`}
             >

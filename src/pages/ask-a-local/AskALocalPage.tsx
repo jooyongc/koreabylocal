@@ -143,7 +143,7 @@ export default function AskALocalPage() {
           </p>
           <a
             href="/"
-            className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,45,120,0.35)] transition-transform hover:scale-[1.03]"
+            className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,53,0.35)] transition-transform hover:scale-[1.03]"
           >
             Back to home
           </a>
@@ -180,7 +180,7 @@ export default function AskALocalPage() {
         {/* Question form card */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mt-7 rounded-[20px] bg-white p-[18px] text-left shadow-[0_16px_44px_rgba(16,15,44,0.12)]"
+          className="mt-7 rounded-[20px] bg-white p-[18px] text-left shadow-[0_16px_44px_rgba(26,26,26,0.12)]"
         >
           {/* Message — the prominent "ask" textarea */}
           <div>
@@ -244,7 +244,7 @@ export default function AskALocalPage() {
             <button
               type="submit"
               disabled={isSubmitting || uploading}
-              className="inline-flex items-center gap-2 rounded-[12px] bg-accent px-[26px] py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,45,120,0.35)] transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+              className="inline-flex items-center gap-2 rounded-[12px] bg-accent px-[26px] py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,53,0.35)] transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
               {isSubmitting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -366,7 +366,7 @@ function AskFaq() {
             <button
               key={f.q}
               onClick={() => setOpen(isOpen ? -1 : i)}
-              className="rounded-[14px] bg-white p-4 px-5 shadow-[0_4px_16px_rgba(16,15,44,0.05)]"
+              className="rounded-[14px] bg-white p-4 px-5 shadow-[0_4px_16px_rgba(26,26,26,0.05)]"
               aria-expanded={isOpen}
             >
               <div className="flex items-center gap-3">

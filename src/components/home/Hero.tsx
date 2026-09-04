@@ -21,16 +21,15 @@ export default function Hero() {
           <h1 className="mt-4 font-display text-[clamp(42px,7vw,84px)] font-extrabold leading-[0.98] tracking-[-0.03em] text-ink">
             KOREA,
             <br />
-            the way we
+            every city
             <br />
             <span className="font-serif-accent font-medium italic text-accent">actually</span>
             <br />
-            live it.
+            worth it.
           </h1>
 
           <p className="mt-6 max-w-[46ch] text-[clamp(15px,1.6vw,18px)] leading-[1.6] text-muted">
-            Real cafés, real alleys, real hidden gems — region by region.
-            Hand-picked by locals, never an algorithm, never an ad.
+            From hidden alleys to local favorites — we help you travel deeper, city by city.
           </p>
         </div>
 

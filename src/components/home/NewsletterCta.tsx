@@ -1,15 +1,33 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
+import { supabase } from "@/lib/supabase";
+import { markSubscribed } from "@/lib/subscription";
 
 export default function NewsletterCta() {
   const ref = useReveal<HTMLElement>();
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const subscribe = (e: React.FormEvent) => {
+  const subscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    // TODO(db): persist subscriber + trigger welcome email.
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || submitting) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("subscribers").insert({
+      email: trimmedEmail,
+      source: "guidebook_cta",
+    });
+    setSubmitting(false);
+    if (error && !error.message.toLowerCase().includes("duplicate")) {
+      toast.error("Something went wrong — please try again.");
+      return;
+    }
+    supabase.functions.invoke("send-welcome-email", { body: { email: trimmedEmail } }).catch(() => {
+      // Email failure should not block the subscribe confirmation.
+    });
+    markSubscribed();
     toast.success("You’re on the list — see you in your inbox.");
     setEmail("");
   };
@@ -19,10 +37,7 @@ export default function NewsletterCta() {
       ref={ref}
       className="reveal mx-auto mt-[clamp(48px,7vw,90px)] max-w-[1180px] px-4 pb-[clamp(48px,7vw,90px)] sm:px-6 lg:px-8"
     >
-      <div
-        className="relative overflow-hidden rounded-[28px] p-[clamp(32px,5vw,60px)] text-center text-white"
-        style={{ background: "linear-gradient(120deg,#5b2bff,#ff2d78)" }}
-      >
+      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-ink to-coral p-[clamp(32px,5vw,60px)] text-center text-white">
         <div className="absolute -right-[30px] -top-[40px] h-[200px] w-[200px] rounded-full bg-white/10" />
         <div className="relative">
           <h2 className="font-display text-[clamp(26px,3.6vw,42px)] font-extrabold tracking-[-0.02em]">
@@ -43,8 +58,10 @@ export default function NewsletterCta() {
             />
             <button
               type="submit"
-              className="rounded-[13px] bg-ink px-7 py-[15px] text-[15px] font-bold text-white transition-transform hover:scale-[1.03]"
+              disabled={submitting}
+              className="flex items-center justify-center gap-2 rounded-[13px] bg-accent px-7 py-[15px] text-[15px] font-bold text-white transition-colors hover:bg-accent-dark disabled:opacity-50"
             >
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               Subscribe
             </button>
           </form>

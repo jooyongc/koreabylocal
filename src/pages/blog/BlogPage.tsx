@@ -80,7 +80,7 @@ export default function BlogPage() {
         </p>
 
         {/* Search */}
-        <div className="relative mx-auto mt-6 flex max-w-[560px] items-center gap-2 rounded-[14px] border border-ink/12 bg-white py-1.5 pl-4 pr-1.5 shadow-[0_8px_26px_rgba(16,15,44,0.06)]">
+        <div className="relative mx-auto mt-6 flex max-w-[560px] items-center gap-2 rounded-[14px] border border-ink/12 bg-white py-1.5 pl-4 pr-1.5 shadow-[0_8px_26px_rgba(26,26,26,0.06)]">
           <Search className="h-[18px] w-[18px] text-muted-3" />
           <input
             value={searchInput}
@@ -162,7 +162,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
   return (
     <Link
       to={`/guidebook/${post.slug}`}
-      className="flex w-full flex-wrap overflow-hidden rounded-[24px] bg-ink text-left shadow-[0_18px_50px_rgba(16,15,44,0.18)]"
+      className="flex w-full flex-wrap overflow-hidden rounded-[24px] bg-ink text-left shadow-[0_18px_50px_rgba(26,26,26,0.18)]"
     >
       <div className="relative min-h-[300px] flex-[2_1_360px] overflow-hidden bg-[#222]">
         <div
@@ -198,7 +198,7 @@ function MagazineCard({ post }: { post: BlogPost }) {
   return (
     <Link
       to={`/guidebook/${post.slug}`}
-      className="group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(16,15,44,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(16,15,44,0.16)]"
+      className="group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(26,26,26,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(26,26,26,0.16)]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-cream-200">
         <div

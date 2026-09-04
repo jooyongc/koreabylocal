@@ -19,7 +19,7 @@ export default function ShopProductCard({ title, partner, price, img, tag, href 
       href={href}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="group flex flex-col overflow-hidden rounded-[18px] bg-white text-left shadow-[0_8px_26px_rgba(16,15,44,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(16,15,44,0.16)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="group flex flex-col overflow-hidden rounded-[18px] bg-white text-left shadow-[0_8px_26px_rgba(26,26,26,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(26,26,26,0.16)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       <div className="relative aspect-square overflow-hidden bg-cream-200">
         <div
