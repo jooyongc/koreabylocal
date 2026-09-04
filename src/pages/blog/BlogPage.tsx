@@ -64,7 +64,7 @@ export default function BlogPage() {
       <PageSEO
         title="The Local Magazine | Korea By Local"
         description="Korea, written by the people who actually live here — honest city guides, food, itineraries and culture from verified local hosts."
-        path="/blog"
+        path="/guidebook"
       />
 
       {/* Hero */}
@@ -161,7 +161,7 @@ export default function BlogPage() {
 function FeaturedCard({ post }: { post: BlogPost }) {
   return (
     <Link
-      to={`/blog/${post.slug}`}
+      to={`/guidebook/${post.slug}`}
       className="flex w-full flex-wrap overflow-hidden rounded-[24px] bg-ink text-left shadow-[0_18px_50px_rgba(16,15,44,0.18)]"
     >
       <div className="relative min-h-[300px] flex-[2_1_360px] overflow-hidden bg-[#222]">
@@ -197,7 +197,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
 function MagazineCard({ post }: { post: BlogPost }) {
   return (
     <Link
-      to={`/blog/${post.slug}`}
+      to={`/guidebook/${post.slug}`}
       className="group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(16,15,44,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(16,15,44,0.16)]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-cream-200">

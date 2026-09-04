@@ -23,7 +23,7 @@ export default function BlogSection() {
         <SectionHeader
           title="Blog"
           subtitle="Festival, Local Travel, How to go, Etc."
-          action={{ label: "MORE VIEW", href: "/blog" }}
+          action={{ label: "MORE VIEW", href: "/guidebook" }}
         />
 
         {/* Category tabs */}

@@ -20,7 +20,7 @@ function formatViews(count: number): string {
 function BlogListCardInner({ post }: { post: BlogPost }) {
   return (
     <Link
-      to={`/blog/${post.slug}`}
+      to={`/guidebook/${post.slug}`}
       className="group block overflow-hidden rounded-xl border border-gray-100 bg-white transition-shadow hover:shadow-lg"
     >
       {/* Thumbnail */}

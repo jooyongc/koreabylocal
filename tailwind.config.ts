@@ -7,14 +7,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand palette (2026 renewal)
-        ink: "#100f2c",
-        paper: "#f6f1e7",
+        // Brand palette (KBL original, v3 restore)
+        ink: "#1a1a1a",
+        paper: "#fafaf8",
         canvas: "#cfcabd",
         purple: "#5b2bff",
         green: "#0e8c6a",
         gold: "#f2b705",
-        coral: "#e8452a",
+        coral: "#e84b2a",
         muted: {
           DEFAULT: "#5d5949",
           2: "#8a8676",
@@ -26,20 +26,22 @@ export default {
         },
         // Back-compat semantic tokens, remapped to the new brand
         primary: {
-          DEFAULT: "#100f2c",
+          DEFAULT: "#1a1a1a",
           light: "#5b2bff",
         },
         accent: {
-          DEFAULT: "#ff2d78",
+          DEFAULT: "#ff6b35",
+          light: "#fff3ee",
+          dark: "#e55a2b",
           purple: "#5b2bff",
           indigo: "#5b2bff",
         },
         background: {
-          DEFAULT: "#f6f1e7",
+          DEFAULT: "#fafaf8",
           gray: "#efe9dc",
         },
         text: {
-          DEFAULT: "#100f2c",
+          DEFAULT: "#1a1a1a",
           secondary: "#6b6757",
         },
       },

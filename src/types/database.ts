@@ -674,6 +674,21 @@ export type Database = {
           view_count: number
           created_at: string
           updated_at: string
+          spot_type: string | null
+          area: string | null
+          tagline: string | null
+          tips: string | null
+          address: string | null
+          google_maps_url: string | null
+          latitude: number | null
+          longitude: number | null
+          hours: string | null
+          price_range: string | null
+          phone: string | null
+          website: string | null
+          instagram: string | null
+          editor_pick: boolean
+          related_post_slugs: string[]
         }
         Insert: {
           id?: never
@@ -705,6 +720,21 @@ export type Database = {
           view_count?: number
           created_at?: string
           updated_at?: string
+          spot_type?: string | null
+          area?: string | null
+          tagline?: string | null
+          tips?: string | null
+          address?: string | null
+          google_maps_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          hours?: string | null
+          price_range?: string | null
+          phone?: string | null
+          website?: string | null
+          instagram?: string | null
+          editor_pick?: boolean
+          related_post_slugs?: string[]
         }
         Update: {
           id?: never
@@ -736,6 +766,21 @@ export type Database = {
           view_count?: number
           created_at?: string
           updated_at?: string
+          spot_type?: string | null
+          area?: string | null
+          tagline?: string | null
+          tips?: string | null
+          address?: string | null
+          google_maps_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          hours?: string | null
+          price_range?: string | null
+          phone?: string | null
+          website?: string | null
+          instagram?: string | null
+          editor_pick?: boolean
+          related_post_slugs?: string[]
         }
         Relationships: [
           {
@@ -761,6 +806,10 @@ export type Database = {
           map_left: string | null
           sort_order: number
           is_active: boolean
+          cover_image_url: string | null
+          description: string | null
+          best_season: string | null
+          getting_there_summary: string | null
         }
         Insert: {
           key: string
@@ -775,6 +824,10 @@ export type Database = {
           map_left?: string | null
           sort_order?: number
           is_active?: boolean
+          cover_image_url?: string | null
+          description?: string | null
+          best_season?: string | null
+          getting_there_summary?: string | null
         }
         Update: {
           key?: string
@@ -789,8 +842,152 @@ export type Database = {
           map_left?: string | null
           sort_order?: number
           is_active?: boolean
+          cover_image_url?: string | null
+          description?: string | null
+          best_season?: string | null
+          getting_there_summary?: string | null
         }
         Relationships: []
+      }
+      subscribers: {
+        Row: {
+          id: number
+          email: string
+          name: string | null
+          language: string
+          source: string | null
+          lead_magnet: string | null
+          status: string
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          id?: never
+          email: string
+          name?: string | null
+          language?: string
+          source?: string | null
+          lead_magnet?: string | null
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          id?: never
+          email?: string
+          name?: string | null
+          language?: string
+          source?: string | null
+          lead_magnet?: string | null
+          status?: string
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
+      ebooks: {
+        Row: {
+          id: number
+          slug: string
+          title: string
+          description: string | null
+          cover_image_url: string | null
+          preview_images: string[]
+          file_url: string | null
+          price_usd: number
+          price_jpy: number | null
+          download_count: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          slug: string
+          title: string
+          description?: string | null
+          cover_image_url?: string | null
+          preview_images?: string[]
+          file_url?: string | null
+          price_usd: number
+          price_jpy?: number | null
+          download_count?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          slug?: string
+          title?: string
+          description?: string | null
+          cover_image_url?: string | null
+          preview_images?: string[]
+          file_url?: string | null
+          price_usd?: number
+          price_jpy?: number | null
+          download_count?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      ebook_purchases: {
+        Row: {
+          id: number
+          ebook_id: number | null
+          buyer_email: string
+          buyer_name: string | null
+          payment_provider: string | null
+          payment_key: string | null
+          amount: number | null
+          currency: string
+          status: string
+          download_token: string | null
+          download_count: number
+          max_downloads: number
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          ebook_id?: number | null
+          buyer_email: string
+          buyer_name?: string | null
+          payment_provider?: string | null
+          payment_key?: string | null
+          amount?: number | null
+          currency?: string
+          status?: string
+          download_token?: string | null
+          download_count?: number
+          max_downloads?: number
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          ebook_id?: number | null
+          buyer_email?: string
+          buyer_name?: string | null
+          payment_provider?: string | null
+          payment_key?: string | null
+          amount?: number | null
+          currency?: string
+          status?: string
+          download_token?: string | null
+          download_count?: number
+          max_downloads?: number
+          paid_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ebook_purchases_ebook_id_fkey"
+            columns: ["ebook_id"]
+            isOneToOne: false
+            referencedRelation: "ebooks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_jobs: {
         Row: {

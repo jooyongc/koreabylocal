@@ -15,7 +15,7 @@ export default function PostNavigation({ prev, next }: PostNavigationProps) {
       {/* Previous */}
       {prev ? (
         <Link
-          to={`/blog/${prev.slug}`}
+          to={`/guidebook/${prev.slug}`}
           className="group flex items-center gap-3 rounded-xl border border-gray-200 p-4 transition-shadow hover:shadow-md"
         >
           <ChevronLeft className="h-5 w-5 shrink-0 text-text-secondary transition-transform group-hover:-translate-x-1" />
@@ -33,7 +33,7 @@ export default function PostNavigation({ prev, next }: PostNavigationProps) {
       {/* Next */}
       {next ? (
         <Link
-          to={`/blog/${next.slug}`}
+          to={`/guidebook/${next.slug}`}
           className="group flex items-center justify-end gap-3 rounded-xl border border-gray-200 p-4 text-right transition-shadow hover:shadow-md"
         >
           <div className="min-w-0">

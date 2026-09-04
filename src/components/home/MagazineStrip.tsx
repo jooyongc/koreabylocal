@@ -19,7 +19,7 @@ export default function MagazineStrip() {
       <SectionHeading
         eyebrow="Stories from the ground"
         title="The Local Magazine"
-        link={{ label: "Read more", to: "/blog" }}
+        link={{ label: "Read more", to: "/guidebook" }}
       />
       <div className="grid gap-[18px] md:grid-cols-2 md:grid-rows-2">
         {posts.map((p, i) => {
@@ -27,7 +27,7 @@ export default function MagazineStrip() {
           return (
             <Link
               key={p.id}
-              to={`/blog/${p.slug}`}
+              to={`/guidebook/${p.slug}`}
               className={`group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(16,15,44,0.08)] ${
                 big ? "md:row-span-2" : ""
               }`}

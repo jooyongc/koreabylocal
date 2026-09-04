@@ -80,7 +80,7 @@ export default function BlogDetailPage() {
         <h1 className="font-display text-2xl font-extrabold text-ink">Story not found</h1>
         <p className="mt-2 text-muted">This story doesn’t exist or was moved.</p>
         <Link
-          to="/blog"
+          to="/guidebook"
           className="mt-6 inline-block rounded-xl bg-accent px-6 py-2.5 text-sm font-bold text-white"
         >
           Back to the Magazine
@@ -91,7 +91,7 @@ export default function BlogDetailPage() {
 
   const pageTitle = `${post.seo_title ?? post.title} | Korea By Local`;
   const pageDesc = post.seo_description ?? post.excerpt ?? "";
-  const pagePath = `/blog/${post.slug}`;
+  const pagePath = `/guidebook/${post.slug}`;
   const pageUrl = `${SITE_URL}${pagePath}`;
   const author = post.author ?? "Korea by Local";
 
@@ -113,7 +113,7 @@ export default function BlogDetailPage() {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "Magazine", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 2, name: "Magazine", item: `${SITE_URL}/guidebook` },
       { "@type": "ListItem", position: 3, name: post.title },
     ],
   };
@@ -146,7 +146,7 @@ export default function BlogDetailPage() {
       {/* Header */}
       <section className="mx-auto max-w-[760px] px-4 pb-[clamp(12px,2vw,20px)] pt-[clamp(24px,3.5vw,44px)] sm:px-6">
         <div className="mb-4 text-[12.5px] text-muted-2">
-          <Link to="/blog" className="hover:text-ink">Magazine</Link> / {post.category}
+          <Link to="/guidebook" className="hover:text-ink">Magazine</Link> / {post.category}
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
           <span className="rounded-[7px] bg-accent px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-[0.06em] text-white">

@@ -1,45 +1,48 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, ChevronDown, BookOpen } from "lucide-react";
 
 interface NavItem {
   label: string;
   href: string;
+  badge?: string;
   children?: { label: string; href: string }[];
 }
 
+// v3 IA: Explore (home spot gallery) · Guidebook (guides/getting there/ask a local) · About · E-book.
 const NAV_ITEMS: NavItem[] = [
-  { label: "Magazine", href: "/blog" },
-  { label: "Ask a Local", href: "/ask-a-local" },
-  { label: "Experiences", href: "/tours" },
+  { label: "Explore", href: "/" },
   {
-    label: "Transfers",
-    href: "/transfers",
+    label: "Guidebook",
+    href: "/guidebook",
     children: [
-      { label: "All transfers", href: "/transfers" },
-      { label: "Transportation", href: "/transfers/transportation" },
-      { label: "Tour Planning", href: "/transfers/tour-planning" },
+      { label: "Guides", href: "/guidebook" },
+      { label: "Getting There", href: "/getting-there" },
+      { label: "Ask a Local", href: "/ask-a-local" },
     ],
   },
-  {
-    label: "Shop",
-    href: "/shop",
-    children: [
-      { label: "All", href: "/shop" },
-      { label: "Magazine", href: "/shop/magazine" },
-      { label: "K-Goods", href: "/shop/k-goods" },
-      { label: "Print", href: "/shop/print" },
-    ],
-  },
+  { label: "About", href: "/about" },
+  { label: "E-book", href: "/ebook", badge: "NEW" },
 ];
 
 export default function MobileNav() {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const close = () => {
     setIsOpen(false);
     setExpanded(null);
+  };
+
+  // On the homepage, "Explore" scrolls to the spot gallery instead of reloading the route.
+  const handleItemClick = (href: string) => {
+    close();
+    if (href === "/" && location.pathname === "/") {
+      setTimeout(() => {
+        document.getElementById("spot-gallery")?.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
   };
 
   return (
@@ -104,10 +107,16 @@ export default function MobileNav() {
               ) : (
                 <Link
                   to={item.href}
-                  onClick={close}
-                  className="block rounded-xl px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-ink/5"
+                  onClick={() => handleItemClick(item.href)}
+                  className="flex items-center gap-2 rounded-xl px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-ink/5"
                 >
+                  {item.label === "E-book" && <BookOpen className="h-4 w-4" />}
                   {item.label}
+                  {item.badge && (
+                    <span className="rounded-full bg-accent px-1.5 py-[1px] text-[9px] font-extrabold uppercase tracking-wide text-white">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               )}
             </div>

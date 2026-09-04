@@ -21,7 +21,7 @@ export default function RecentlyAnswered() {
         {posts.map((post) => (
           <Link
             key={post.id}
-            to={`/blog/${post.slug}`}
+            to={`/guidebook/${post.slug}`}
             className="group flex flex-col rounded-[18px] bg-white p-[22px] shadow-[0_8px_26px_rgba(16,15,44,0.07)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(16,15,44,0.14)]"
           >
             <h3 className="font-display text-[16px] font-bold leading-[1.3] text-ink group-hover:text-accent">

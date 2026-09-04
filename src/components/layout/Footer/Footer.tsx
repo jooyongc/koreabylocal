@@ -7,7 +7,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
     links: [
       { label: "Experiences", href: "/tours" },
       { label: "Private transfers", href: "/transfers" },
-      { label: "The Magazine", href: "/blog" },
+      { label: "The Magazine", href: "/guidebook" },
       { label: "K-Goods shop", href: "/shop" },
       { label: "Ask a Local", href: "/ask-a-local" },
     ],
@@ -16,7 +16,7 @@ const COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
     title: "Company",
     links: [
       { label: "About us", href: "/about" },
-      { label: "The Magazine", href: "/blog" },
+      { label: "The Magazine", href: "/guidebook" },
       { label: "Become a host", href: "/ask-a-local" },
     ],
   },

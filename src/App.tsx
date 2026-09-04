@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { Layout } from "@/components/layout";
 import { AdminLayout } from "@/components/admin";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -10,15 +10,15 @@ import { useSiteAnalytics } from "@/hooks/useSiteAnalytics";
 
 // ── Public pages ──────────────────────────────────────────────
 const HomePage = lazy(() => import("@/pages/HomePage"));
-const ToursPage = lazy(() => import("@/pages/tours/ToursPage"));
-const TourDetailPage = lazy(() => import("@/pages/tours/TourDetailPage"));
 const TransfersPage = lazy(() => import("@/pages/transfers/TransfersPage"));
 const TransportationPage = lazy(() => import("@/pages/transfers/TransportationPage"));
 const TourPlanningPage = lazy(() => import("@/pages/transfers/TourPlanningPage"));
 const BlogPage = lazy(() => import("@/pages/blog/BlogPage"));
 const BlogDetailPage = lazy(() => import("@/pages/blog/BlogDetailPage"));
 const AskALocalPage = lazy(() => import("@/pages/ask-a-local/AskALocalPage"));
-const ShopPage = lazy(() => import("@/pages/shop/ShopPage"));
+const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
+const DestinationDetailPage = lazy(() => import("@/pages/destinations/DestinationDetailPage"));
+const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
 const MagazinePage = lazy(() => import("@/pages/shop/MagazinePage"));
 const KGoodsPage = lazy(() => import("@/pages/shop/KGoodsPage"));
 const PrintPage = lazy(() => import("@/pages/shop/PrintPage"));
@@ -60,6 +60,12 @@ const AdminContentStudio = lazy(() => import("@/pages/admin/ContentStudioPage"))
 // ── 404 ───────────────────────────────────────────────────────
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
+/** Redirects an old `:slug` route to its new home, preserving the slug (SEO-safe). */
+function SlugRedirect({ to }: { to: string }) {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={`${to}/${slug ?? ""}`} replace />;
+}
+
 function App() {
   const initialize = useAuthStore((s) => s.initialize);
   useSiteFont();
@@ -77,19 +83,21 @@ function App() {
           {/* ── Public ──────────────────────────────────── */}
           <Route path="/" element={<HomePage />} />
 
-          <Route path="/tours" element={<ToursPage />} />
-          <Route path="/tours/:slug" element={<TourDetailPage />} />
+          <Route path="/spots/:slug" element={<SpotDetailPage />} />
+          <Route path="/destinations/:region" element={<DestinationDetailPage />} />
 
           <Route path="/transfers" element={<TransfersPage />} />
           <Route path="/transfers/transportation" element={<TransportationPage />} />
           <Route path="/transfers/tour-planning" element={<TourPlanningPage />} />
+          <Route path="/getting-there" element={<TransfersPage />} />
 
-          <Route path="/blog" element={<BlogPage />} />
-          <Route path="/blog/:slug" element={<BlogDetailPage />} />
+          <Route path="/guidebook" element={<BlogPage />} />
+          <Route path="/guidebook/:slug" element={<BlogDetailPage />} />
 
           <Route path="/ask-a-local" element={<AskALocalPage />} />
 
-          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/ebook" element={<EbookPage />} />
+
           <Route path="/shop/magazine" element={<MagazinePage />} />
           <Route path="/shop/k-goods" element={<KGoodsPage />} />
           <Route path="/shop/print" element={<PrintPage />} />
@@ -102,6 +110,12 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
+
+          {/* ── Legacy redirects (v3 renewal — preserve SEO) ── */}
+          <Route path="/blog" element={<Navigate to="/guidebook" replace />} />
+          <Route path="/blog/:slug" element={<SlugRedirect to="/guidebook" />} />
+          <Route path="/tours" element={<Navigate to="/" replace />} />
+          <Route path="/tours/:slug" element={<SlugRedirect to="/spots" />} />
 
           {/* ── Auth ────────────────────────────────────── */}
           <Route path="/login" element={<LoginPage />} />

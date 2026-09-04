@@ -15,7 +15,7 @@ export default function BlogFormActions({ isSubmitting, onSaveDraft }: Props) {
 
   const openPreview = () => {
     if (slug) {
-      window.open(`/blog/${slug}`, "_blank");
+      window.open(`/guidebook/${slug}`, "_blank");
     }
   };
 

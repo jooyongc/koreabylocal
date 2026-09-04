@@ -2,21 +2,23 @@
 @plugin "@tailwindcss/typography";
 
 /* ===========================================================================
-   Korea by Local — design system (2026 renewal)
-   Brand: magazine-first local platform. Warm paper surface, ink navy,
-   hot-pink accent. Display: Bricolage Grotesque · Serif: Newsreader ·
+   Korea by Local — design system (v3 renewal)
+   Brand: magazine-first local platform. Bright off-white surface, near-black
+   ink, KBL orange accent. Display: Bricolage Grotesque · Serif: Newsreader ·
    Body/Korean: Pretendard.
    =========================================================================== */
 @theme {
-  /* ── Brand palette ──────────────────────────────────────────── */
-  --color-ink: #100f2c;        /* near-black navy — primary text/surfaces */
-  --color-paper: #f6f1e7;      /* warm cream — app surface */
+  /* ── Brand palette (KBL original, v3 restore) ─────────────────── */
+  --color-ink: #1a1a1a;        /* near-black — primary text/surfaces */
+  --color-paper: #fafaf8;      /* bright off-white — app surface */
   --color-canvas: #cfcabd;     /* deeper taupe — section/edge backdrop */
-  --color-accent: #ff2d78;     /* hot pink — primary accent */
+  --color-accent: #ff6b35;     /* KBL orange — primary accent */
+  --color-accent-light: #fff3ee; /* light orange — accent backgrounds */
+  --color-accent-dark: #e55a2b;  /* accent hover state */
   --color-purple: #5b2bff;
   --color-green: #0e8c6a;
   --color-gold: #f2b705;
-  --color-coral: #e8452a;
+  --color-coral: #e84b2a;      /* Hero background */
 
   /* ── Warm neutral scale ─────────────────────────────────────── */
   --color-muted: #5d5949;
@@ -27,13 +29,13 @@
 
   /* ── Back-compat semantic tokens (existing components) ──────────
      Remapped to the new brand so legacy pages adopt the renewal. */
-  --color-primary: #100f2c;
+  --color-primary: #1a1a1a;
   --color-primary-light: #5b2bff;
   --color-accent-purple: #5b2bff;
   --color-accent-indigo: #5b2bff;
-  --color-background: #f6f1e7;
+  --color-background: #fafaf8;
   --color-background-gray: #efe9dc;
-  --color-text: #100f2c;
+  --color-text: #1a1a1a;
   --color-text-secondary: #6b6757;
 
   /* ── Type ───────────────────────────────────────────────────── */
@@ -44,9 +46,9 @@
 
   /* ── Radii / shadow tokens ──────────────────────────────────── */
   --radius-card: 18px;
-  --shadow-card: 0 8px 26px rgba(16, 15, 44, 0.08);
-  --shadow-card-hover: 0 20px 44px rgba(16, 15, 44, 0.16);
-  --shadow-float: 0 16px 44px rgba(16, 15, 44, 0.13);
+  --shadow-card: 0 8px 26px rgba(26, 26, 26, 0.08);
+  --shadow-card-hover: 0 20px 44px rgba(26, 26, 26, 0.16);
+  --shadow-float: 0 16px 44px rgba(26, 26, 26, 0.13);
 }
 
 html {
@@ -108,7 +110,7 @@ body {
 .font-display { font-family: var(--font-display); }
 .font-serif-accent { font-family: var(--font-serif); }
 
-/* Hot-pink hand-drawn underline accent (logo / headings) */
+/* Hand-drawn underline accent (logo / headings) */
 .accent-underline {
   position: relative;
   white-space: nowrap;
@@ -208,13 +210,13 @@ body {
 .kbl-article :where(th, td) {
   text-align: left;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(16, 15, 44, 0.1);
+  border-bottom: 1px solid rgba(26, 26, 26, 0.1);
   vertical-align: top;
 }
 .kbl-article :where(thead th) {
   font-family: var(--font-display);
   font-weight: 700;
   color: var(--color-ink);
-  border-bottom: 2px solid rgba(16, 15, 44, 0.16);
+  border-bottom: 2px solid rgba(26, 26, 26, 0.16);
 }
-.kbl-article :where(tbody tr:hover) { background: rgba(16, 15, 44, 0.02); }
+.kbl-article :where(tbody tr:hover) { background: rgba(26, 26, 26, 0.02); }

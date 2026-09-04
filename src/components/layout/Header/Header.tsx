@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, BookOpen } from "lucide-react";
 import Logo from "./Logo";
 import DesktopNav from "./DesktopNav";
 import MobileNav from "./MobileNav";
@@ -22,7 +22,18 @@ export default function Header() {
         {/* Right: actions */}
         <div className="flex items-center gap-1.5">
           <Link
-            to="/blog"
+            to="/ebook"
+            aria-label="E-book"
+            className="flex h-[38px] items-center gap-1.5 rounded-full bg-ink/5 px-3 text-ink transition-colors hover:bg-ink/10"
+          >
+            <BookOpen className="h-[18px] w-[18px]" />
+            <span className="hidden text-[13.5px] font-semibold sm:inline">E-book</span>
+            <span className="rounded-full bg-accent px-1.5 py-[1px] text-[9px] font-extrabold uppercase tracking-wide text-white">
+              New
+            </span>
+          </Link>
+          <Link
+            to="/guidebook"
             aria-label="Search stories"
             className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-ink/5 text-ink transition-colors hover:bg-ink/10"
           >

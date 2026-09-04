@@ -73,6 +73,22 @@ export function useRegions() {
   });
 }
 
+export function useRegion(key: string | undefined) {
+  return useQuery({
+    queryKey: ["region", key],
+    enabled: !!key,
+    queryFn: async (): Promise<RegionRow | null> => {
+      const { data, error } = await supabase
+        .from("regions")
+        .select("*")
+        .eq("key", key!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export interface SiteStats {
   posts: number;
   experiences: number;

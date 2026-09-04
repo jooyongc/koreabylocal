@@ -16,7 +16,7 @@ export default function Hero() {
 
   const search = (term?: string) => {
     const query = (term ?? q).trim();
-    navigate(query ? `/blog?q=${encodeURIComponent(query)}` : "/blog");
+    navigate(query ? `/guidebook?q=${encodeURIComponent(query)}` : "/guidebook");
   };
 
   return (
