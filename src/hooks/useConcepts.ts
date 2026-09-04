@@ -41,6 +41,24 @@ export function useExperience(slug: string | undefined) {
   });
 }
 
+export function useEditorPickSpot() {
+  return useQuery({
+    queryKey: ["editor-pick-spot"],
+    queryFn: async (): Promise<ExperienceRow | null> => {
+      const { data, error } = await supabase
+        .from("experiences")
+        .select("*")
+        .eq("is_active", true)
+        .eq("editor_pick", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useHosts(limit?: number) {
   return useQuery({
     queryKey: ["hosts", limit ?? null],

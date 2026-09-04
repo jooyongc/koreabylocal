@@ -9,6 +9,20 @@ import {
 } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import TrustBar from "@/components/home/TrustBar";
+import FaqAccordion from "@/components/home/FaqAccordion";
+import { HOME_FAQS } from "@/data/homeFaqs";
+
+// AEO/SEO: FAQPage structured data for Google & AI answer engines.
+const FAQ_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: HOME_FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 
 interface HeroData {
   title: string;
@@ -75,6 +89,7 @@ export default function AboutPage() {
         title="About Us | Korea By Local"
         description="Learn about Korea By Local and our mission to share authentic Korean experiences through local connections."
         path="/about"
+        jsonLd={FAQ_SCHEMA}
       />
 
       {/* Hero Section */}
@@ -190,6 +205,9 @@ export default function AboutPage() {
         </section>
       )}
 
+      <TrustBar />
+      <FaqAccordion />
+
       {/* CTA Section */}
       <section className="bg-gradient-to-br from-[#00005a] via-[#2a1a6e] to-[#6312ff] py-16 md:py-24">
         <div className="mx-auto max-w-3xl px-4 text-center text-white">
@@ -197,15 +215,15 @@ export default function AboutPage() {
             Ready to explore Korea like a local?
           </h2>
           <p className="mt-4 text-base text-white/80 md:text-lg">
-            Browse our curated tours and experiences, or ask our locals
-            anything about Korea.
+            Browse our curated local spots, or ask our locals anything about
+            Korea.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              to="/tours"
+              to="/"
               className="group inline-flex items-center gap-2 rounded-full bg-white px-8 py-3 text-sm font-semibold text-primary transition-all hover:bg-white/90 md:text-base"
             >
-              Explore Tours
+              Explore Spots
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
             <Link
