@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { markSubscribed } from "@/lib/subscription";
 
 const STORAGE_KEY = "kbl_newsletter_banner_dismissed_until";
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -36,8 +37,9 @@ export default function NewsletterBanner() {
     e.preventDefault();
     if (!email.trim() || status === "submitting") return;
     setStatus("submitting");
+    const trimmedEmail = email.trim();
     const { error } = await supabase.from("subscribers").insert({
-      email: email.trim(),
+      email: trimmedEmail,
       source: "homepage_banner",
       lead_magnet: "checklist",
     });
@@ -45,6 +47,12 @@ export default function NewsletterBanner() {
       setStatus("idle");
       return;
     }
+    supabase.functions
+      .invoke("send-welcome-email", { body: { email: trimmedEmail, lead_magnet: "checklist" } })
+      .catch(() => {
+        // Email failure should not block the subscribe confirmation.
+      });
+    markSubscribed();
     remember();
     setStatus("success");
     setEmail("");
