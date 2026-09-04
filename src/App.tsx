@@ -17,6 +17,8 @@ const GuidebookPage = lazy(() => import("@/pages/guidebook/GuidebookPage"));
 const GuideDetailPage = lazy(() => import("@/pages/guidebook/GuideDetailPage"));
 const AskALocalPage = lazy(() => import("@/pages/ask-a-local/AskALocalPage"));
 const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
+const EbookSuccessPage = lazy(() => import("@/pages/ebook/EbookSuccessPage"));
+const EbookDownloadPage = lazy(() => import("@/pages/ebook/EbookDownloadPage"));
 const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
 const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
 const MagazinePage = lazy(() => import("@/pages/shop/MagazinePage"));
@@ -96,6 +98,8 @@ function App() {
           <Route path="/ask-a-local" element={<AskALocalPage />} />
 
           <Route path="/ebook" element={<EbookPage />} />
+          <Route path="/ebook/success" element={<EbookSuccessPage />} />
+          <Route path="/ebook/download/:token" element={<EbookDownloadPage />} />
 
           <Route path="/shop/magazine" element={<MagazinePage />} />
           <Route path="/shop/k-goods" element={<KGoodsPage />} />

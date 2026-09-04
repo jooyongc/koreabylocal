@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { X, Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
 import { useEbooks } from "@/hooks/useEbooks";
-import { supabase } from "@/lib/supabase";
+import EmailCaptureModal from "@/components/ebook/EmailCaptureModal";
 
 export default function EbookBanner() {
   const { data: ebooks } = useEbooks();
@@ -50,67 +48,16 @@ export default function EbookBanner() {
         </div>
       </div>
 
-      {showSample && <FreeSampleModal onClose={() => setShowSample(false)} />}
+      {showSample && (
+        <EmailCaptureModal
+          title="Get a free sample"
+          description="We'll send a preview chapter of the e-book straight to your inbox."
+          source="ebook_banner"
+          leadMagnet="ebook_sample"
+          successMessage="Check your inbox — your free sample is on the way!"
+          onClose={() => setShowSample(false)}
+        />
+      )}
     </section>
-  );
-}
-
-function FreeSampleModal({ onClose }: { onClose: () => void }) {
-  const [email, setEmail] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || submitting) return;
-    setSubmitting(true);
-    const { error } = await supabase.from("subscribers").insert({
-      email: email.trim(),
-      source: "ebook_banner",
-      lead_magnet: "ebook_sample",
-    });
-    setSubmitting(false);
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
-      toast.error("Something went wrong — please try again.");
-      return;
-    }
-    toast.success("Check your inbox — your free sample is on the way!");
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
-      <div
-        className="w-full max-w-[420px] rounded-[20px] bg-white p-[clamp(24px,4vw,32px)] shadow-[0_30px_70px_rgba(26,26,26,0.3)]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between">
-          <h3 className="font-display text-[20px] font-extrabold text-ink">Get a free sample</h3>
-          <button onClick={onClose} aria-label="Close" className="text-muted-2 hover:text-ink">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <p className="mt-2 text-[14px] text-muted">
-          We'll send a preview chapter of the e-book straight to your inbox.
-        </p>
-        <form onSubmit={submit} className="mt-5 flex flex-col gap-2.5">
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@email.com"
-            className="rounded-[13px] border border-ink/12 px-[16px] py-[12px] text-[15px] text-ink outline-none placeholder:text-muted-3"
-          />
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex items-center justify-center gap-2 rounded-[13px] bg-accent py-[12px] text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Send my sample
-          </button>
-        </form>
-      </div>
-    </div>
   );
 }
