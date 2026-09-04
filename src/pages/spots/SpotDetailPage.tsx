@@ -74,7 +74,7 @@ export default function SpotDetailPage() {
   return (
     <>
       <PageSEO
-        title={`${spot.title} | Korea By Local`}
+        title={regionName ? `${spot.title} — ${regionName} | Korea by Local` : `${spot.title} | Korea by Local`}
         description={(spot.tagline ?? spot.description ?? `${spot.title} — a local spot in ${spot.location ?? "Korea"}.`).slice(0, 160)}
         path={`/spots/${spot.slug}`}
         ogImage={hero || undefined}

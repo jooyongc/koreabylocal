@@ -71,7 +71,7 @@ export default function GuideDetailPage() {
       const [{ data: prev }, { data: next }] = await Promise.all([
         supabase
           .from("blog_posts")
-          .select("*")
+          .select("id, slug, title, published_at")
           .eq("status", "published")
           .lt("published_at", post!.published_at!)
           .order("published_at", { ascending: false })
@@ -79,7 +79,7 @@ export default function GuideDetailPage() {
           .maybeSingle(),
         supabase
           .from("blog_posts")
-          .select("*")
+          .select("id, slug, title, published_at")
           .eq("status", "published")
           .gt("published_at", post!.published_at!)
           .order("published_at", { ascending: true })

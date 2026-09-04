@@ -78,6 +78,7 @@ export default function ProductSearchModal({ open, onClose, onSelect }: Props) {
                   <img
                     src={p.thumbnail_url}
                     alt=""
+                    loading="lazy"
                     className="h-10 w-10 shrink-0 rounded object-cover"
                   />
                 ) : (

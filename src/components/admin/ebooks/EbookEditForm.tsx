@@ -148,7 +148,7 @@ export default function EbookEditForm({ ebook, onDone }: Props) {
       <div>
         <label className={labelCls}>Cover image</label>
         <div className="flex items-center gap-3">
-          {coverImage && <img src={coverImage} alt="" className="h-16 w-16 rounded-lg object-cover" />}
+          {coverImage && <img src={coverImage} alt="" loading="lazy" className="h-16 w-16 rounded-lg object-cover" />}
           <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
             {uploadingCover ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
             {coverImage ? "Replace" : "Upload"}
@@ -168,7 +168,7 @@ export default function EbookEditForm({ ebook, onDone }: Props) {
           <div className="flex flex-wrap gap-2">
             {previewImages.map((url, i) => (
               <div key={url} className="group relative h-16 w-16 overflow-hidden rounded-lg border border-gray-200">
-                <img src={url} alt="" className="h-full w-full object-cover" />
+                <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
                 <button
                   type="button"
                   onClick={() => setValue("preview_images", previewImages.filter((_, idx) => idx !== i))}

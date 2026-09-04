@@ -22,10 +22,10 @@ export default defineConfig({
               id.includes("/react-router") ||
               id.includes("/scheduler/")
             ) {
-              return "react-vendor";
+              return "vendor";
             }
             // Data layer
-            if (id.includes("@tanstack/react-query")) return "query-vendor";
+            if (id.includes("@tanstack/react-query")) return "query";
             // Supabase
             if (id.includes("@supabase/")) return "supabase";
             // Rich text editor (admin-only)

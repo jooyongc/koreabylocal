@@ -13,7 +13,7 @@ export default function EbookBanner() {
       <div className="grid grid-cols-1 items-center gap-[clamp(24px,4vw,44px)] overflow-hidden rounded-[24px] bg-accent-light p-[clamp(26px,4vw,48px)] lg:grid-cols-[1fr_1.4fr]">
         <div className="flex justify-center">
           {cover ? (
-            <img src={cover} alt="Korea By Local e-book" className="w-full max-w-[240px] rounded-xl shadow-[0_20px_44px_rgba(232,75,42,0.2)]" />
+            <img src={cover} alt="Korea By Local e-book" loading="lazy" className="w-full max-w-[240px] rounded-xl shadow-[0_20px_44px_rgba(232,75,42,0.2)]" />
           ) : (
             <div className="flex aspect-[3/4] w-full max-w-[220px] rotate-[-3deg] items-center justify-center rounded-xl bg-white shadow-[0_20px_44px_rgba(232,75,42,0.2)]">
               <span className="px-6 text-center font-display text-[15px] font-extrabold text-accent-dark">

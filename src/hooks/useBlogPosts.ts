@@ -8,7 +8,7 @@ export function useBlogPosts(category?: string, limit = 8) {
     queryFn: async () => {
       let query = supabase
         .from("blog_posts")
-        .select("*")
+        .select("id, slug, title, excerpt, thumbnail_url, category, author, published_at, view_count")
         .eq("status", "published")
         .order("published_at", { ascending: false })
         .limit(limit);
@@ -18,7 +18,7 @@ export function useBlogPosts(category?: string, limit = 8) {
       }
 
       const { data } = await query;
-      return data ?? [];
+      return (data ?? []) as BlogPost[];
     },
   });
 }

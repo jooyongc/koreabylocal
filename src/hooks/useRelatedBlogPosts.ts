@@ -12,7 +12,7 @@ export function useRelatedBlogPosts(
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("id, slug, title, excerpt, thumbnail_url, category, author, published_at, view_count")
         .eq("status", "published")
         .eq("category", category!)
         .neq("id", excludeId!)

@@ -106,7 +106,7 @@ export default function TourDetailPage() {
                     onClick={() => setHeroIdx(i)}
                     className={`h-16 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${i === heroIdx ? "border-accent" : "border-transparent"}`}
                   >
-                    <img src={img} alt="" className="h-full w-full object-cover" />
+                    <img src={img} alt="" loading="lazy" className="h-full w-full object-cover" />
                   </button>
                 ))}
               </div>

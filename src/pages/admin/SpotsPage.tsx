@@ -44,7 +44,7 @@ function SpotTable({ spots }: { spots: AdminSpotRow[] }) {
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
                     {spot.thumbnail_url && (
-                      <img src={spot.thumbnail_url} alt="" className="h-9 w-9 rounded-lg object-cover" />
+                      <img src={spot.thumbnail_url} alt="" loading="lazy" className="h-9 w-9 rounded-lg object-cover" />
                     )}
                     <span className="font-medium text-primary">{spot.title}</span>
                   </div>

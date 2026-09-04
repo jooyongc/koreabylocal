@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
+import { SPOT_CARD_COLUMNS, type SpotRow } from "./useSpots";
 
 export type ExperienceRow = Tables<"experiences">;
 export type HostRow = Tables<"hosts">;
@@ -44,17 +45,17 @@ export function useExperience(slug: string | undefined) {
 export function useEditorPickSpot() {
   return useQuery({
     queryKey: ["editor-pick-spot"],
-    queryFn: async (): Promise<ExperienceRow | null> => {
+    queryFn: async (): Promise<SpotRow | null> => {
       const { data, error } = await supabase
         .from("experiences")
-        .select("*")
+        .select(SPOT_CARD_COLUMNS)
         .eq("is_active", true)
         .eq("editor_pick", true)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as SpotRow | null;
     },
   });
 }

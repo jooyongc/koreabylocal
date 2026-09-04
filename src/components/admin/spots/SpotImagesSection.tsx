@@ -59,7 +59,7 @@ export default function SpotImagesSection() {
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
           {images.map((url, i) => (
             <div key={url} className="group relative aspect-square overflow-hidden rounded-lg border border-gray-200">
-              <img src={url} alt={`Spot ${i + 1}`} className="h-full w-full object-cover" />
+              <img src={url} alt={`Spot ${i + 1}`} loading="lazy" className="h-full w-full object-cover" />
               {i === 0 && (
                 <span className="absolute left-1 top-1 flex items-center gap-0.5 rounded bg-yellow-400 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                   <Star className="h-3 w-3" />

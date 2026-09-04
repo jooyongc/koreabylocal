@@ -18,7 +18,7 @@ export default function DestinationPage() {
     queryFn: async (): Promise<BlogPost[]> => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("id, slug, title")
         .eq("status", "published")
         .or(`title.ilike.%${region!.name}%,excerpt.ilike.%${region!.name}%`)
         .order("published_at", { ascending: false })

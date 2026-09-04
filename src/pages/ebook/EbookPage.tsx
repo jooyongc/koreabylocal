@@ -119,7 +119,7 @@ export default function EbookPage() {
   return (
     <>
       <PageSEO
-        title={`${ebook.title} | Korea By Local`}
+        title={`${ebook.title} — E-book | Korea by Local`}
         description={(ebook.description ?? "Our full local guide to Korea, in one downloadable e-book.").slice(0, 160)}
         path="/ebook"
         ogImage={ebook.cover_image_url ?? undefined}
@@ -199,7 +199,7 @@ export default function EbookPage() {
             >
               {ebook.preview_images.map((img, i) => (
                 <SwiperSlide key={i}>
-                  <img src={img} alt={`Preview page ${i + 1}`} className="aspect-[3/4] w-full rounded-xl object-cover" />
+                  <img src={img} alt={`Preview page ${i + 1}`} loading="lazy" className="aspect-[3/4] w-full rounded-xl object-cover" />
                 </SwiperSlide>
               ))}
             </Swiper>

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { useSpots } from "@/hooks/useSpots";
 import { useSpotFilters } from "@/hooks/useSpotFilters";
@@ -16,6 +17,22 @@ export default function SpotGrid({ area: areaOverride }: SpotGridProps = {}) {
   const spots = data?.pages.flatMap((p) => p.rows) ?? [];
   const hasFilter = !!area || !!type;
 
+  // Auto-load the next page as the sentinel nears the viewport, instead of a "Load More" click.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isFetchingNextPage) fetchNextPage();
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
   return (
     <div id="spot-gallery" className="mx-auto max-w-[1180px] scroll-mt-24 px-4 pb-[clamp(28px,4vw,44px)] pt-[clamp(20px,3vw,32px)] sm:px-6 lg:px-8">
       {isLoading ? (
@@ -32,15 +49,8 @@ export default function SpotGrid({ area: areaOverride }: SpotGridProps = {}) {
             ))}
           </div>
           {hasNextPage && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-                className="flex items-center gap-2 rounded-full border border-ink/15 bg-white px-7 py-3 text-[14px] font-bold text-ink transition-colors hover:border-ink/30 disabled:opacity-50"
-              >
-                {isFetchingNextPage && <Loader2 className="h-4 w-4 animate-spin" />}
-                Load More
-              </button>
+            <div ref={sentinelRef} className="mt-8 flex justify-center">
+              {isFetchingNextPage && <Loader2 className="h-5 w-5 animate-spin text-accent" />}
             </div>
           )}
         </>

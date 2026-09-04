@@ -43,6 +43,7 @@ export default function BlogListTable({ posts, onDelete }: Props) {
                     <img
                       src={post.thumbnail_url}
                       alt=""
+                      loading="lazy"
                       className="h-10 w-14 shrink-0 rounded object-cover"
                     />
                   ) : (

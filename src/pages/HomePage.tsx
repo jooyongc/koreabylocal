@@ -40,7 +40,7 @@ export default function HomePage() {
   return (
     <>
       <PageSEO
-        title="Korea By Local — Real spots, hand-picked by locals"
+        title="Korea by Local — See Korea the way locals live it"
         description="A curated gallery of honest local spots across Korea — cafés, alleys and hidden gems. Hand-picked by locals, never an algorithm, never an ad."
         path="/"
         jsonLd={[ORG_SCHEMA, WEBSITE_SCHEMA]}

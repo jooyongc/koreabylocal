@@ -163,6 +163,7 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
                     <img
                       src={thumbnailUrl}
                       alt="Thumbnail"
+                      loading="lazy"
                       className="h-40 rounded-lg object-cover"
                     />
                     <button

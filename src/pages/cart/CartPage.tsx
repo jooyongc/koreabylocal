@@ -34,6 +34,7 @@ function CartItemRow({ item }: { item: CartItem }) {
                 <img
                   src={item.thumbnail}
                   alt={item.title}
+                  loading="lazy"
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -115,6 +116,7 @@ function CartItemRow({ item }: { item: CartItem }) {
             <img
               src={item.thumbnail}
               alt={item.title}
+              loading="lazy"
               className="h-full w-full object-cover"
             />
           ) : (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Send, Upload, X, Loader2, CheckCircle } from "lucide-react";
+import { Send, Upload, X, Loader2, CheckCircle, Plus } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
@@ -15,6 +15,23 @@ const CATEGORIES = [
   "Custom Request",
   "Other",
 ] as const;
+
+// Kept in sync with the trust row below — FAQPage structured data must match visible content.
+const FAQS = [
+  { q: "Is it free to ask a local?", a: "Yes — completely free, and no account is needed." },
+  { q: "How fast will I get a reply?", a: "Usually within a few hours. Our average reply time is about 3 hours." },
+  { q: "Who actually answers my question?", a: "A verified local host in Korea — never a bot or an algorithm." },
+];
+
+const FAQ_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 
 interface InquiryForm {
   name: string;
@@ -138,9 +155,10 @@ export default function AskALocalPage() {
   return (
     <>
       <PageSEO
-        title="Ask a Local | Korea By Local"
+        title="Ask a Local — Real Answers About Korea Travel"
         description="Have a question about Korea? Ask our local experts for personalized travel recommendations, tips, and custom trip planning."
         path="/ask-a-local"
+        jsonLd={FAQ_SCHEMA}
       />
 
       {/* ── Hero + form card ───────────────────────────────────────── */}
@@ -319,6 +337,9 @@ export default function AskALocalPage() {
           <span aria-hidden="true">·</span>
           <span>✦ 60 verified hosts</span>
         </div>
+
+        {/* FAQ (mirrors the FAQPage structured data above) */}
+        <AskFaq />
       </section>
 
       {/* ── Recently answered ──────────────────────────────────────── */}
@@ -330,5 +351,44 @@ export default function AskALocalPage() {
         ctaLabel="Chat with Trip Genie"
       />
     </>
+  );
+}
+
+function AskFaq() {
+  const [open, setOpen] = useState(0);
+
+  return (
+    <div className="mx-auto mt-8 max-w-[560px] text-left">
+      <div className="flex flex-col gap-2">
+        {FAQS.map((f, i) => {
+          const isOpen = open === i;
+          return (
+            <button
+              key={f.q}
+              onClick={() => setOpen(isOpen ? -1 : i)}
+              className="rounded-[14px] bg-white p-4 px-5 shadow-[0_4px_16px_rgba(16,15,44,0.05)]"
+              aria-expanded={isOpen}
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex-1 text-[14.5px] font-bold text-ink">{f.q}</span>
+                <span
+                  className={`flex h-6 w-6 flex-none items-center justify-center rounded-full transition-all duration-200 ${
+                    isOpen ? "rotate-45 bg-accent text-white" : "bg-ink/5 text-ink"
+                  }`}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </span>
+              </div>
+              <div
+                className="overflow-hidden text-left text-[13.5px] leading-[1.55] text-muted transition-all duration-300"
+                style={isOpen ? { maxHeight: 120, opacity: 1, marginTop: 8 } : { maxHeight: 0, opacity: 0, marginTop: 0 }}
+              >
+                {f.a}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }

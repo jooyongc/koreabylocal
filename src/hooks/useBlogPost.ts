@@ -10,7 +10,7 @@ export function useBlogPostsBySlugs(slugs: string[]) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("*")
+        .select("id, slug, title")
         .in("slug", slugs)
         .eq("status", "published");
       if (error) throw error;

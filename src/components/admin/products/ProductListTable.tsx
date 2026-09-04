@@ -62,6 +62,7 @@ export default function ProductListTable({
                   <img
                     src={p.thumbnail_url}
                     alt={p.title}
+                    loading="lazy"
                     className="h-10 w-10 rounded object-cover"
                   />
                 ) : (

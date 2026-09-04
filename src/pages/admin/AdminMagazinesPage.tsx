@@ -237,6 +237,7 @@ export default function AdminMagazinesPage() {
                           <img
                             src={mag.cover_image_url}
                             alt=""
+                            loading="lazy"
                             className="h-14 w-10 rounded border border-gray-200 object-cover"
                           />
                         ) : (
@@ -403,6 +404,7 @@ export default function AdminMagazinesPage() {
                     <img
                       src={form.cover_image_url}
                       alt="Cover"
+                      loading="lazy"
                       className="h-32 w-24 rounded-lg border border-gray-200 object-cover"
                     />
                     <button

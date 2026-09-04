@@ -65,7 +65,7 @@ export default function EbooksPage() {
               ) : (
                 <div key={ebook.id} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5">
                   {ebook.cover_image_url && (
-                    <img src={ebook.cover_image_url} alt="" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+                    <img src={ebook.cover_image_url} alt="" loading="lazy" className="h-16 w-16 shrink-0 rounded-lg object-cover" />
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
