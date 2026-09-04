@@ -13,8 +13,8 @@ const HomePage = lazy(() => import("@/pages/HomePage"));
 const TransfersPage = lazy(() => import("@/pages/transfers/TransfersPage"));
 const TransportationPage = lazy(() => import("@/pages/transfers/TransportationPage"));
 const TourPlanningPage = lazy(() => import("@/pages/transfers/TourPlanningPage"));
-const BlogPage = lazy(() => import("@/pages/blog/BlogPage"));
-const BlogDetailPage = lazy(() => import("@/pages/blog/BlogDetailPage"));
+const GuidebookPage = lazy(() => import("@/pages/guidebook/GuidebookPage"));
+const GuideDetailPage = lazy(() => import("@/pages/guidebook/GuideDetailPage"));
 const AskALocalPage = lazy(() => import("@/pages/ask-a-local/AskALocalPage"));
 const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
 const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
@@ -86,13 +86,12 @@ function App() {
           <Route path="/spots/:slug" element={<SpotDetailPage />} />
           <Route path="/destinations/:region" element={<DestinationPage />} />
 
-          <Route path="/transfers" element={<TransfersPage />} />
+          <Route path="/getting-there" element={<TransfersPage />} />
           <Route path="/transfers/transportation" element={<TransportationPage />} />
           <Route path="/transfers/tour-planning" element={<TourPlanningPage />} />
-          <Route path="/getting-there" element={<TransfersPage />} />
 
-          <Route path="/guidebook" element={<BlogPage />} />
-          <Route path="/guidebook/:slug" element={<BlogDetailPage />} />
+          <Route path="/guidebook" element={<GuidebookPage />} />
+          <Route path="/guidebook/:slug" element={<GuideDetailPage />} />
 
           <Route path="/ask-a-local" element={<AskALocalPage />} />
 
@@ -116,6 +115,7 @@ function App() {
           <Route path="/blog/:slug" element={<SlugRedirect to="/guidebook" />} />
           <Route path="/tours" element={<Navigate to="/" replace />} />
           <Route path="/tours/:slug" element={<SlugRedirect to="/spots" />} />
+          <Route path="/transfers" element={<Navigate to="/getting-there" replace />} />
 
           {/* ── Auth ────────────────────────────────────── */}
           <Route path="/login" element={<LoginPage />} />

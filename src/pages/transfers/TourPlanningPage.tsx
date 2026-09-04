@@ -1,5 +1,6 @@
 import PageSEO from "@/components/common/PageSEO";
 import { ProductListPage } from "@/components/product";
+import TripGenieBanner from "@/components/home/TripGenieBanner";
 
 export default function TourPlanningPage() {
   return (
@@ -14,6 +15,10 @@ export default function TourPlanningPage() {
         initialSubcategory="tour-planning"
         title="Tour Planning"
         description="Plan your perfect Korean trip with local experts."
+      />
+      <TripGenieBanner
+        title="Want a plan built just for you?"
+        subtitle="Skip the guesswork — chat with a real local."
       />
     </>
   );

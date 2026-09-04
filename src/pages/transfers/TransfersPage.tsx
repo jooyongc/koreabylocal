@@ -15,6 +15,7 @@ import { useReveal } from "@/hooks/useReveal";
 import RouteCard, {
   type TransferRoute,
 } from "@/components/transfers/RouteCard";
+import TripGenieBanner from "@/components/home/TripGenieBanner";
 
 /** A coloured "transfer type" card surface. */
 interface TransferType {
@@ -104,7 +105,7 @@ export default function TransfersPage() {
       <PageSEO
         title="Private Transfers Across Korea | Korea By Local"
         description="Airport runs, intercity hops and full-day chauffeur service across Korea — fixed prices, English-speaking drivers, and your flight tracked door to door."
-        path="/transfers"
+        path="/getting-there"
       />
 
       {/* Hero — dark ink */}
@@ -193,6 +194,11 @@ export default function TransfersPage() {
           })}
         </ul>
       </section>
+
+      <TripGenieBanner
+        title="Not sure which transfer you need?"
+        subtitle="Tell a real local your itinerary and get a straight answer."
+      />
     </>
   );
 }

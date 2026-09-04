@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
 import RecentlyAnswered from "@/components/ask/RecentlyAnswered";
+import TripGenieBanner from "@/components/home/TripGenieBanner";
 
 const CATEGORIES = [
   "General",
@@ -322,6 +323,12 @@ export default function AskALocalPage() {
 
       {/* ── Recently answered ──────────────────────────────────────── */}
       <RecentlyAnswered />
+
+      <TripGenieBanner
+        title="Can't find your answer?"
+        subtitle="Trip Genie can chat it through with you right now."
+        ctaLabel="Chat with Trip Genie"
+      />
     </>
   );
 }

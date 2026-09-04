@@ -18,10 +18,12 @@ interface Props {
 }
 
 const CATEGORIES: { value: BlogCategory; label: string }[] = [
-  { value: "NEWS", label: "NEWS" },
-  { value: "LOCALS", label: "LOCALS" },
-  { value: "KOREAN", label: "KOREAN" },
-  { value: "K-CULTURE", label: "K-CULTURE" },
+  { value: "HOW-TO", label: "How-To" },
+  { value: "LOCAL-LIFE", label: "Local Life" },
+  { value: "K-CULTURE", label: "K-Culture" },
+  { value: "FESTIVAL", label: "Festival" },
+  { value: "FOOD", label: "Food" },
+  { value: "TRANSPORT", label: "Transport" },
 ];
 
 export default function BlogForm({ mode, postId, defaultValues }: Props) {
@@ -36,7 +38,7 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
       slug: "",
       excerpt: "",
       content: "",
-      category: "NEWS",
+      category: "HOW-TO",
       status: "draft",
       author: "",
       thumbnail_url: "",

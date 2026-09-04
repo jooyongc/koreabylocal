@@ -41,7 +41,7 @@ export default function NavDropdown({ label, href, items }: NavDropdownProps) {
     >
       <Link
         to={href}
-        className="flex items-center gap-1 text-sm font-medium tracking-wide text-primary hover:text-primary-light transition-colors"
+        className="flex items-center gap-1 text-[14.5px] font-semibold tracking-[-0.01em] text-ink transition-colors hover:text-accent"
       >
         {label}
         <ChevronDown
@@ -50,12 +50,12 @@ export default function NavDropdown({ label, href, items }: NavDropdownProps) {
       </Link>
 
       {open && (
-        <div className="absolute top-full left-0 z-50 mt-2 min-w-[180px] rounded-lg border border-gray-100 bg-white py-1 shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-2 min-w-[190px] rounded-xl border border-ink/10 bg-white py-1.5 shadow-[0_20px_44px_rgba(26,26,26,0.16)]">
           {items.map((item) => (
             <Link
               key={item.href}
               to={item.href}
-              className="block px-4 py-2 text-sm text-text hover:bg-background-gray hover:text-primary-light transition-colors"
+              className="block px-4 py-2.5 text-[14px] font-medium text-ink transition-colors hover:bg-ink/5 hover:text-accent"
               onClick={() => setOpen(false)}
             >
               {item.label}

@@ -1,1 +1,5 @@
+/blog  /guidebook  301
+/blog/*  /guidebook/:splat  301
+/transfers  /getting-there  301
+
 /* /index.html 200

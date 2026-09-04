@@ -18,7 +18,11 @@ export type SiteSetting = Tables<"site_settings">;
 
 // Status union types
 export type ProductStatus = "active" | "hidden" | "sold_out";
-export type BlogCategory = "NEWS" | "LOCALS" | "KOREAN" | "K-CULTURE";
+export type BlogCategory =
+  // legacy taxonomy — kept so older blog_posts rows still type-check
+  | "NEWS" | "LOCALS" | "KOREAN" | "K-CULTURE"
+  // Guidebook (v3) taxonomy
+  | "HOW-TO" | "LOCAL-LIFE" | "FESTIVAL" | "FOOD" | "TRANSPORT";
 export type BlogStatus = "published" | "draft";
 export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 export type PaymentStatus = "unpaid" | "paid" | "refunded" | "partial_refund";
