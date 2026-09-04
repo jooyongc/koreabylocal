@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { SpotRow } from "@/hooks/useSpots";
-import { SPOT_TYPES } from "./TypeFilter";
+import { SPOT_TYPES } from "@/data/spotTypes";
 
 export default function SpotCard({ spot }: { spot: SpotRow }) {
   const image = spot.thumbnail_url ?? (Array.isArray(spot.images) ? (spot.images as string[])[0] : undefined);

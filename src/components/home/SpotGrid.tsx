@@ -3,8 +3,14 @@ import { useSpots } from "@/hooks/useSpots";
 import { useSpotFilters } from "@/hooks/useSpotFilters";
 import SpotCard from "./SpotCard";
 
-export default function SpotGrid() {
-  const { area, type } = useSpotFilters();
+interface SpotGridProps {
+  /** Fixes the area filter (e.g. a destination landing page) instead of reading it from the URL. */
+  area?: string;
+}
+
+export default function SpotGrid({ area: areaOverride }: SpotGridProps = {}) {
+  const { area: areaFromParams, type } = useSpotFilters();
+  const area = areaOverride ?? areaFromParams;
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useSpots({ area, type });
 
   const spots = data?.pages.flatMap((p) => p.rows) ?? [];

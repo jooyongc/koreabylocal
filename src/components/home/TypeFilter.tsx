@@ -1,14 +1,5 @@
 import { useSpotFilters } from "@/hooks/useSpotFilters";
-
-export const SPOT_TYPES: { value: string; label: string; emoji: string }[] = [
-  { value: "eats", label: "Eats", emoji: "🍜" },
-  { value: "cafes", label: "Cafés", emoji: "☕" },
-  { value: "culture", label: "Culture", emoji: "🎨" },
-  { value: "nightlife", label: "Nightlife", emoji: "🎵" },
-  { value: "shops", label: "Shops", emoji: "🛍" },
-  { value: "outdoors", label: "Outdoors", emoji: "🌿" },
-  { value: "walks", label: "Walks", emoji: "🚶" },
-];
+import { SPOT_TYPES } from "@/data/spotTypes";
 
 export default function TypeFilter() {
   const { type, setType } = useSpotFilters();

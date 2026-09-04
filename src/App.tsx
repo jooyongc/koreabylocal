@@ -17,7 +17,7 @@ const BlogPage = lazy(() => import("@/pages/blog/BlogPage"));
 const BlogDetailPage = lazy(() => import("@/pages/blog/BlogDetailPage"));
 const AskALocalPage = lazy(() => import("@/pages/ask-a-local/AskALocalPage"));
 const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
-const DestinationDetailPage = lazy(() => import("@/pages/destinations/DestinationDetailPage"));
+const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
 const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
 const MagazinePage = lazy(() => import("@/pages/shop/MagazinePage"));
 const KGoodsPage = lazy(() => import("@/pages/shop/KGoodsPage"));
@@ -84,7 +84,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           <Route path="/spots/:slug" element={<SpotDetailPage />} />
-          <Route path="/destinations/:region" element={<DestinationDetailPage />} />
+          <Route path="/destinations/:region" element={<DestinationPage />} />
 
           <Route path="/transfers" element={<TransfersPage />} />
           <Route path="/transfers/transportation" element={<TransportationPage />} />

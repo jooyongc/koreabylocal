@@ -24,9 +24,9 @@ Deno.serve(async (req: Request) => {
   try {
     const { type, id } = await req.json();
 
-    if (!type || !id || !["product", "blog"].includes(type)) {
+    if (!type || !id || !["product", "blog", "spot"].includes(type)) {
       return new Response(
-        JSON.stringify({ error: "Invalid params. Need type (product|blog) and id" }),
+        JSON.stringify({ error: "Invalid params. Need type (product|blog|spot) and id" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -76,7 +76,7 @@ Deno.serve(async (req: Request) => {
     });
 
     // Increment view count
-    const table = type === "product" ? "products" : "blog_posts";
+    const table = type === "product" ? "products" : type === "spot" ? "experiences" : "blog_posts";
     const { error } = await supabase.rpc("increment_view_count", {
       table_name: table,
       row_id: id,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -13,19 +13,19 @@ function remember() {
   }
 }
 
+function isInitiallyVisible() {
+  try {
+    const until = localStorage.getItem(STORAGE_KEY);
+    return !until || Date.now() > Number(until);
+  } catch {
+    return true;
+  }
+}
+
 export default function NewsletterBanner() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(isInitiallyVisible);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
-
-  useEffect(() => {
-    try {
-      const until = localStorage.getItem(STORAGE_KEY);
-      setVisible(!until || Date.now() > Number(until));
-    } catch {
-      setVisible(true);
-    }
-  }, []);
 
   const dismiss = () => {
     remember();
