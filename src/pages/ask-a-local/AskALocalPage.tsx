@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Send, Upload, X, Loader2, CheckCircle, Plus } from "lucide-react";
+import { Send, Upload, X, Loader2, Plus, Lock } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
@@ -42,7 +42,6 @@ interface InquiryForm {
 }
 
 export default function AskALocalPage() {
-  const [submitted, setSubmitted] = useState(false);
   const [attachmentUrl, setAttachmentUrl] = useState("");
   const [attachmentName, setAttachmentName] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -81,35 +80,26 @@ export default function AskALocalPage() {
     }
   };
 
+  // The question is saved and the $1 Stripe Checkout is created server-side;
+  // the admin is notified from the webhook only once payment succeeds.
   const onSubmit = async (data: InquiryForm) => {
-    try {
-      const { error } = await supabase.from("inquiries").insert({
+    const { data: result, error } = await supabase.functions.invoke("create-inquiry-checkout", {
+      body: {
         name: data.name,
         email: data.email,
         subject: data.subject || null,
         category: data.category,
         message: data.message,
         attachment_url: attachmentUrl || null,
-      });
-      if (error) throw error;
+      },
+    });
 
-      // Trigger email notification (fire and forget)
-      supabase.functions
-        .invoke("send-inquiry-notification", {
-          body: {
-            name: data.name,
-            email: data.email,
-            subject: data.subject,
-            category: data.category,
-            message: data.message,
-          },
-        })
-        .catch(() => {});
-
-      setSubmitted(true);
-    } catch {
-      toast.error("Failed to submit inquiry. Please try again.");
+    if (error || !result?.url) {
+      toast.error("Couldn't start checkout. Please try again in a moment.");
+      return;
     }
+
+    window.location.href = result.url;
   };
 
   // ── Shared field styling (renewal) ──────────────────────────────
@@ -117,40 +107,6 @@ export default function AskALocalPage() {
     "w-full rounded-[12px] border border-ink/15 bg-white px-3.5 py-3 text-[15px] text-ink placeholder:text-muted-3 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20";
   const labelClass = "mb-1.5 block text-[13px] font-semibold text-ink";
   const errorClass = "mt-1 text-[12px] text-coral";
-
-  if (submitted) {
-    return (
-      <>
-        <PageSEO
-          title="Thank You | Ask a Local | Korea By Local"
-          description="Your inquiry has been submitted. We'll get back to you soon."
-          path="/ask-a-local"
-          noindex
-        />
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green/10">
-            <CheckCircle className="h-8 w-8 text-green" />
-          </div>
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] font-extrabold tracking-[-0.02em] text-ink">
-            Thank you!{" "}
-            <span className="font-serif-accent font-medium italic text-accent">
-              A local’s on it.
-            </span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-[46ch] text-[16px] text-muted">
-            Your question has been received. A verified Korean host will reply —
-            usually within a few hours.
-          </p>
-          <a
-            href="/"
-            className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,53,0.35)] transition-transform hover:scale-[1.03]"
-          >
-            Back to home
-          </a>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -251,9 +207,13 @@ export default function AskALocalPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {isSubmitting ? "Sending…" : "Ask a local — $1 →"}
+              {isSubmitting ? "Redirecting…" : "Ask a local — $1 →"}
             </button>
           </div>
+          <p className="mt-2.5 flex items-center gap-1.5 text-[12px] text-muted-2">
+            <Lock className="h-3 w-3" /> You'll pay $1 on a secure Stripe checkout. Your question is sent to a
+            local the moment payment goes through.
+          </p>
 
           {/* Contact + categorisation details */}
           <div className="mt-4 grid grid-cols-1 gap-4 border-t border-ink/10 pt-4 sm:grid-cols-2">

@@ -43,18 +43,52 @@ Deno.serve(async (req: Request) => {
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
-  const ebookId = Number(session.metadata?.ebook_id);
-
-  if (!ebookId) {
-    console.error("stripe-webhook: checkout session has no ebook_id metadata", session.id);
-    return new Response(JSON.stringify({ received: true }), { status: 200 });
-  }
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     { db: { schema: "koreabylocal" } },
   );
+
+  // ── Ask a Local ($1 question) ──────────────────────────────────────────────
+  if (session.metadata?.type === "inquiry") {
+    const inquiryId = Number(session.metadata.inquiry_id);
+    if (!inquiryId) {
+      console.error("stripe-webhook: inquiry session has no inquiry_id metadata", session.id);
+      return new Response(JSON.stringify({ received: true }), { status: 200 });
+    }
+
+    // Idempotent: only the first delivery flips the row to paid (and notifies).
+    const { data: paid, error: updateError } = await supabase
+      .from("inquiries")
+      .update({ payment_status: "paid", payment_key: session.id, paid_at: new Date().toISOString() })
+      .eq("id", inquiryId)
+      .neq("payment_status", "paid")
+      .select("name, email, subject, category, message")
+      .maybeSingle();
+
+    if (updateError) {
+      console.error("stripe-webhook: failed to mark inquiry paid:", updateError.message);
+      return new Response("Failed to record payment", { status: 500 });
+    }
+
+    if (paid) {
+      // The admin is only told about questions that were actually paid for.
+      await supabase.functions.invoke("send-inquiry-notification", { body: paid }).catch((err) => {
+        console.error("stripe-webhook: inquiry notification failed:", err instanceof Error ? err.message : err);
+      });
+    }
+
+    return new Response(JSON.stringify({ received: true, already_processed: !paid }), { status: 200 });
+  }
+
+  // ── E-book purchase ────────────────────────────────────────────────────────
+  const ebookId = Number(session.metadata?.ebook_id);
+
+  if (!ebookId) {
+    console.error("stripe-webhook: checkout session has no ebook_id metadata", session.id);
+    return new Response(JSON.stringify({ received: true }), { status: 200 });
+  }
 
   // Idempotent: Stripe may redeliver this event. If we've already recorded a
   // purchase for this session, don't touch it again (a fresh token would

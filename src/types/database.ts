@@ -125,6 +125,9 @@ export type Database = {
           message: string
           attachment_url: string | null
           status: string
+          payment_status: string
+          payment_key: string | null
+          paid_at: string | null
           admin_reply: string | null
           replied_at: string | null
           created_at: string
@@ -139,6 +142,9 @@ export type Database = {
           message: string
           attachment_url?: string | null
           status?: string
+          payment_status?: string
+          payment_key?: string | null
+          paid_at?: string | null
           admin_reply?: string | null
           replied_at?: string | null
           created_at?: string
@@ -153,6 +159,9 @@ export type Database = {
           message?: string
           attachment_url?: string | null
           status?: string
+          payment_status?: string
+          payment_key?: string | null
+          paid_at?: string | null
           admin_reply?: string | null
           replied_at?: string | null
           created_at?: string

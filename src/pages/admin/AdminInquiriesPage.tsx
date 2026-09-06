@@ -12,6 +12,13 @@ const STATUS_COLORS: Record<string, string> = {
   replied: "bg-emerald-100 text-emerald-700",
 };
 
+const PAYMENT_COLORS: Record<string, string> = {
+  paid: "bg-emerald-100 text-emerald-700",
+  unpaid: "bg-red-100 text-red-700",
+  free: "bg-gray-100 text-gray-500",
+  refunded: "bg-orange-100 text-orange-700",
+};
+
 const CATEGORY_COLORS: Record<string, string> = {
   General: "bg-gray-100 text-gray-600",
   "Tour Inquiry": "bg-blue-100 text-blue-700",
@@ -31,6 +38,7 @@ function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
             <th className="px-4 py-3 font-medium text-gray-500">Subject</th>
             <th className="px-4 py-3 font-medium text-gray-500">Category</th>
             <th className="px-4 py-3 font-medium text-gray-500">Status</th>
+            <th className="px-4 py-3 font-medium text-gray-500">Payment</th>
             <th className="px-4 py-3 font-medium text-gray-500">Date</th>
           </tr>
         </thead>
@@ -63,6 +71,13 @@ function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
                   {inq.status}
                 </span>
               </td>
+              <td className="px-4 py-3">
+                <span
+                  className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${PAYMENT_COLORS[inq.payment_status] ?? "bg-gray-100 text-gray-500"}`}
+                >
+                  {inq.payment_status}
+                </span>
+              </td>
               <td className="px-4 py-3 text-gray-400 whitespace-nowrap">
                 {format(new Date(inq.created_at), "yyyy-MM-dd HH:mm")}
               </td>
@@ -70,7 +85,7 @@ function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
           ))}
           {inquiries.length === 0 && (
             <tr>
-              <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+              <td colSpan={7} className="px-4 py-12 text-center text-gray-400">
                 No inquiries found
               </td>
             </tr>
