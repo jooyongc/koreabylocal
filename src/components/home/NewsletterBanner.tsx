@@ -62,27 +62,25 @@ export default function NewsletterBanner() {
 
   return (
     <div className="relative z-40 bg-ink px-4 py-2.5 text-white">
-      <div className="mx-auto flex max-w-[1180px] items-center gap-3">
+      <div className="relative mx-auto flex max-w-[1180px] items-center justify-center gap-3 px-8 text-center">
         {status === "success" ? (
-          <p className="flex-1 text-center text-[13.5px] font-semibold sm:text-left">
-            Check your inbox! ✓
-          </p>
+          <p className="text-[13.5px] font-semibold">Check your inbox! ✓</p>
         ) : (
-          <form onSubmit={submit} className="flex flex-1 flex-wrap items-center gap-2.5">
+          <form onSubmit={submit} className="flex flex-wrap items-center justify-center gap-2.5 text-center">
             <span className="hidden text-[13.5px] font-medium text-white/90 sm:inline">
               First time in Korea? Get our free travel checklist by email.
             </span>
             <span className="text-[13.5px] font-medium text-white/90 sm:hidden">
               Free Korea checklist →
             </span>
-            <div className="ml-auto flex flex-1 items-center gap-2 sm:ml-0 sm:flex-none">
+            <div className="flex items-center justify-center gap-2">
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
-                className="min-w-0 flex-1 rounded-full bg-white/10 px-3.5 py-1.5 text-[13px] text-white outline-none placeholder:text-white/50 sm:w-[200px] sm:flex-none"
+                className="min-w-0 rounded-full bg-white/10 px-3.5 py-1.5 text-[13px] text-white outline-none placeholder:text-white/50 sm:w-[200px]"
               />
               <button
                 type="submit"
@@ -110,7 +108,7 @@ export default function NewsletterBanner() {
         <button
           onClick={dismiss}
           aria-label="Dismiss"
-          className="flex h-6 w-6 flex-none items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+          className="absolute right-4 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white"
         >
           <X className="h-4 w-4" />
         </button>

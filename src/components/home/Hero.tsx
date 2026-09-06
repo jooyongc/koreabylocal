@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useEditorPickSpot } from "@/hooks/useConcepts";
 
-const AREAS = "JEONJU · BUSAN · GYEONGJU · GANGNEUNG & MORE";
+const AREAS = "SEOUL · BUSAN · JEJU · GANGNEUNG & MORE";
 
 export default function Hero() {
   const { data: pick, isLoading } = useEditorPickSpot();

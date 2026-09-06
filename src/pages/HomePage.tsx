@@ -4,6 +4,7 @@ import Hero from "@/components/home/Hero";
 import AreaFilter from "@/components/home/AreaFilter";
 import TypeFilter from "@/components/home/TypeFilter";
 import SpotGrid from "@/components/home/SpotGrid";
+import CuratedExperiences from "@/components/home/CuratedExperiences";
 import EbookBanner from "@/components/home/EbookBanner";
 import TripGenieBanner from "@/components/home/TripGenieBanner";
 
@@ -50,6 +51,7 @@ export default function HomePage() {
       <AreaFilter />
       <TypeFilter />
       <SpotGrid />
+      <CuratedExperiences />
       <EbookBanner />
       <TripGenieBanner />
     </>

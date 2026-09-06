@@ -106,6 +106,7 @@ async function main() {
   const staticUrls: UrlEntry[] = [
     { loc: `${SITE_URL}/`, lastmod: today, changefreq: "daily" },
     { loc: `${SITE_URL}/guidebook`, lastmod: today, changefreq: "weekly" },
+    { loc: `${SITE_URL}/experiences`, lastmod: today, changefreq: "weekly" },
     { loc: `${SITE_URL}/ebook`, lastmod: today, changefreq: "weekly" },
     { loc: `${SITE_URL}/ask-a-local`, lastmod: today, changefreq: "weekly" },
     { loc: `${SITE_URL}/about`, lastmod: today, changefreq: "weekly" },

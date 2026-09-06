@@ -2,6 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
 import { SPOT_CARD_COLUMNS, type SpotRow } from "./useSpots";
+import {
+  AFFILIATE_EXPERIENCE_COLUMNS,
+  type AffiliateExperienceRow,
+} from "@/components/experiences/AffiliateExperienceCard";
 
 export type ExperienceRow = Tables<"experiences">;
 export type HostRow = Tables<"hosts">;
@@ -38,6 +42,27 @@ export function useExperience(slug: string | undefined) {
         .maybeSingle();
       if (error) throw error;
       return data;
+    },
+  });
+}
+
+/** Active partner experiences that have a booking link — the only ones worth showing as affiliate cards. */
+export function useAffiliateExperiences(opts?: { region?: string; category?: string; limit?: number }) {
+  return useQuery({
+    queryKey: ["affiliate-experiences", opts ?? {}],
+    queryFn: async (): Promise<AffiliateExperienceRow[]> => {
+      let q = supabase
+        .from("experiences")
+        .select(AFFILIATE_EXPERIENCE_COLUMNS)
+        .eq("is_active", true)
+        .not("affiliate_url", "is", null)
+        .order("sort_order", { ascending: true });
+      if (opts?.region) q = q.eq("region", opts.region);
+      if (opts?.category) q = q.eq("category", opts.category);
+      if (opts?.limit) q = q.limit(opts.limit);
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data ?? []) as AffiliateExperienceRow[];
     },
   });
 }
