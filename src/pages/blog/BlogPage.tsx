@@ -70,7 +70,7 @@ export default function BlogPage() {
       {/* Hero */}
       <section className="mx-auto max-w-[1180px] px-4 pb-[clamp(14px,2vw,22px)] pt-[clamp(30px,4vw,52px)] text-center sm:px-6 lg:px-8">
         <div className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
-          로컬 매거진 · The Magazine
+          The Magazine
         </div>
         <h1 className="mt-2.5 font-display text-[clamp(34px,6vw,68px)] font-extrabold leading-[0.98] tracking-[-0.03em]">
           Stories from the ground

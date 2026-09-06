@@ -18,7 +18,7 @@ const CATEGORIES = [
 
 // Kept in sync with the trust row below — FAQPage structured data must match visible content.
 const FAQS = [
-  { q: "Is it free to ask a local?", a: "Yes — completely free, and no account is needed." },
+  { q: "How much does it cost?", a: "$1 per question — it goes to the local who answers you. No account needed." },
   { q: "How fast will I get a reply?", a: "Usually within a few hours. Our average reply time is about 3 hours." },
   { q: "Who actually answers my question?", a: "A verified local host in Korea — never a bot or an algorithm." },
 ];
@@ -164,7 +164,7 @@ export default function AskALocalPage() {
       {/* ── Hero + form card ───────────────────────────────────────── */}
       <section className="mx-auto max-w-[880px] px-4 pt-[clamp(34px,5vw,72px)] text-center sm:px-6 lg:px-8">
         <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-accent">
-          현지인에게 물어보세요
+          Ask a local · $1 per question
         </p>
         <h1 className="mt-3 font-display text-[clamp(32px,5.5vw,60px)] font-extrabold leading-[1.02] tracking-[-0.02em] text-ink">
           Stuck planning?{" "}
@@ -173,8 +173,8 @@ export default function AskALocalPage() {
           </span>
         </h1>
         <p className="mx-auto mt-4 max-w-[50ch] text-[clamp(15px,1.7vw,18px)] text-muted">
-          Free, no account needed. A verified Korean host replies — usually
-          within a few hours — with honest, specific advice for your trip.
+          $1 per question, no account needed. A verified Korean host replies —
+          usually within a few hours — with honest, specific advice for your trip.
         </p>
 
         {/* Question form card */}
@@ -251,7 +251,7 @@ export default function AskALocalPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {isSubmitting ? "Sending…" : "Ask a local →"}
+              {isSubmitting ? "Sending…" : "Ask a local — $1 →"}
             </button>
           </div>
 

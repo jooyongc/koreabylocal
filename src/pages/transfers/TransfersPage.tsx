@@ -112,7 +112,7 @@ export default function TransfersPage() {
       <section className="bg-ink text-white">
         <div className="mx-auto max-w-[1180px] px-[clamp(16px,3vw,32px)] py-[clamp(30px,4.5vw,60px)]">
           <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
-            Get there easy · 교통
+            Get there easy
           </div>
           <h1 className="mt-2.5 max-w-[16ch] font-display text-[clamp(30px,5.5vw,60px)] font-extrabold leading-none tracking-[-0.02em]">
             Private transfers across Korea
@@ -167,7 +167,7 @@ export default function TransfersPage() {
       {/* Popular routes */}
       <section className="mx-auto max-w-[1180px] px-[clamp(16px,3vw,32px)] pt-[clamp(34px,5vw,64px)] pb-[clamp(48px,7vw,90px)]">
         <SectionHeading
-          eyebrow="Door to door · 인기 노선"
+          eyebrow="Door to door"
           title="Popular routes"
           link={{ label: "Plan a custom trip", to: "/ask-a-local" }}
         />

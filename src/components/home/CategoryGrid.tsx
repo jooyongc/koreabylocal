@@ -17,7 +17,7 @@ const CATEGORIES: {
   { icon: Ticket, label: "Experiences", desc: "Tours & activities · affiliate", count: "240+", color: "#0e8c6a", to: "/tours" },
   { icon: Plane, label: "Transfers", desc: "Airport, intercity & chauffeur", count: "60+", color: "#5b2bff", to: "/transfers" },
   { icon: ShoppingBag, label: "Shop", desc: "Prints & goods · affiliate", count: "300+", color: "#ff6b35", to: "/shop" },
-  { icon: Sparkles, label: "Ask a Local", desc: "Free 1:1 trip advice", count: "Free", color: "#f2b705", to: "/ask-a-local" },
+  { icon: Sparkles, label: "Ask a Local", desc: "1:1 trip advice from a local", count: "$1", color: "#f2b705", to: "/ask-a-local" },
 ];
 
 export default function CategoryGrid() {
@@ -27,7 +27,7 @@ export default function CategoryGrid() {
       ref={ref}
       className="reveal mx-auto max-w-[1180px] px-4 pt-[clamp(40px,6vw,72px)] sm:px-6 lg:px-8"
     >
-      <SectionHeading eyebrow="오방색 · Five ways in" title="Everything you need, one local platform" />
+      <SectionHeading eyebrow="Five ways in" title="Everything you need, one local platform" />
       <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3.5">
         {CATEGORIES.map(({ icon: Icon, label, desc, count, color, to }) => (
           <Link
