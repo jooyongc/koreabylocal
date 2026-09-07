@@ -16,7 +16,6 @@ const TourPlanningPage = lazy(() => import("@/pages/transfers/TourPlanningPage")
 const GuidebookPage = lazy(() => import("@/pages/guidebook/GuidebookPage"));
 const GuideDetailPage = lazy(() => import("@/pages/guidebook/GuideDetailPage"));
 const AskALocalPage = lazy(() => import("@/pages/ask-a-local/AskALocalPage"));
-const AskSuccessPage = lazy(() => import("@/pages/ask-a-local/AskSuccessPage"));
 const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
 const EbookSuccessPage = lazy(() => import("@/pages/ebook/EbookSuccessPage"));
 const EbookDownloadPage = lazy(() => import("@/pages/ebook/EbookDownloadPage"));
@@ -97,7 +96,6 @@ function App() {
           <Route path="/guidebook/:slug" element={<GuideDetailPage />} />
 
           <Route path="/ask-a-local" element={<AskALocalPage />} />
-          <Route path="/ask-a-local/success" element={<AskSuccessPage />} />
 
           <Route path="/ebook" element={<EbookPage />} />
           <Route path="/ebook/success" element={<EbookSuccessPage />} />

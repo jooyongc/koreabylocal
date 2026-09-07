@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { Loader2, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
-import toast from "react-hot-toast";
 import PageSEO from "@/components/common/PageSEO";
 import { useEbooks } from "@/hooks/useEbooks";
-import { supabase } from "@/lib/supabase";
 import EmailCaptureModal from "@/components/ebook/EmailCaptureModal";
+import EbookPurchaseModal from "@/components/ebook/EbookPurchaseModal";
 // @ts-expect-error -- CSS module imports handled by Vite
 import "swiper/css";
 // @ts-expect-error -- CSS module imports handled by Vite
@@ -51,21 +50,6 @@ export default function EbookPage() {
   const [buying, setBuying] = useState(false);
   const [showSample, setShowSample] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
-
-  const buyNow = async () => {
-    if (!ebook || buying) return;
-    setBuying(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-ebook-checkout", {
-        body: { ebook_id: ebook.id },
-      });
-      if (error || !data?.url) throw error ?? new Error("No checkout URL returned");
-      window.location.href = data.url;
-    } catch {
-      toast.error("Couldn't start checkout. Please try again.");
-      setBuying(false);
-    }
-  };
 
   const jsonLd = ebook
     ? {
@@ -158,11 +142,9 @@ export default function EbookPage() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               <button
-                onClick={buyNow}
-                disabled={buying}
-                className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                onClick={() => setBuying(true)}
+                className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90"
               >
-                {buying && <Loader2 className="h-4 w-4 animate-spin" />}
                 Buy Now
               </button>
               <button
@@ -263,6 +245,15 @@ export default function EbookPage() {
           leadMagnet="ebook_sample"
           successMessage="Check your inbox — your free sample is on the way!"
           onClose={() => setShowSample(false)}
+        />
+      )}
+
+      {buying && (
+        <EbookPurchaseModal
+          ebookId={ebook.id}
+          title={ebook.title}
+          priceUsd={Number(ebook.price_usd)}
+          onClose={() => setBuying(false)}
         />
       )}
     </>
