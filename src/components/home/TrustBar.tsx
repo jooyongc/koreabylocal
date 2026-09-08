@@ -38,7 +38,7 @@ export default function TrustBar() {
           </span>
           <span className="font-display text-[16px] font-extrabold tracking-[-0.04em] text-[#1a1f71]">VISA</span>
           <span className="text-[16px] font-extrabold text-[#eb001b]">●●</span>
-          <span className="text-[12.5px] text-muted-2">SSL encrypted · PCI-DSS compliant</span>
+          <span className="text-[12.5px] text-muted-2">SSL encrypted PCI-DSS compliant</span>
         </div>
       </div>
     </section>

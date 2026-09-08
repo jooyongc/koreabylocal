@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Send, Upload, X, Loader2, Plus, Lock } from "lucide-react";
+import { Send, Upload, X, Loader2, Plus, Lock, Paperclip, Users } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
@@ -120,7 +120,7 @@ export default function AskALocalPage() {
       {/* ── Hero + form card ───────────────────────────────────────── */}
       <section className="mx-auto max-w-[880px] px-4 pt-[clamp(34px,5vw,72px)] text-center sm:px-6 lg:px-8">
         <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-accent">
-          Ask a local · $1 per question
+          Ask a local $1 per question
         </p>
         <h1 className="mt-3 font-display text-[clamp(32px,5.5vw,60px)] font-extrabold leading-[1.02] tracking-[-0.02em] text-ink">
           Stuck planning?{" "}
@@ -162,7 +162,9 @@ export default function AskALocalPage() {
             <div className="flex flex-wrap gap-2">
               {attachmentUrl ? (
                 <span className="inline-flex max-w-[220px] items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2">
-                  <span className="truncate">📎 {attachmentName}</span>
+                  <span className="flex items-center gap-1 truncate">
+                    <Paperclip className="h-3 w-3 shrink-0" /> {attachmentName}
+                  </span>
                   <button
                     type="button"
                     aria-label="Remove attachment"
@@ -182,7 +184,7 @@ export default function AskALocalPage() {
                   ) : (
                     <Upload className="h-3.5 w-3.5" />
                   )}
-                  <span>{uploading ? "Uploading…" : "📎 Attach dates"}</span>
+                  <span>{uploading ? "Uploading…" : "Attach dates"}</span>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -192,8 +194,8 @@ export default function AskALocalPage() {
                   />
                 </label>
               )}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2">
-                👥 Group size
+              <span className="inline-flex items-center gap-1 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2">
+                <Users className="h-3 w-3" /> Group size
               </span>
             </div>
 
@@ -291,11 +293,9 @@ export default function AskALocalPage() {
 
         {/* Trust row */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[12.5px] text-muted-2">
-          <span>⚡ Avg reply 3h</span>
-          <span aria-hidden="true">·</span>
-          <span>★ 4.9 helpfulness</span>
-          <span aria-hidden="true">·</span>
-          <span>✦ 60 verified hosts</span>
+          <span>Avg reply 3h</span>
+          <span>4.9 helpfulness</span>
+          <span>60 verified hosts</span>
         </div>
 
         {/* FAQ (mirrors the FAQPage structured data above) */}

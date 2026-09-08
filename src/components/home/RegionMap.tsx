@@ -40,7 +40,7 @@ export default function RegionMap() {
         {/* Left: copy + active region card */}
         <div>
           <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
-            Explore by region · GEO
+            Explore by region GEO
           </div>
           <h2 className="mt-2.5 font-display text-[clamp(28px,4vw,46px)] font-extrabold leading-[1.02] tracking-[-0.02em]">
             Where do you want
@@ -114,7 +114,7 @@ export default function RegionMap() {
                     borderColor: on ? "transparent" : "rgba(255,255,255,.14)",
                   }}
                 >
-                  {r.name} · {r.count}
+                  {r.name} {r.count}
                 </span>
               </button>
             );

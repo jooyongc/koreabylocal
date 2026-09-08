@@ -14,7 +14,7 @@ export default function FaqAccordion() {
     >
       <div className="mb-[30px] text-center">
         <div className="text-xs font-bold uppercase tracking-[0.16em] text-accent">
-          Answers · optimized for AI search
+          Answers optimized for AI search
         </div>
         <h2 className="mt-2 font-display text-[clamp(26px,3.6vw,40px)] font-extrabold tracking-[-0.02em] text-ink">
           Frequently asked questions

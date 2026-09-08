@@ -97,7 +97,7 @@ export default function SpotForm({ mode, spotId, defaultValues }: Props) {
                 <input type="checkbox" {...register("is_active")} className="h-5 w-5 rounded accent-primary" />
               </label>
               <label className="mt-3 flex items-center justify-between">
-                <span className="text-sm text-gray-700">★ Editor's pick</span>
+                <span className="text-sm text-gray-700">Editor's pick</span>
                 <input type="checkbox" {...register("editor_pick")} className="h-5 w-5 rounded accent-primary" />
               </label>
             </section>

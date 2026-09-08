@@ -522,7 +522,7 @@ export default function ProductDetailPage() {
           {/* Reassurance line */}
           <div className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs leading-relaxed text-muted-2">
             <ShieldCheck className="h-3.5 w-3.5 text-green" aria-hidden="true" />
-            Secure checkout · Buyer protection included
+            Secure checkout Buyer protection included
           </div>
         </aside>
       </section>

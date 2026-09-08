@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import type { Tables } from "@/types/database";
 
 export const AFFILIATE_EXPERIENCE_COLUMNS =
@@ -55,9 +55,10 @@ export default function AffiliateExperienceCard({ x }: { x: AffiliateExperienceR
       </div>
       <div className="flex flex-1 flex-col p-[15px] pb-[17px] pt-[15px]">
         {(x.location || x.duration) && (
-          <div className="flex items-center gap-1.5 text-[12px] font-semibold text-muted-2">
-            📍 {x.location}
-            {x.location && x.duration ? " · " : ""}
+          <div className="flex items-center gap-1 text-[12px] font-semibold text-muted-2">
+            <MapPin className="h-3 w-3 shrink-0" />
+            {x.location}
+            {x.location && x.duration ? " " : ""}
             {x.duration}
           </div>
         )}

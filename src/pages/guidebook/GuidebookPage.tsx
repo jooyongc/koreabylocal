@@ -174,7 +174,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
           style={{ backgroundImage: `url(${post.thumbnail_url ?? ""})` }}
         />
         <span className="absolute left-[18px] top-[18px] rounded-[7px] bg-gold px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-ink">
-          ★ Editor’s pick · {post.category}
+          Editor's pick {post.category}
         </span>
       </div>
       <div className="flex flex-[1_1_300px] flex-col justify-center p-[clamp(26px,3.5vw,48px)] text-white">
@@ -186,7 +186,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
         )}
         <div className="mt-4 text-[13.5px] text-white/60">
           {post.author ?? "Korea by Local"}
-          {post.published_at && <> · {format(new Date(post.published_at), "MMM yyyy")}</>}
+          {post.published_at && <> {format(new Date(post.published_at), "MMM yyyy")}</>}
         </div>
         <span className="mt-[18px] inline-flex w-fit rounded-[11px] bg-white px-5 py-2.5 text-[13.5px] font-bold text-ink">
           Read the guide →
@@ -217,7 +217,7 @@ function MagazineCard({ post }: { post: BlogPost }) {
         <h3 className="font-display text-[17.5px] font-bold leading-[1.24] text-ink">{post.title}</h3>
         <div className="mt-2.5 text-[12px] text-muted-2">
           {post.author ?? "Korea by Local"}
-          {post.published_at && <> · {format(new Date(post.published_at), "MMM d, yyyy")}</>}
+          {post.published_at && <> {format(new Date(post.published_at), "MMM d, yyyy")}</>}
         </div>
       </div>
     </Link>

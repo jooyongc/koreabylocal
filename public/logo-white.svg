@@ -1,10 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 50" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" fill="none">
   <!-- Korea -->
-  <text x="0" y="36" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="32" font-weight="800" fill="white" letter-spacing="-0.5">Korea</text>
+  <text x="0" y="40" font-family="'Bricolage Grotesque', 'Nunito', system-ui, sans-serif" font-size="34" font-weight="800" fill="white" letter-spacing="-0.5">Korea</text>
   <!-- by -->
-  <text x="108" y="36" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="20" font-weight="400" fill="rgba(255,255,255,0.8)">by</text>
-  <!-- Local -->
-  <text x="135" y="36" font-family="'Nunito', 'Poppins', system-ui, sans-serif" font-size="32" font-weight="800" fill="white" letter-spacing="-0.5">Local</text>
-  <!-- Pink smile curve under "by" -->
-  <path d="M112 40 Q120 48 128 40" stroke="#E84B8A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <text x="118" y="40" font-family="'Bricolage Grotesque', 'Nunito', system-ui, sans-serif" font-size="22" font-weight="400" font-style="italic" fill="rgba(255,255,255,0.85)">by</text>
+  <!-- Lo (pink) -->
+  <text x="150" y="40" font-family="'Bricolage Grotesque', 'Nunito', system-ui, sans-serif" font-size="34" font-weight="800" fill="#FF2FA0" letter-spacing="-0.5">Lo</text>
+  <!-- cal (white) -->
+  <text x="190" y="40" font-family="'Bricolage Grotesque', 'Nunito', system-ui, sans-serif" font-size="34" font-weight="800" fill="white" letter-spacing="-0.5">cal</text>
+  <!-- Pink smile curve under "Lo" -->
+  <path d="M156 47 Q167 57 178 47" stroke="#FF2FA0" stroke-width="3" fill="none" stroke-linecap="round"/>
 </svg>

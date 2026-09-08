@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, MapPin } from "lucide-react";
 import type { Tables } from "@/types/database";
 
 export interface Experience {
@@ -67,8 +67,8 @@ export default function ExperienceCard({ x }: { x: Experience }) {
         </span>
       </div>
       <div className="flex flex-1 flex-col p-[15px] pb-[17px] pt-[15px]">
-        <div className="flex items-center gap-1.5 text-[12px] font-semibold text-muted-2">
-          📍 {x.loc} · {x.dur}
+        <div className="flex items-center gap-1 text-[12px] font-semibold text-muted-2">
+          <MapPin className="h-3 w-3 shrink-0" /> {x.loc} {x.dur}
         </div>
         <h3 className="mt-[7px] font-display text-[17px] font-bold leading-[1.25] text-ink">
           {x.title}
@@ -78,7 +78,7 @@ export default function ExperienceCard({ x }: { x: Experience }) {
           <span className="font-bold text-ink">{x.rating}</span>
           <span className="text-muted-2">({x.reviews})</span>
           <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-bold text-green">
-            ✦ Instant
+            Instant
           </span>
         </div>
         <div className="mt-auto flex items-baseline gap-2">

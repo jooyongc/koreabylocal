@@ -38,13 +38,13 @@ export default function LocalHosts() {
             />
             {h.verified && (
               <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-paper/95 px-2.5 py-[5px] text-[11px] font-bold text-ink">
-                ✦ Verified
+                Verified
               </div>
             )}
             <div className="absolute inset-x-0 bottom-0 p-4 text-white">
               <div className="font-display text-[19px] font-bold">{h.name}</div>
               <div className="mt-[3px] flex items-center gap-2 text-[12.5px] text-white/85">
-                📍 {h.city} · ★ {h.rating}
+                {h.city} — {h.rating}
               </div>
               <div className="mt-[9px] flex gap-1.5">
                 {(h.languages ?? []).map((l) => (

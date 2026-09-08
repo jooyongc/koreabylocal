@@ -12,7 +12,7 @@ export interface FontPair {
 }
 
 export const FONT_PAIRS: FontPair[] = [
-  { key: "modern", label: "Bricolage × Pretendard", vibe: "Current · modern editorial grotesque", display: "'Bricolage Grotesque'", serif: "'Newsreader'", body: "'Pretendard'", google: [] },
+  { key: "modern", label: "Bricolage × Pretendard", vibe: "Current modern editorial grotesque", display: "'Bricolage Grotesque'", serif: "'Newsreader'", body: "'Pretendard'", google: [] },
   { key: "editorial", label: "Instrument Serif × Pretendard", vibe: "High-end magazine, literary", display: "'Instrument Serif'", serif: "'Instrument Serif'", body: "'Pretendard'", google: ["Instrument+Serif:ital@0;1"] },
   { key: "contemporary", label: "Space Grotesk × Newsreader", vibe: "Techy, design-forward", display: "'Space Grotesk'", serif: "'Newsreader'", body: "'Space Grotesk'", google: ["Space+Grotesk:wght@400..700"] },
   { key: "kpop", label: "Unbounded × Pretendard", vibe: "Bold, K-culture energy", display: "'Unbounded'", serif: "'Newsreader'", body: "'Pretendard'", google: ["Unbounded:wght@400..800"] },

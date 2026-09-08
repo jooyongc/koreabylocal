@@ -9,7 +9,7 @@ interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-// v3 IA: Travel Tips (guidebook articles) · Guidebook (getting there/ask a local) · About · E-book.
+// v3 IA: Travel Tips (guidebook articles) Guidebook (getting there/ask a local) About E-book.
 const NAV_ITEMS: NavItem[] = [
   { label: "Travel Tips", href: "/guidebook" },
   {

@@ -31,7 +31,7 @@ export default function RecentlyAnswered() {
               {post.excerpt}
             </p>
             <p className="mt-auto text-[12px] font-semibold text-accent">
-              ✦ Answered by {post.author || "Korea by Local"}
+              Answered by {post.author || "Korea by Local"}
             </p>
           </Link>
         ))}

@@ -46,7 +46,7 @@ function FooterNewsletterForm() {
   };
 
   if (status === "success") {
-    return <p className="text-[13.5px] font-semibold text-white">Check your inbox! ✓</p>;
+    return <p className="text-[13.5px] font-semibold text-white">Check your inbox!</p>;
   }
 
   return (

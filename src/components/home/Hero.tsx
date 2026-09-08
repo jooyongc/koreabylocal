@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useEditorPickSpot } from "@/hooks/useConcepts";
 
-const AREAS = "SEOUL · BUSAN · JEJU · GANGNEUNG & MORE";
+const AREAS = ["SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
 
 export default function Hero() {
   const { data: pick, isLoading } = useEditorPickSpot();
@@ -13,9 +13,11 @@ export default function Hero() {
       <div className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-[clamp(32px,5vw,56px)] px-4 py-[clamp(40px,7vw,88px)] sm:px-6 lg:grid-cols-[3fr_2fr] lg:px-8">
         {/* Left: brand message */}
         <div>
-          <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.14em] text-accent">
-            <span className="h-[7px] w-[7px] rounded-full bg-accent" />
-            {AREAS}
+          <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12px] font-bold uppercase tracking-[0.14em] text-accent">
+            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-accent" />
+            {AREAS.map((area) => (
+              <span key={area}>{area}</span>
+            ))}
           </div>
 
           <h1 className="mt-4 font-display text-[clamp(42px,7vw,84px)] font-extrabold leading-[0.98] tracking-[-0.03em] text-ink">
@@ -54,7 +56,7 @@ export default function Hero() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
             <span className="relative mb-auto inline-flex w-fit items-center gap-1.5 rounded-full border border-white/40 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
-              ★ Editor's Pick
+              Editor's Pick
             </span>
 
             <div className="relative">
@@ -76,7 +78,7 @@ export default function Hero() {
             style={{ background: "linear-gradient(160deg,#e84b2a,#b8331a)" }}
           >
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/40 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
-              ★ Editor's Pick
+              Editor's Pick
             </span>
             <h2 className="mt-4 font-display text-[24px] font-extrabold leading-[1.15]">
               New spots are being curated

@@ -51,7 +51,7 @@ function SpotTable({ spots }: { spots: AdminSpotRow[] }) {
                 </td>
                 <td className="px-4 py-3 text-gray-600">{spot.region ?? "—"}</td>
                 <td className="px-4 py-3 text-gray-600">
-                  {typeInfo ? `${typeInfo.emoji} ${typeInfo.label}` : spot.spot_type ?? "—"}
+                  {typeInfo ? typeInfo.label : spot.spot_type ?? "—"}
                 </td>
                 <td className="px-4 py-3">
                   <button
@@ -154,7 +154,7 @@ export default function SpotsPage() {
               <option value="">All types</option>
               {SPOT_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
-                  {t.emoji} {t.label}
+                  {t.label}
                 </option>
               ))}
             </select>

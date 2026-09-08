@@ -79,7 +79,7 @@ export default function EbooksPage() {
                       </span>
                     </div>
                     <p className="mt-0.5 text-sm text-text-secondary">
-                      {money(ebook.price_usd)} · {ebook.download_count} downloads
+                      {money(ebook.price_usd)} {ebook.download_count} downloads
                     </p>
                   </div>
                   <button

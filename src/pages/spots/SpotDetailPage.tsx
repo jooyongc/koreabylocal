@@ -162,7 +162,6 @@ export default function SpotDetailPage() {
               )}
               {spot.price_range && (
                 <div className="flex items-start gap-2">
-                  <span className="mt-0.5 shrink-0 text-accent">💰</span>
                   <span>{spot.price_range}</span>
                 </div>
               )}

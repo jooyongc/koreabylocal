@@ -168,7 +168,7 @@ export default function TourDetailPage() {
               </Link>
 
               <ul className="mt-4 space-y-1.5 border-t border-ink/10 pt-4 text-[12.5px] text-muted-2">
-                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-green" /> Local host · small group</li>
+                <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-green" /> Local host small group</li>
                 <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-green" /> Instant confirmation</li>
                 <li className="flex items-center gap-2"><Check className="h-3.5 w-3.5 text-green" /> Secure checkout (PayPal)</li>
               </ul>

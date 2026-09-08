@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { ShoppingBag, Loader2, Lock, ShieldCheck, RotateCcw } from "lucide-react";
+import { ShoppingBag, Loader2, Lock, ShieldCheck, RotateCcw, Ticket } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/stores/useCartStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -351,7 +351,7 @@ export default function CheckoutPage() {
                   >
                     Phone{" "}
                     <span className="font-medium text-muted-3">
-                      (for your host · optional)
+                      (for your host optional)
                     </span>
                   </label>
                   <div className="flex gap-2">
@@ -563,9 +563,7 @@ export default function CheckoutPage() {
 
               {/* Promo (visual only — matches design) */}
               <div className="my-4 flex items-center gap-2 rounded-[11px] bg-paper px-3.5 py-3">
-                <span aria-hidden="true" className="text-muted-3">
-                  🎟
-                </span>
+                <Ticket className="h-4 w-4 shrink-0 text-muted-3" aria-hidden="true" />
                 <span className="flex-1 text-sm text-muted-3">Promo code</span>
                 <span className="text-sm font-bold text-accent">Apply</span>
               </div>
@@ -616,7 +614,7 @@ export default function CheckoutPage() {
                       Processing...
                     </>
                   ) : (
-                    `Place order · Pay ${formatPrice(totalPrice)}`
+                    `Place order Pay ${formatPrice(totalPrice)}`
                   )}
                 </button>
               )}
@@ -624,13 +622,12 @@ export default function CheckoutPage() {
               {/* Trust note */}
               <div className="mt-4 flex items-center justify-center gap-1.5 text-[11.5px] text-muted-2">
                 <Lock className="h-3 w-3" />
-                256-bit SSL · No card details stored
+                256-bit SSL No card details stored
               </div>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-muted-2">
                 <span className="inline-flex items-center gap-1">
                   <ShieldCheck className="h-3 w-3" /> Verified hosts
                 </span>
-                <span aria-hidden="true">·</span>
                 <span className="inline-flex items-center gap-1">
                   <RotateCcw className="h-3 w-3" /> 24h refund
                 </span>

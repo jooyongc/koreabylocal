@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, Check } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import AffiliateExperienceCard from "@/components/experiences/AffiliateExperienceCard";
 import { useAffiliateExperiences } from "@/hooks/useConcepts";
@@ -126,7 +126,7 @@ export default function ExperiencesPage() {
                         on ? "bg-accent text-white" : "border-[1.5px] border-ink/20"
                       }`}
                     >
-                      {on ? "✓" : ""}
+                      {on && <Check className="h-3 w-3" />}
                     </span>
                     {c}
                     <span className="ml-auto text-[12.5px] text-muted-3">{countFor("category", c)}</span>

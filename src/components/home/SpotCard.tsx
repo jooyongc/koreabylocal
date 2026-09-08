@@ -23,7 +23,7 @@ export default function SpotCard({ spot }: { spot: SpotRow }) {
         )}
         {typeInfo && (
           <span className="absolute left-[11px] top-[11px] rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
-            {typeInfo.emoji} {typeInfo.label}
+            {typeInfo.label}
           </span>
         )}
       </div>
@@ -33,8 +33,7 @@ export default function SpotCard({ spot }: { spot: SpotRow }) {
           <p className="mt-1.5 line-clamp-1 text-[13px] text-muted">{spot.tagline}</p>
         )}
         <div className="mt-auto flex items-center gap-1.5 pt-3 text-[12.5px] font-medium text-muted-2">
-          {place && <span>📍 {place}</span>}
-          {place && spot.price_range && <span>·</span>}
+          {place && <span>{place}</span>}
           {spot.price_range && <span>{spot.price_range}</span>}
         </div>
       </div>

@@ -15,7 +15,7 @@ export default function FeaturedExperiences() {
       className="reveal mx-auto max-w-[1180px] px-4 pt-[clamp(44px,6vw,80px)] sm:px-6 lg:px-8"
     >
       <SectionHeading
-        eyebrow="Experiences · affiliate partners"
+        eyebrow="Experiences affiliate partners"
         title="Featured experiences"
         link={{ label: "Browse all", to: "/tours" }}
       />

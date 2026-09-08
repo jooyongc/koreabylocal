@@ -199,7 +199,7 @@ export default function GuideDetailPage() {
           </span>
           <span className="text-[13px] text-muted-2">
             ⏱ {minutes} min read
-            {post.published_at && <> · {format(new Date(post.published_at), "MMM yyyy")}</>}
+            {post.published_at && <> {format(new Date(post.published_at), "MMM yyyy")}</>}
           </span>
         </div>
         <h1 className="mt-4 font-display text-[clamp(30px,5vw,52px)] font-extrabold leading-[1.04] tracking-[-0.02em] text-ink">
@@ -215,7 +215,7 @@ export default function GuideDetailPage() {
             <div>
               <div className="text-[14.5px] font-bold text-ink">{author}</div>
               <div className="flex items-center gap-1 text-[12.5px] text-muted-2">
-                <BadgeCheck className="h-3.5 w-3.5 text-green" /> Korea by Local · Verified
+                <BadgeCheck className="h-3.5 w-3.5 text-green" /> Korea by Local Verified
               </div>
             </div>
           </div>

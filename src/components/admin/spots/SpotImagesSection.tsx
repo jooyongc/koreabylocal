@@ -44,7 +44,7 @@ export default function SpotImagesSection() {
       <label className="mb-4 flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-6 transition-colors hover:border-primary/50">
         <Upload className="mb-2 h-8 w-8 text-gray-400" />
         <p className="mb-1 text-sm text-gray-500">{uploading ? "Uploading..." : "Click to upload photos"}</p>
-        <p className="text-xs text-gray-400">The first photo becomes the thumbnail · Max 5MB per file</p>
+        <p className="text-xs text-gray-400">The first photo becomes the thumbnail Max 5MB per file</p>
         <input
           type="file"
           multiple

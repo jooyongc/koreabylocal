@@ -1,10 +1,10 @@
 import { NavLink } from "react-router-dom";
 import NavDropdown from "./NavDropdown";
 
-// v3 IA: Travel Tips (guidebook articles) · Guidebook (getting there/ask a local) · About.
+// v3 IA: Travel Tips (guidebook articles) Guidebook (getting there/ask a local) About.
 const GUIDEBOOK_ITEMS = [
-  { label: "🚂 Getting There", href: "/getting-there" },
-  { label: "❓ Ask a Local", href: "/ask-a-local" },
+  { label: "Getting There", href: "/getting-there" },
+  { label: "Ask a Local", href: "/ask-a-local" },
 ];
 
 export default function DesktopNav() {

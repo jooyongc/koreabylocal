@@ -101,7 +101,7 @@ export default function SpotBasicInfoSection({ isEdit }: Props) {
             <option value="">Select type</option>
             {SPOT_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
-                {t.emoji} {t.label}
+                {t.label}
               </option>
             ))}
           </select>

@@ -12,7 +12,7 @@ export default function TypeFilter() {
         {SPOT_TYPES.map((t) => (
           <Chip
             key={t.value}
-            label={`${t.emoji} ${t.label}`}
+            label={t.label}
             active={type === t.value}
             onClick={() => setType(t.value)}
           />

@@ -50,7 +50,7 @@ export default function TopicIdeas({ onPick }: { onPick: (title: string, keyword
             <div className="flex items-center gap-2 font-display text-[17px] font-bold text-white">
               <Lightbulb className="h-[18px] w-[18px] text-gold" /> Topic ideas
               <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold tracking-[0.06em] text-white/60">
-                AEO · SEO · GEO
+                AEO SEO GEO
               </span>
             </div>
             <p className="mt-1 text-[12.5px] text-white/50">

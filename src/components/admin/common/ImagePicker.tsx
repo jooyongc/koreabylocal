@@ -49,7 +49,7 @@ export default function ImagePicker({ open, onClose, onSelect, orientation = "la
         toast.error(msg);
       } else {
         setResults((data?.images as ImageResult[]) ?? []);
-        if (!data?.images?.length) toast("No images found", { icon: "🔍" });
+        if (!data?.images?.length) toast("No images found");
       }
     } catch (e) {
       toast.error(String((e as Error).message));

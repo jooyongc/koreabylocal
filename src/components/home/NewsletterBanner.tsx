@@ -64,7 +64,7 @@ export default function NewsletterBanner() {
     <div className="relative z-40 bg-ink px-4 py-2.5 text-white">
       <div className="relative mx-auto flex max-w-[1180px] items-center justify-center gap-3 px-8 text-center">
         {status === "success" ? (
-          <p className="text-[13.5px] font-semibold">Check your inbox! ✓</p>
+          <p className="text-[13.5px] font-semibold">Check your inbox!</p>
         ) : (
           <form onSubmit={submit} className="flex flex-wrap items-center justify-center gap-2.5 text-center">
             <span className="hidden text-[13.5px] font-medium text-white/90 sm:inline">

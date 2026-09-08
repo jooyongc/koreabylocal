@@ -196,7 +196,7 @@ export default function ContentStudioPage() {
   const readyCount = queue.filter((j) => j.status === "ready").length;
   const queueSummary = `${queue.length} draft${
     queue.length === 1 ? "" : "s"
-  } · ${readyCount} ready`;
+  } ${readyCount} ready`;
 
   const [topic, setTopic] = useState("Best day trips from Seoul by train");
   const [keywords, setKeywords] = useState<string[]>(["seoul day trips", "ktx from seoul"]);
@@ -230,11 +230,11 @@ export default function ContentStudioPage() {
                   Content Studio
                 </h1>
                 <span className="rounded-full bg-gradient-to-r from-purple to-accent px-[11px] py-[5px] text-[11px] font-extrabold tracking-[0.06em] text-white">
-                  AI · AUTOMATED
+                  AI AUTOMATED
                 </span>
               </div>
               <p className="mt-1.5 text-[13px] text-white/50">
-                Admin · SEO/AEO content pipeline for koreabylocal.com
+                Admin SEO/AEO content pipeline for koreabylocal.com
               </p>
             </div>
             <button

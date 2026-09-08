@@ -58,28 +58,28 @@ const TRANSFER_TYPES: TransferType[] = [
 const POPULAR_ROUTES: TransferRoute[] = [
   {
     route: "Incheon Airport → Seoul city",
-    type: "Private sedan · up to 3 pax",
+    type: "Private sedan up to 3 pax",
     time: "~70 min",
     price: "$48",
     img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=700&q=80",
   },
   {
     route: "Incheon Airport → Seoul (group van)",
-    type: "Private van · up to 7 pax",
+    type: "Private van up to 7 pax",
     time: "~70 min",
     price: "$72",
     img: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=700&q=80",
   },
   {
     route: "Seoul → Busan",
-    type: "Intercity · sedan + driver",
+    type: "Intercity sedan + driver",
     time: "~4.5 h",
     price: "$320",
     img: "https://images.unsplash.com/photo-1546874177-9e664107314e?w=700&q=80",
   },
   {
-    route: "Full-day chauffeur · Seoul",
-    type: "8 h · car + English driver",
+    route: "Full-day chauffeur Seoul",
+    type: "8 h car + English driver",
     time: "Your itinerary",
     price: "$260",
     img: "https://images.unsplash.com/photo-1502161254066-6c74afbf07aa?w=700&q=80",
