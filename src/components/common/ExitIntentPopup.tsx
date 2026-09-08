@@ -102,16 +102,16 @@ export default function ExitIntentPopup() {
           <div className="py-4 text-center">
             <BookOpen className="mx-auto h-8 w-8 text-accent" />
             <h3 className="mt-3 font-display text-[19px] font-extrabold text-ink">Check your inbox!</h3>
-            <p className="mt-1.5 text-[14px] text-muted">Your free sample is on its way.</p>
+            <p className="mt-1.5 text-[14px] text-muted">Your free e-book is on its way.</p>
           </div>
         ) : (
           <>
             <BookOpen className="h-8 w-8 text-accent" />
             <h3 className="mt-3 font-display text-[20px] font-extrabold leading-tight text-ink">
-              Wait — before you go!
+              First time in Korea?
             </h3>
             <p className="mt-2 text-[14px] text-muted">
-              Get 2 free chapters of our Korea e-book — real tips from real locals, straight to your inbox.
+              Get our free e-book — 10 things to prepare before your Korea trip, straight to your inbox.
             </p>
             <form onSubmit={submit} className="mt-5 flex flex-col gap-2.5">
               <input
@@ -128,7 +128,7 @@ export default function ExitIntentPopup() {
                 className="flex items-center justify-center gap-2 rounded-[13px] bg-accent py-[12px] text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {status === "submitting" && <Loader2 className="h-4 w-4 animate-spin" />}
-                Send me the free sample
+                Send me the free e-book
               </button>
             </form>
           </>
