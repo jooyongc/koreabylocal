@@ -41,7 +41,7 @@ export default function AskSuccessPage() {
         </p>
         <Link
           to="/"
-          className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,53,0.35)] transition-transform hover:scale-[1.03]"
+          className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,46,151,0.35)] transition-transform hover:scale-[1.03]"
         >
           Back to home
         </Link>

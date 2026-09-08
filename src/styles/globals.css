@@ -3,18 +3,18 @@
 
 /* ===========================================================================
    Korea by Local — design system (v3 renewal)
-   Brand: magazine-first local platform. Bright off-white surface, near-black
-   ink, KBL orange accent. Display: Bricolage Grotesque · Serif: Newsreader ·
-   Body/Korean: Pretendard.
+   Brand: magazine-first local platform. Bright off-white surface, navy
+   ink, KBL hot pink accent — matching the official logo mark. Display:
+   Bricolage Grotesque · Serif: Newsreader · Body/Korean: Pretendard.
    =========================================================================== */
 @theme {
-  /* ── Brand palette (KBL original, v3 restore) ─────────────────── */
-  --color-ink: #1a1a1a;        /* near-black — primary text/surfaces */
+  /* ── Brand palette (KBL logo colors — navy + hot pink) ────────── */
+  --color-ink: #12184a;        /* navy — primary text/surfaces */
   --color-paper: #fafaf8;      /* bright off-white — app surface */
   --color-canvas: #cfcabd;     /* deeper taupe — section/edge backdrop */
-  --color-accent: #ff6b35;     /* KBL orange — primary accent */
-  --color-accent-light: #fff3ee; /* light orange — accent backgrounds */
-  --color-accent-dark: #e55a2b;  /* accent hover state */
+  --color-accent: #ff2e97;     /* KBL hot pink — primary accent */
+  --color-accent-light: #ffeaf5; /* light pink — accent backgrounds */
+  --color-accent-dark: #d91e80;  /* accent hover state */
   --color-purple: #5b2bff;
   --color-green: #0e8c6a;
   --color-gold: #f2b705;
@@ -29,13 +29,13 @@
 
   /* ── Back-compat semantic tokens (existing components) ──────────
      Remapped to the new brand so legacy pages adopt the renewal. */
-  --color-primary: #1a1a1a;
+  --color-primary: #12184a;
   --color-primary-light: #5b2bff;
   --color-accent-purple: #5b2bff;
   --color-accent-indigo: #5b2bff;
   --color-background: #fafaf8;
   --color-background-gray: #efe9dc;
-  --color-text: #1a1a1a;
+  --color-text: #12184a;
   --color-text-secondary: #6b6757;
 
   /* ── Type ───────────────────────────────────────────────────── */

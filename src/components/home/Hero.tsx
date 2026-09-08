@@ -43,8 +43,8 @@ export default function Hero() {
         ) : pick ? (
           <Link
             to={`/spots/${pick.slug}`}
-            className="group relative flex min-h-[340px] flex-col justify-end overflow-hidden rounded-[24px] p-[clamp(22px,3vw,32px)] text-white shadow-[0_24px_54px_rgba(232,75,42,0.28)] transition-transform duration-300 hover:-translate-y-1"
-            style={{ background: "linear-gradient(160deg,#e84b2a,#b8331a)" }}
+            className="group relative flex min-h-[340px] flex-col justify-end overflow-hidden rounded-[24px] p-[clamp(22px,3vw,32px)] text-white shadow-[0_24px_54px_rgba(255,46,151,0.28)] transition-transform duration-300 hover:-translate-y-1"
+            style={{ background: "linear-gradient(160deg,#ff2e97,#8e1361)" }}
           >
             {image && (
               <img
@@ -74,8 +74,8 @@ export default function Hero() {
         ) : (
           <Link
             to="#spot-gallery"
-            className="flex min-h-[340px] flex-col items-start justify-end rounded-[24px] p-[clamp(22px,3vw,32px)] text-white shadow-[0_24px_54px_rgba(232,75,42,0.28)] transition-transform duration-300 hover:-translate-y-1"
-            style={{ background: "linear-gradient(160deg,#e84b2a,#b8331a)" }}
+            className="flex min-h-[340px] flex-col items-start justify-end rounded-[24px] p-[clamp(22px,3vw,32px)] text-white shadow-[0_24px_54px_rgba(255,46,151,0.28)] transition-transform duration-300 hover:-translate-y-1"
+            style={{ background: "linear-gradient(160deg,#ff2e97,#8e1361)" }}
           >
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/40 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
               Editor's Pick

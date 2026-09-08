@@ -7,8 +7,8 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Brand palette (KBL original, v3 restore)
-        ink: "#1a1a1a",
+        // Brand palette (KBL logo colors — navy + hot pink)
+        ink: "#12184a",
         paper: "#fafaf8",
         canvas: "#cfcabd",
         purple: "#5b2bff",
@@ -26,13 +26,13 @@ export default {
         },
         // Back-compat semantic tokens, remapped to the new brand
         primary: {
-          DEFAULT: "#1a1a1a",
+          DEFAULT: "#12184a",
           light: "#5b2bff",
         },
         accent: {
-          DEFAULT: "#ff6b35",
-          light: "#fff3ee",
-          dark: "#e55a2b",
+          DEFAULT: "#ff2e97",
+          light: "#ffeaf5",
+          dark: "#d91e80",
           purple: "#5b2bff",
           indigo: "#5b2bff",
         },
@@ -41,7 +41,7 @@ export default {
           gray: "#efe9dc",
         },
         text: {
-          DEFAULT: "#1a1a1a",
+          DEFAULT: "#12184a",
           secondary: "#6b6757",
         },
       },
