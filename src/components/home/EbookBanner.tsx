@@ -9,8 +9,8 @@ export default function EbookBanner() {
   const cover = ebooks?.[0]?.cover_image_url;
 
   return (
-    <section className="mx-auto max-w-[1180px] px-4 py-[clamp(28px,4vw,44px)] sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 items-center gap-[clamp(24px,4vw,44px)] overflow-hidden rounded-[24px] bg-accent-light p-[clamp(26px,4vw,48px)] lg:grid-cols-[1fr_1.4fr]">
+    <section className="mx-auto max-w-[1180px] px-4 pb-[clamp(24px,4vw,40px)] sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 items-center gap-[clamp(24px,4vw,44px)] overflow-hidden rounded-[20px] border-[1.5px] border-ink bg-accent-light p-[clamp(26px,4vw,48px)] lg:grid-cols-[1fr_1.4fr]">
         <div className="flex justify-center">
           {cover ? (
             <img src={cover} alt="Korea By Local e-book" loading="lazy" className="w-full max-w-[240px] rounded-xl shadow-[0_20px_44px_rgba(255,46,151,0.2)]" />

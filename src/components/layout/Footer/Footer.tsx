@@ -7,9 +7,10 @@ import { useRegions } from "@/hooks/useConcepts";
 import Logo from "@/components/layout/Header/Logo";
 
 const RESOURCE_LINKS = [
-  { label: "Guidebook", href: "/guidebook" },
-  { label: "Getting There", href: "/getting-there" },
+  { label: "Travel Blog", href: "/guidebook" },
+  { label: "Experiences", href: "/experiences" },
   { label: "Ask a Local", href: "/ask-a-local" },
+  { label: "Getting There", href: "/getting-there" },
   { label: "E-book", href: "/ebook" },
   { label: "About", href: "/about" },
 ];

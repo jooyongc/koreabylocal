@@ -34,7 +34,7 @@ export default function SpotGrid({ area: areaOverride }: SpotGridProps = {}) {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <div id="spot-gallery" className="mx-auto max-w-[1180px] scroll-mt-24 px-4 pb-[clamp(28px,4vw,44px)] pt-[clamp(20px,3vw,32px)] sm:px-6 lg:px-8">
+    <div id="spot-gallery" className="scroll-mt-24 pt-[clamp(20px,3vw,32px)]">
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (

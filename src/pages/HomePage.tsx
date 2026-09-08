@@ -48,9 +48,17 @@ export default function HomePage() {
       />
       <NewsletterBanner />
       <Hero />
-      <AreaFilter />
-      <TypeFilter />
-      <SpotGrid />
+
+      <section className="bg-paper">
+        <div className="mx-auto max-w-[1180px] px-4 pb-[clamp(24px,4vw,40px)] sm:px-6 lg:px-8">
+          <div className="rounded-[20px] border-[1.5px] border-ink p-[clamp(20px,3vw,32px)]">
+            <AreaFilter />
+            <TypeFilter />
+            <SpotGrid />
+          </div>
+        </div>
+      </section>
+
       <CuratedExperiences />
       <EbookBanner />
       <TripGenieBanner />

@@ -107,8 +107,10 @@ export default function DestinationPage() {
         </div>
       </div>
 
-      <TypeFilter />
-      <SpotGrid area={region.key} />
+      <div className="mx-auto max-w-[1180px] px-4 pt-[clamp(20px,3vw,32px)] sm:px-6 lg:px-8">
+        <TypeFilter />
+        <SpotGrid area={region.key} />
+      </div>
 
       {/* Related content */}
       {(gettingThereGuide || guidebookArticles.length > 0) && (

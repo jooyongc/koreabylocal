@@ -9,19 +9,19 @@ interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-// v3 IA: Travel Tips (guidebook articles) Guidebook (getting there/ask a local) About E-book.
+// IA: three clear pillars — Travel Blog (articles), Experiences (curated
+// tours, plus logistics under "Getting There"), Ask a Local (paid concierge
+// Q&A) — kept separate from E-book so the two products are never confused.
 const NAV_ITEMS: NavItem[] = [
-  { label: "Travel Tips", href: "/guidebook" },
+  { label: "Travel Blog", href: "/guidebook" },
   {
-    label: "Guidebook",
-    href: "/guidebook",
-    children: [
-      { label: "Getting There", href: "/getting-there" },
-      { label: "Ask a Local", href: "/ask-a-local" },
-    ],
+    label: "Experiences",
+    href: "/experiences",
+    children: [{ label: "Getting There", href: "/getting-there" }],
   },
-  { label: "About", href: "/about" },
+  { label: "Ask a Local", href: "/ask-a-local" },
   { label: "E-book", href: "/ebook", badge: "NEW" },
+  { label: "About", href: "/about" },
 ];
 
 export default function MobileNav() {
@@ -68,15 +68,24 @@ export default function MobileNav() {
             <div key={item.label}>
               {item.children ? (
                 <>
-                  <button
-                    onClick={() => setExpanded((p) => (p === item.label ? null : item.label))}
-                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-ink/5"
-                  >
-                    {item.label}
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${expanded === item.label ? "rotate-180" : ""}`}
-                    />
-                  </button>
+                  <div className="flex items-center rounded-xl hover:bg-ink/5">
+                    <Link
+                      to={item.href}
+                      onClick={close}
+                      className="flex-1 px-4 py-3 text-[15px] font-semibold text-ink"
+                    >
+                      {item.label}
+                    </Link>
+                    <button
+                      onClick={() => setExpanded((p) => (p === item.label ? null : item.label))}
+                      aria-label={`Toggle ${item.label} submenu`}
+                      className="px-4 py-3"
+                    >
+                      <ChevronDown
+                        className={`h-4 w-4 text-ink transition-transform ${expanded === item.label ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                  </div>
                   {expanded === item.label && (
                     <div className="ml-3 border-l-2 border-ink/10 pl-3 pb-1">
                       {item.children.map((sub) => (

@@ -6,7 +6,7 @@ export default function AreaFilter() {
   const { area, setArea } = useSpotFilters();
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 pt-[clamp(24px,3vw,36px)] sm:px-6 lg:px-8">
+    <div>
       <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-2">Areas</div>
       <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         <Chip label="All Korea" active={!area} onClick={() => setArea(undefined)} />

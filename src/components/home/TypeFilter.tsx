@@ -5,7 +5,7 @@ export default function TypeFilter() {
   const { type, setType } = useSpotFilters();
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 pt-3 sm:px-6 lg:px-8">
+    <div className="pt-3">
       <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-2">Type</div>
       <div className="mt-2.5 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         <Chip label="All" active={!type} onClick={() => setType(undefined)} />
