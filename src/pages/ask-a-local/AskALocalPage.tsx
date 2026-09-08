@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Send, Upload, X, Loader2, Plus, Lock, CheckCircle } from "lucide-react";
+import { Send, Upload, X, Loader2, Plus, Lock } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
+import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
 import RecentlyAnswered from "@/components/ask/RecentlyAnswered";
-import InquiryPaymentModal, { type PendingInquiry } from "@/components/ask/InquiryPaymentModal";
 import TripGenieBanner from "@/components/home/TripGenieBanner";
 
 const CATEGORIES = [
@@ -45,13 +45,11 @@ export default function AskALocalPage() {
   const [attachmentUrl, setAttachmentUrl] = useState("");
   const [attachmentName, setAttachmentName] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [pendingInquiry, setPendingInquiry] = useState<PendingInquiry | null>(null);
-  const [submitted, setSubmitted] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<InquiryForm>({
     defaultValues: { category: "General" },
   });
@@ -82,10 +80,26 @@ export default function AskALocalPage() {
     }
   };
 
-  // Validating the form opens the $1 PayPal payment modal; the question is
-  // only saved once verify-inquiry-order confirms the payment server-side.
-  const onSubmit = (data: InquiryForm) => {
-    setPendingInquiry(data);
+  // The question is saved (unpaid) and a Polar checkout is created server-side;
+  // polar-webhook is what marks it paid and notifies the team once payment lands.
+  const onSubmit = async (data: InquiryForm) => {
+    const { data: result, error } = await supabase.functions.invoke("create-inquiry-checkout", {
+      body: {
+        name: data.name,
+        email: data.email,
+        subject: data.subject || null,
+        category: data.category,
+        message: data.message,
+        attachment_url: attachmentUrl || null,
+      },
+    });
+
+    if (error || !result?.url) {
+      toast.error("Couldn't start checkout. Please try again in a moment.");
+      return;
+    }
+
+    window.location.href = result.url;
   };
 
   // ── Shared field styling (renewal) ──────────────────────────────
@@ -93,38 +107,6 @@ export default function AskALocalPage() {
     "w-full rounded-[12px] border border-ink/15 bg-white px-3.5 py-3 text-[15px] text-ink placeholder:text-muted-3 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20";
   const labelClass = "mb-1.5 block text-[13px] font-semibold text-ink";
   const errorClass = "mt-1 text-[12px] text-coral";
-
-  if (submitted) {
-    return (
-      <>
-        <PageSEO
-          title="Thank You | Ask a Local | Korea By Local"
-          description="Your question has been sent to a local. We'll get back to you soon."
-          path="/ask-a-local"
-          noindex
-        />
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green/10">
-            <CheckCircle className="h-8 w-8 text-green" />
-          </div>
-          <h1 className="font-display text-[clamp(28px,4vw,40px)] font-extrabold tracking-[-0.02em] text-ink">
-            Thank you!{" "}
-            <span className="font-serif-accent font-medium italic text-accent">A local’s on it.</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-[46ch] text-[16px] text-muted">
-            Your payment went through and your question is with a verified Korean host. Expect a reply by
-            email — usually within a few hours.
-          </p>
-          <a
-            href="/"
-            className="mt-8 inline-flex items-center justify-center rounded-[12px] bg-accent px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,53,0.35)] transition-transform hover:scale-[1.03]"
-          >
-            Back to home
-          </a>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -217,16 +199,20 @@ export default function AskALocalPage() {
 
             <button
               type="submit"
-              disabled={uploading}
+              disabled={isSubmitting || uploading}
               className="inline-flex items-center gap-2 rounded-[12px] bg-accent px-[26px] py-3.5 text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,53,0.35)] transition-transform hover:scale-[1.03] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
             >
-              <Send className="h-4 w-4" />
-              Ask a local — $1 →
+              {isSubmitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {isSubmitting ? "Redirecting…" : "Ask a local — $1 →"}
             </button>
           </div>
           <p className="mt-2.5 flex items-center gap-1.5 text-[12px] text-muted-2">
-            <Lock className="h-3 w-3" /> You'll pay $1 with PayPal (card or PayPal balance). Your question is
-            sent to a local the moment payment goes through.
+            <Lock className="h-3 w-3" /> You'll pay $1 on a secure checkout page. Your question is sent to a
+            local the moment payment goes through.
           </p>
 
           {/* Contact + categorisation details */}
@@ -324,18 +310,6 @@ export default function AskALocalPage() {
         subtitle="Trip Genie can chat it through with you right now."
         ctaLabel="Chat with Trip Genie"
       />
-
-      {pendingInquiry && (
-        <InquiryPaymentModal
-          inquiry={pendingInquiry}
-          attachmentUrl={attachmentUrl}
-          onClose={() => setPendingInquiry(null)}
-          onSuccess={() => {
-            setPendingInquiry(null);
-            setSubmitted(true);
-          }}
-        />
-      )}
     </>
   );
 }
