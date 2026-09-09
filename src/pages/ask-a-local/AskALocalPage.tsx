@@ -35,7 +35,6 @@ const FAQ_SCHEMA = {
 interface InquiryForm {
   name: string;
   email: string;
-  subject: string;
   category: string;
   message: string;
 }
@@ -86,7 +85,6 @@ export default function AskALocalPage() {
       body: {
         name: data.name,
         email: data.email,
-        subject: data.subject || null,
         category: data.category,
         message: data.message,
         attachment_url: attachmentUrl || null,
@@ -217,7 +215,7 @@ export default function AskALocalPage() {
           </p>
 
           {/* Contact + categorisation details */}
-          <div className="mt-4 grid grid-cols-1 gap-4 border-t border-ink/10 pt-4 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-4 border-t border-ink/10 pt-4 sm:grid-cols-3">
             <div>
               <label htmlFor="ask-name" className={labelClass}>
                 Name <span className="text-accent">*</span>
@@ -257,18 +255,6 @@ export default function AskALocalPage() {
                   {errors.email.message}
                 </p>
               )}
-            </div>
-
-            <div>
-              <label htmlFor="ask-subject" className={labelClass}>
-                Subject
-              </label>
-              <input
-                id="ask-subject"
-                {...register("subject")}
-                className={fieldClass}
-                placeholder="Brief subject (optional)"
-              />
             </div>
 
             <div>
