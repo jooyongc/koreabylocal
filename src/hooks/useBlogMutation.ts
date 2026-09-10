@@ -17,6 +17,7 @@ async function createBlogPost(data: BlogFormData) {
       published_at: data.status === "published" ? (data.published_at || new Date().toISOString()) : null,
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
+      featured: data.featured,
     })
     .select("id")
     .single();
@@ -39,6 +40,7 @@ async function updateBlogPost(id: number, data: BlogFormData) {
       published_at: data.status === "published" ? (data.published_at || new Date().toISOString()) : null,
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
+      featured: data.featured,
     })
     .eq("id", id);
   if (error) throw error;

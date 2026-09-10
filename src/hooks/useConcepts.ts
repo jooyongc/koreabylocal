@@ -85,6 +85,30 @@ export function useEditorPickSpot() {
   });
 }
 
+export type FeaturedBlogPostRow = Pick<
+  Tables<"blog_posts">,
+  "slug" | "title" | "excerpt" | "category" | "thumbnail_url" | "hero_image_url"
+>;
+
+/** The single blog post an admin has flagged to appear in the homepage Hero. */
+export function useFeaturedBlogPost() {
+  return useQuery({
+    queryKey: ["featured-blog-post"],
+    queryFn: async (): Promise<FeaturedBlogPostRow | null> => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("slug, title, excerpt, category, thumbnail_url, hero_image_url")
+        .eq("status", "published")
+        .eq("featured", true)
+        .order("published_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
 export function useHosts(limit?: number) {
   return useQuery({
     queryKey: ["hosts", limit ?? null],

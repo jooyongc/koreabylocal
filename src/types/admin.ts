@@ -46,6 +46,7 @@ export interface BlogFormData {
   published_at: string;
   seo_title: string;
   seo_description: string;
+  featured: boolean;
 }
 
 export interface SpotFormData {

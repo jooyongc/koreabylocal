@@ -49,6 +49,7 @@ export default function BlogEditPage() {
     published_at: formatDatetimeLocal(post.published_at),
     seo_title: post.seo_title ?? "",
     seo_description: post.seo_description ?? "",
+    featured: post.featured,
   };
 
   return (

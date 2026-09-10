@@ -45,6 +45,7 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
       published_at: "",
       seo_title: "",
       seo_description: "",
+      featured: false,
       ...defaultValues,
     },
   });
@@ -247,6 +248,11 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
                     Leave empty to publish immediately
                   </p>
                 </div>
+
+                <label className="flex items-center justify-between">
+                  <span className="text-sm text-gray-700">Featured on homepage</span>
+                  <input type="checkbox" {...register("featured")} className="h-5 w-5 rounded accent-primary" />
+                </label>
               </div>
             </section>
 

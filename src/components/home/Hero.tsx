@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { useEditorPickSpot } from "@/hooks/useConcepts";
+import { useFeaturedBlogPost } from "@/hooks/useConcepts";
 
 const AREAS = ["SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
 
+function formatCategory(raw: string): string {
+  return raw
+    .toLowerCase()
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 export default function Hero() {
-  const { data: pick, isLoading } = useEditorPickSpot();
-  const image = pick?.thumbnail_url ?? (Array.isArray(pick?.images) ? (pick.images as string[])[0] : undefined);
+  const { data: post, isLoading } = useFeaturedBlogPost();
+  const image = post?.thumbnail_url ?? post?.hero_image_url ?? undefined;
 
   return (
     <section className="bg-paper">
@@ -36,49 +44,49 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* Right: Editor's Pick */}
+          {/* Right: Featured Read (a blog post an admin has pinned here) */}
           {isLoading ? (
             <div className="flex min-h-[280px] items-center justify-center bg-accent-light lg:min-h-full">
               <Loader2 className="h-6 w-6 animate-spin text-accent" />
             </div>
-          ) : pick ? (
+          ) : post ? (
             <Link
-              to={`/spots/${pick.slug}`}
+              to={`/guidebook/${post.slug}`}
               className="group relative flex min-h-[280px] flex-col justify-end overflow-hidden bg-accent p-[clamp(24px,3vw,36px)] text-white lg:min-h-full"
             >
               {image && (
                 <img
                   src={image}
-                  alt={pick.title}
+                  alt={post.title}
                   className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-500 group-hover:scale-105"
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
 
               <span className="relative mb-auto inline-flex w-fit items-center gap-1.5 rounded-full border border-white/50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
-                Editor's Pick
+                Featured Read
               </span>
 
               <div className="relative">
-                {pick.spot_type && (
+                {post.category && (
                   <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/75">
-                    {pick.spot_type}
+                    {formatCategory(post.category)}
                   </span>
                 )}
-                <h2 className="mt-1 font-display text-[24px] font-extrabold leading-[1.1]">{pick.title}</h2>
-                {pick.tagline && <p className="mt-1.5 text-[14px] text-white/85">{pick.tagline}</p>}
+                <h2 className="mt-1 font-display text-[24px] font-extrabold leading-[1.1]">{post.title}</h2>
+                {post.excerpt && <p className="mt-1.5 line-clamp-2 text-[14px] text-white/85">{post.excerpt}</p>}
               </div>
             </Link>
           ) : (
             <Link
-              to="#spot-gallery"
+              to="/guidebook"
               className="flex min-h-[280px] flex-col items-start justify-end bg-accent p-[clamp(24px,3vw,36px)] text-white lg:min-h-full"
             >
               <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
-                Editor's Pick
+                Featured Read
               </span>
               <h2 className="mt-4 font-display text-[22px] font-extrabold leading-[1.15]">Coming soon</h2>
-              <p className="mt-1.5 text-[14px] text-white/85">New spots are being curated.</p>
+              <p className="mt-1.5 text-[14px] text-white/85">New stories are being written.</p>
             </Link>
           )}
         </div>
