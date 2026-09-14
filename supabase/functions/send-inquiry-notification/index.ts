@@ -1,8 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { GMAIL_SENDER, isMailConfigured, sendMail } from "../_shared/gmail.ts";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "info@koreabylocal.com";
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "noreply@koreabylocal.com";
+const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || GMAIL_SENDER;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,32 +32,24 @@ Deno.serve(async (req: Request) => {
       </div>
     `;
 
-    if (!RESEND_API_KEY) {
-      console.log("RESEND_API_KEY not set. Would send:", { to: ADMIN_EMAIL, subject: `[KBL] Inquiry: ${subject || category}` });
+    if (!isMailConfigured()) {
+      console.log("Gmail not configured. Would send:", { to: ADMIN_EMAIL, subject: `[KBL] Inquiry: ${subject || category}` });
       return new Response(
         JSON.stringify({ success: false, reason: "no_api_key", email_logged: true }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [ADMIN_EMAIL],
-        subject: `[KBL] New Inquiry: ${subject || category} - ${name}`,
-        html: emailHtml,
-      }),
+    // Reply-To the asker so the team can answer straight from the inbox.
+    const sent = await sendMail({
+      to: ADMIN_EMAIL,
+      replyTo: typeof email === "string" && email.includes("@") ? email : undefined,
+      subject: `[KBL] New Inquiry: ${subject || category} - ${name}`,
+      html: emailHtml,
     });
 
-    const resendResult = await resendResponse.json();
-
     return new Response(
-      JSON.stringify({ success: resendResponse.ok, resend: resendResult }),
+      JSON.stringify({ success: sent.ok }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (_err) {

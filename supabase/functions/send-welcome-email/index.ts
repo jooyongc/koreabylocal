@@ -1,7 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { isMailConfigured, sendMail } from "../_shared/gmail.ts";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "hello@koreabylocal.com";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://koreabylocal.com";
 const CHECKLIST_PDF_URL =
   Deno.env.get("CHECKLIST_PDF_URL") || `${SITE_URL}/downloads/korea-travel-checklist.pdf`;
@@ -140,8 +139,8 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    if (!RESEND_API_KEY) {
-      console.error("send-welcome-email: RESEND_API_KEY is not configured");
+    if (!isMailConfigured()) {
+      console.error("send-welcome-email: Gmail sending is not configured");
       return new Response(JSON.stringify({ skipped: true, reason: "email_not_configured" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -150,22 +149,9 @@ Deno.serve(async (req: Request) => {
 
     const { subject, html } = buildEmail(payload);
 
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [payload.email],
-        subject,
-        html,
-      }),
-    });
+    const sent = await sendMail({ to: payload.email, subject, html });
 
-    if (!res.ok) {
-      console.error("send-welcome-email: Resend request failed:", res.status, await res.text());
+    if (!sent.ok) {
       return new Response(JSON.stringify({ error: "Failed to send email" }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

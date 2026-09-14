@@ -1,8 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "orders@koreabylocal.com";
+import { isMailConfigured, sendMail } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -124,33 +122,19 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Send via Resend
-    if (!RESEND_API_KEY) {
-      console.log("RESEND_API_KEY not set. Would send:", { to: customerEmail, subject });
+    // Send via Gmail API
+    if (!isMailConfigured()) {
+      console.log("Gmail not configured. Would send:", { to: customerEmail, subject });
       return new Response(
         JSON.stringify({ success: false, reason: "no_api_key", email_logged: true }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const resendResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to: [customerEmail],
-        subject,
-        html: bodyHtml,
-      }),
-    });
-
-    const resendResult = await resendResponse.json();
+    const sent = await sendMail({ to: customerEmail, subject, html: bodyHtml });
 
     return new Response(
-      JSON.stringify({ success: resendResponse.ok, resend: resendResult }),
+      JSON.stringify({ success: sent.ok }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {

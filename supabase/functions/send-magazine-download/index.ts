@@ -1,8 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const FROM_EMAIL = Deno.env.get("FROM_EMAIL") || "noreply@koreabylocal.com";
+import { isMailConfigured, sendMail } from "../_shared/gmail.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,8 +55,8 @@ Deno.serve(async (req: Request) => {
       .update({ download_count: (magazine.download_count ?? 0) + 1 })
       .eq("id", magazineId);
 
-    // Send download link email if Resend is configured
-    if (RESEND_API_KEY && email) {
+    // Send download link email if Gmail sending is configured
+    if (isMailConfigured() && email) {
       const emailHtml = `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
           <div style="background:linear-gradient(135deg,#00005a,#6312ff);padding:32px;text-align:center;border-radius:12px 12px 0 0">
@@ -80,18 +78,10 @@ Deno.serve(async (req: Request) => {
         </div>
       `;
 
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: FROM_EMAIL,
-          to: [email],
-          subject: `[Korea By Local] Download: ${magazine.title}`,
-          html: emailHtml,
-        }),
+      await sendMail({
+        to: email,
+        subject: `[Korea By Local] Download: ${magazine.title}`,
+        html: emailHtml,
       });
     }
 
