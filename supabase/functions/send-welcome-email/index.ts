@@ -36,10 +36,10 @@ function wrapEmail(preheader: string, bodyHtml: string): string {
   return `
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;background:#fff">
       <span style="display:none;max-height:0;overflow:hidden">${preheader}</span>
-      <div style="background:#1a1a1a;padding:28px 32px;text-align:center;border-radius:14px 14px 0 0">
+      <div style="background:#12184a;padding:28px 32px;text-align:center;border-radius:14px 14px 0 0">
         <span style="font-size:22px;font-weight:800;color:#fff">Korea</span>
         <span style="font-size:18px;font-style:italic;color:#fff;padding:0 3px">by</span>
-        <span style="font-size:22px;font-weight:800;color:#ff6b35">Local</span>
+        <span style="font-size:22px;font-weight:800;color:#ff2e97">Local</span>
       </div>
       <div style="border:1px solid #eee;border-top:none;padding:32px;border-radius:0 0 14px 14px">
         ${bodyHtml}
@@ -53,7 +53,7 @@ function wrapEmail(preheader: string, bodyHtml: string): string {
 }
 
 function buttonHtml(href: string, label: string): string {
-  return `<a href="${href}" style="display:inline-block;background:#ff6b35;color:#fff;padding:13px 30px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14.5px">${label}</a>`;
+  return `<a href="${href}" style="display:inline-block;background:#ff2e97;color:#fff;padding:13px 30px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14.5px">${label}</a>`;
 }
 
 function buildEmail(payload: WelcomePayload): { subject: string; html: string } {
@@ -61,19 +61,19 @@ function buildEmail(payload: WelcomePayload): { subject: string; html: string } 
 
   if (payload.leadMagnet === "checklist") {
     return {
-      subject: "Your free Korea travel checklist is here 🇰🇷",
+      subject: "Your free Korea travel checklist is here",
       html: wrapEmail(
         "Your free Korea travel checklist, ready to download.",
         `
-          <h1 style="margin:0 0 12px;font-size:21px;color:#1a1a1a">Your checklist is ready!</h1>
+          <h1 style="margin:0 0 12px;font-size:21px;color:#12184a">Your checklist is ready!</h1>
           <p style="margin:0 0 22px;font-size:14.5px;line-height:1.7;color:#4b5563">
             ${greeting} thanks for signing up. Here's your free, locally-made Korea travel checklist —
             everything to sort out before you land, from SIM cards to must-try dishes.
           </p>
           ${buttonHtml(CHECKLIST_PDF_URL, "Download the checklist (PDF)")}
           <p style="margin:26px 0 0;font-size:13.5px;line-height:1.7;color:#6b7280">
-            While you're at it, browse our <a href="${SITE_URL}" style="color:#ff6b35;font-weight:600">curated local spots</a>
-            or say hi on <a href="${SITE_URL}/ask-a-local" style="color:#ff6b35;font-weight:600">Ask a Local</a>.
+            While you're at it, browse our <a href="${SITE_URL}" style="color:#ff2e97;font-weight:600">curated local spots</a>
+            or say hi on <a href="${SITE_URL}/ask-a-local" style="color:#ff2e97;font-weight:600">Ask a Local</a>.
           </p>
         `,
       ),
@@ -82,18 +82,18 @@ function buildEmail(payload: WelcomePayload): { subject: string; html: string } 
 
   if (payload.leadMagnet === "ebook_sample") {
     return {
-      subject: "Here's your free e-book sample (2 chapters) 📖",
+      subject: "Here's your free e-book sample (2 chapters)",
       html: wrapEmail(
         "Your free 2-chapter e-book sample, ready to download.",
         `
-          <h1 style="margin:0 0 12px;font-size:21px;color:#1a1a1a">Enjoy your free sample!</h1>
+          <h1 style="margin:0 0 12px;font-size:21px;color:#12184a">Enjoy your free sample!</h1>
           <p style="margin:0 0 22px;font-size:14.5px;line-height:1.7;color:#4b5563">
             ${greeting} here are the first two chapters of our Korea e-book, written by locals who
             actually live it. If you like what you read, the full guide is waiting for you.
           </p>
           ${buttonHtml(EBOOK_SAMPLE_PDF_URL, "Download the sample (PDF)")}
           <p style="margin:26px 0 0;font-size:13.5px;line-height:1.7;color:#6b7280">
-            Ready for the whole thing? <a href="${SITE_URL}/ebook" style="color:#ff6b35;font-weight:600">Get the full e-book →</a>
+            Ready for the whole thing? <a href="${SITE_URL}/ebook" style="color:#ff2e97;font-weight:600">Get the full e-book →</a>
           </p>
         `,
       ),
@@ -101,11 +101,11 @@ function buildEmail(payload: WelcomePayload): { subject: string; html: string } 
   }
 
   return {
-    subject: "Welcome to Korea by Local 👋",
+    subject: "Welcome to Korea by Local",
     html: wrapEmail(
       "Welcome — Korea travel tips from real locals, in your inbox.",
       `
-        <h1 style="margin:0 0 12px;font-size:21px;color:#1a1a1a">Welcome aboard!</h1>
+        <h1 style="margin:0 0 12px;font-size:21px;color:#12184a">Welcome aboard!</h1>
         <p style="margin:0 0 22px;font-size:14.5px;line-height:1.7;color:#4b5563">
           ${greeting} you're now on the list for Korea travel tips, curated local spots, and the
           occasional good deal — straight from people who actually live here.
