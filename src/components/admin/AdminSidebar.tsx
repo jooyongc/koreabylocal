@@ -1,18 +1,5 @@
 import { NavLink, Link } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Package,
-  FileText,
-  ShoppingCart,
-  BookOpen,
-  MessageSquare,
-  Settings,
-  Sparkles,
-  MapPin,
-  Mail,
-  Library,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, Package, FileText, ShoppingCart, BookOpen, MessageSquare, Settings, Sparkles, MapPin, Mail, Library, X, ImageIcon } from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
@@ -20,6 +7,7 @@ const NAV_ITEMS = [
   { to: "/admin/spots", icon: MapPin, label: "Spots" },
   { to: "/admin/products", icon: Package, label: "Products" },
   { to: "/admin/blog", icon: FileText, label: "Blog" },
+  { to: "/admin/thumbnails", icon: ImageIcon, label: "Thumbnails" },
   { to: "/admin/orders", icon: ShoppingCart, label: "Orders" },
   { to: "/admin/inquiries", icon: MessageSquare, label: "Inquiries" },
   { to: "/admin/magazines", icon: BookOpen, label: "Magazines" },
