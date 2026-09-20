@@ -78,8 +78,9 @@ export default function AskALocalPage() {
     }
   };
 
-  // The question is saved (unpaid) and a Polar checkout is created server-side;
-  // polar-webhook is what marks it paid and notifies the team once payment lands.
+  // The question is saved (unpaid) and a PayPal order is created server-side;
+  // capture-inquiry-payment is what marks it paid and notifies the team, once
+  // PayPal returns the buyer to /ask-a-local/success.
   const onSubmit = async (data: InquiryForm) => {
     const { data: result, error } = await supabase.functions.invoke("create-inquiry-checkout", {
       body: {
