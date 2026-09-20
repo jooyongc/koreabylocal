@@ -215,11 +215,16 @@ export async function renderThumbnail(opts: ThumbnailOptions): Promise<Blob> {
   const font = (px: number) => `800 ${px}px ${FONT_FAMILY}`;
 
   // Shrinks to fit rather than truncating: a long title simply sets smaller,
-  // which reads better than four lines and an ellipsis. Five lines are allowed
-  // because the larger type needs the extra room.
-  for (; size >= 46; size -= 4) {
+  // which reads better than an ellipsis.
+  //
+  // The cap during sizing has to be loose. Wrapping to a tight cap here would
+  // truncate the title, and truncated text always fits — so the loop would
+  // settle at the largest size with the end of the headline cut off, which is
+  // exactly the bug this replaces. Let it wrap freely and let the band decide.
+  const HARD_MAX_LINES = 8;
+  for (; size >= 40; size -= 4) {
     ctx.font = font(size);
-    lines = wrapLines((t) => ctx.measureText(t).width, opts.title, TEXT_WIDTH, 5);
+    lines = wrapLines((t) => ctx.measureText(t).width, opts.title, TEXT_WIDTH, HARD_MAX_LINES);
     if (lines.length * size * 1.16 <= band) break;
   }
 
