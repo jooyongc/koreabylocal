@@ -14,8 +14,51 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureOrder, isPayPalConfigured } from "../_shared/paypal.ts";
 import { triageInquiry, type AiTriage } from "../_shared/triage-inquiry.ts";
+import { isWhatsAppConfigured, notifyTeam } from "../_shared/whatsapp.ts";
 
 const PRICE_USD = Deno.env.get("INQUIRY_PRICE_USD") || "1.00";
+const SITE_URL = Deno.env.get("SITE_URL") || "https://koreabylocal.com";
+
+/**
+ * Pushes the question to the team's phones. Deliberately carries the whole
+ * question rather than a "you have a new inquiry" nudge — the point is that
+ * someone can read it on the bus and decide whether it needs answering now.
+ *
+ * The asker's email is included because the reply goes back by email; their
+ * name is not needed to triage and is left out.
+ */
+async function notifyWhatsApp(
+  inquiryId: number,
+  inquiry: { email: string; category: string; message: string },
+  triage: AiTriage | null,
+): Promise<void> {
+  if (!isWhatsAppConfigured()) return;
+
+  const category = triage?.category ?? inquiry.category;
+  const question = inquiry.message.length > 700 ? `${inquiry.message.slice(0, 700)}…` : inquiry.message;
+  const related = triage?.related?.length
+    ? `\n\nAlready answered?\n${triage.related.map((r) => `• ${r.title}\n  ${SITE_URL}/guidebook/${r.slug}`).join("\n")}`
+    : "";
+  const link = `${SITE_URL}/admin/inquiries/${inquiryId}`;
+
+  const text =
+    `${triage?.urgent ? "🔴 URGENT — traveler may arrive within ~48h\n\n" : ""}` +
+    `Paid question #${inquiryId} · ${category}\n` +
+    `Reply to: ${inquiry.email}\n\n` +
+    `"${question}"${related}\n\n${link}`;
+
+  try {
+    const results = await notifyTeam(text, {
+      templateParams: [String(inquiryId), category, question, link],
+    });
+    const failed = results.filter((r) => !r.ok);
+    if (failed.length > 0) {
+      console.error(`capture-inquiry-payment: whatsapp failed for ${failed.length}/${results.length} recipient(s)`);
+    }
+  } catch (err) {
+    console.error("capture-inquiry-payment: whatsapp threw:", err instanceof Error ? err.message : err);
+  }
+}
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -121,11 +164,16 @@ Deno.serve(async (req: Request) => {
     console.error("capture-inquiry-payment: triage failed:", err instanceof Error ? err.message : err);
   }
 
-  await supabase.functions
-    .invoke("send-inquiry-notification", { body: { ...paid, ai_triage: aiTriage } })
-    .catch((err) => {
-      console.error("capture-inquiry-payment: notification failed:", err instanceof Error ? err.message : err);
-    });
+  // Email and WhatsApp go out together: whoever sees their phone first takes it.
+  // Both are best-effort — the money is taken either way.
+  await Promise.all([
+    supabase.functions
+      .invoke("send-inquiry-notification", { body: { ...paid, ai_triage: aiTriage } })
+      .catch((err) => {
+        console.error("capture-inquiry-payment: notification failed:", err instanceof Error ? err.message : err);
+      }),
+    notifyWhatsApp(inquiryId, paid, aiTriage),
+  ]);
 
   return json({ success: true });
 });
