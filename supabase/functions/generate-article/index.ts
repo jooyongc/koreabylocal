@@ -226,14 +226,27 @@ Respond with ONLY a JSON object (no markdown fences):
 
   const wordCount = content.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
   const linksCount = (content.match(/<a\s/g) || []).length;
-  await svc.from("content_jobs").insert({
+  const job = {
     topic, keywords, tone,
     status: publish ? "published" : "ready",
     category: String(article.category || "News"),
     word_count: wordCount, links_count: linksCount,
     model: modelUsed, generated_title: title, blog_post_id: post.id,
-    review,
-  });
+  };
+
+  const { error: jobErr } = await svc.from("content_jobs").insert({ ...job, review });
+  if (jobErr) {
+    // 42703 = the review column is not there yet. Losing the job record over a
+    // pending migration would be a worse outcome than losing the review, so
+    // retry without it and make the gap visible in the logs.
+    if (jobErr.code === "42703") {
+      console.error("generate-article: content_jobs.review missing — apply 20260920_content_job_review.sql");
+      const { error: retryErr } = await svc.from("content_jobs").insert(job);
+      if (retryErr) console.error("generate-article: content_jobs insert failed:", retryErr.message);
+    } else {
+      console.error("generate-article: content_jobs insert failed:", jobErr.message);
+    }
+  }
 
   return json({
     success: true,
