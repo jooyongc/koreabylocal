@@ -7,6 +7,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validateEvent, WebhookVerificationError } from "https://esm.sh/@polar-sh/sdk@0.49.0/webhooks?target=deno";
+import { triageInquiry, type AiTriage } from "../_shared/triage-inquiry.ts";
 
 function generateDownloadToken(): string {
   const bytes = new Uint8Array(24);
@@ -118,10 +119,32 @@ Deno.serve(async (req: Request) => {
     }
 
     if (paid) {
+      // Judge the question before the notification goes out, so the email can
+      // lead with "urgent" and carry the guides that already answer it. Only
+      // the message body is sent for judging — never the name or email.
+      //
+      // Wrapped whole: the payment is already recorded, and no failure here is
+      // worth turning a paid order into a webhook retry.
+      let aiTriage: AiTriage | null = null;
+      try {
+        const { data: posts } = await supabase
+          .from("blog_posts")
+          .select("slug, title, excerpt")
+          .eq("status", "published");
+        aiTriage = await triageInquiry(paid.message, posts ?? []);
+        if (aiTriage) {
+          await supabase.from("inquiries").update({ ai_triage: aiTriage }).eq("id", inquiryId);
+        }
+      } catch (err) {
+        console.error("polar-webhook: inquiry triage failed:", err instanceof Error ? err.message : err);
+      }
+
       // The admin is only told about questions that were actually paid for.
-      await supabase.functions.invoke("send-inquiry-notification", { body: paid }).catch((err) => {
-        console.error("polar-webhook: inquiry notification failed:", err instanceof Error ? err.message : err);
-      });
+      await supabase.functions
+        .invoke("send-inquiry-notification", { body: { ...paid, ai_triage: aiTriage } })
+        .catch((err) => {
+          console.error("polar-webhook: inquiry notification failed:", err instanceof Error ? err.message : err);
+        });
     }
     return new Response(JSON.stringify({ received: true, already_processed: !paid }), { status: 200 });
   }

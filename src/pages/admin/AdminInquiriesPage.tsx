@@ -1,11 +1,11 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, Clock } from "lucide-react";
 import { format } from "date-fns";
 import Pagination from "@/components/product/Pagination";
 import { Skeleton } from "@/components/common/Skeleton";
 import { useAdminInquiryList } from "@/hooks/useAdminInquiryList";
-import type { Inquiry } from "@/types";
+import { readTriage, type Inquiry } from "@/types";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -27,6 +27,21 @@ const CATEGORY_COLORS: Record<string, string> = {
   Other: "bg-gray-100 text-gray-600",
 };
 
+/**
+ * Shown only when the judgement read the question differently from the drop
+ * down the visitor picked — either label can be the more useful one.
+ */
+function CategoryDisagreement({ inquiry }: { inquiry: Inquiry }) {
+  const triage = readTriage(inquiry.ai_triage);
+  const read = triage?.category;
+  if (!read || read.toLowerCase() === inquiry.category.toLowerCase()) return null;
+  return (
+    <span className="mt-1 block text-[11px] text-gray-400" title="How the AI read this question">
+      reads as {read}
+    </span>
+  );
+}
+
 function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
@@ -44,14 +59,24 @@ function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
         </thead>
         <tbody className="divide-y divide-gray-100">
           {inquiries.map((inq) => (
-            <tr key={inq.id} className="hover:bg-gray-50">
+            <tr key={inq.id} className={`hover:bg-gray-50 ${readTriage(inq.ai_triage)?.urgent ? "bg-rose-50/60" : ""}`}>
               <td className="px-4 py-3">
-                <Link
-                  to={`/admin/inquiries/${inq.id}`}
-                  className="font-medium text-primary hover:underline"
-                >
-                  {inq.name}
-                </Link>
+                <div className="flex items-center gap-1.5">
+                  {readTriage(inq.ai_triage)?.urgent && (
+                    <span
+                      title="Looks time-sensitive — the traveler may be arriving within about 48 hours"
+                      className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold uppercase text-rose-700"
+                    >
+                      <Clock className="h-3 w-3" /> Urgent
+                    </span>
+                  )}
+                  <Link
+                    to={`/admin/inquiries/${inq.id}`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {inq.name}
+                  </Link>
+                </div>
               </td>
               <td className="px-4 py-3 text-gray-500 text-xs">{inq.email}</td>
               <td className="px-4 py-3 text-gray-700 max-w-[200px] truncate">
@@ -63,6 +88,7 @@ function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
                 >
                   {inq.category}
                 </span>
+                <CategoryDisagreement inquiry={inq} />
               </td>
               <td className="px-4 py-3">
                 <span

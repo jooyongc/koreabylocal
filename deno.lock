@@ -19,6 +19,7 @@
     "https://esm.sh/@supabase/supabase-js@2": "https://esm.sh/@supabase/supabase-js@2.116.0"
   },
   "remote": {
+    "https://esm.sh/@polar-sh/sdk@0.49.0/webhooks?target=deno": "e68eb7d4d02327bb63c3e740a1e4b10cc1b10b253a913bd6582ecb1ea113645f",
     "https://esm.sh/@supabase/supabase-js@2.116.0": "a38014743786a06c7dbf095a99e9ef3b38c0ec16bff076fc7cd403991192b34e"
   },
   "workspace": {

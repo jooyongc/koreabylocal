@@ -132,6 +132,7 @@ export type Database = {
           payment_key: string | null
           paid_at: string | null
           admin_reply: string | null
+          ai_triage: Json | null
           replied_at: string | null
           created_at: string
           updated_at: string
@@ -149,6 +150,7 @@ export type Database = {
           payment_key?: string | null
           paid_at?: string | null
           admin_reply?: string | null
+          ai_triage?: Json | null
           replied_at?: string | null
           created_at?: string
           updated_at?: string
@@ -166,6 +168,7 @@ export type Database = {
           payment_key?: string | null
           paid_at?: string | null
           admin_reply?: string | null
+          ai_triage?: Json | null
           replied_at?: string | null
           created_at?: string
           updated_at?: string

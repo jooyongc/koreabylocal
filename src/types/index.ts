@@ -16,6 +16,42 @@ export type DigitalMagazine = Tables<"digital_magazines">;
 export type Inquiry = Tables<"inquiries">;
 export type SiteSetting = Tables<"site_settings">;
 
+/** What the edge function stores in inquiries.ai_triage. Suggestions, not facts. */
+export interface AiTriage {
+  category: string | null;
+  category_confidence: number | null;
+  urgent: boolean;
+  related: { slug: string; title: string; score: number }[];
+  model: string;
+  at: string;
+}
+
+/**
+ * Narrows the jsonb column. Rows predate the feature, the judgement can be
+ * skipped, and the shape could change, so anything unrecognised reads as null
+ * rather than crashing an admin screen.
+ */
+export function readTriage(value: unknown): AiTriage | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const t = value as Record<string, unknown>;
+  if (typeof t.urgent !== "boolean") return null;
+  return {
+    category: typeof t.category === "string" ? t.category : null,
+    category_confidence: typeof t.category_confidence === "number" ? t.category_confidence : null,
+    urgent: t.urgent,
+    related: Array.isArray(t.related)
+      ? t.related.flatMap((r) => {
+          const row = r as Record<string, unknown>;
+          return typeof row?.slug === "string" && typeof row?.title === "string"
+            ? [{ slug: row.slug, title: row.title, score: typeof row.score === "number" ? row.score : 0 }]
+            : [];
+        })
+      : [],
+    model: typeof t.model === "string" ? t.model : "",
+    at: typeof t.at === "string" ? t.at : "",
+  };
+}
+
 // Status union types
 export type ProductStatus = "active" | "hidden" | "sold_out";
 export type BlogCategory =

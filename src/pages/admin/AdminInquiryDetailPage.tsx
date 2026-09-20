@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Loader2, Send, Paperclip, ExternalLink } from "lucide-react";
+import { ArrowLeft, Loader2, Send, Paperclip, ExternalLink, Clock, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { useAdminInquiry, useReplyInquiry } from "@/hooks/useAdminInquiry";
 import toast from "react-hot-toast";
+import { readTriage, type AiTriage } from "@/types";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -52,6 +53,7 @@ export default function AdminInquiryDetailPage() {
 
   const existingReply = inquiry.admin_reply ?? "";
   const isReplied = inquiry.status === "replied";
+  const triage = readTriage(inquiry.ai_triage);
 
   return (
     <>
@@ -77,6 +79,11 @@ export default function AdminInquiryDetailPage() {
             >
               {inquiry.status}
             </span>
+            {triage?.urgent && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold uppercase text-rose-700">
+                <Clock className="h-3.5 w-3.5" /> Urgent
+              </span>
+            )}
           </div>
         </div>
 
@@ -140,6 +147,8 @@ export default function AdminInquiryDetailPage() {
             </div>
           </section>
 
+          {triage && <TriagePanel triage={triage} formCategory={inquiry.category} />}
+
           {/* Reply Section */}
           <section className="rounded-xl border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-semibold text-primary">Admin Reply</h2>
@@ -181,5 +190,75 @@ export default function AdminInquiryDetailPage() {
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * What the judgement made of the question, shown before the reply box so it is
+ * read while drafting. Everything here is a suggestion the editor overrules —
+ * the wording and the visible confidence are meant to keep it that way, and
+ * nothing on this panel acts on its own.
+ */
+function TriagePanel({ triage, formCategory }: { triage: AiTriage; formCategory: string }) {
+  const disagrees = triage.category && triage.category.toLowerCase() !== formCategory.toLowerCase();
+
+  return (
+    <section className="rounded-xl border border-violet-200 bg-violet-50/60 p-6">
+      <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-primary">
+        <Sparkles className="h-4 w-4 text-violet-500" />
+        AI triage
+      </h2>
+      <p className="mb-4 text-xs text-gray-500">
+        Suggested automatically — check before relying on it.
+      </p>
+
+      <div className="space-y-4">
+        {triage.urgent && (
+          <p className="rounded-lg bg-rose-100 px-3 py-2 text-sm font-medium text-rose-800">
+            Looks time-sensitive — the traveler may be arriving within about 48 hours.
+          </p>
+        )}
+
+        {disagrees && (
+          <div>
+            <span className="text-xs text-gray-500">Category</span>
+            <p className="text-sm text-gray-800">
+              Read as <b>{triage.category}</b>
+              {triage.category_confidence !== null && (
+                <span className="text-gray-400"> ({Math.round(triage.category_confidence * 100)}% confident)</span>
+              )}
+              <span className="text-gray-400"> — the form said {formCategory}</span>
+            </p>
+          </div>
+        )}
+
+        {triage.related.length > 0 && (
+          <div>
+            <span className="text-xs text-gray-500">Guides that may already answer this</span>
+            <ul className="mt-1 space-y-1">
+              {triage.related.map((r) => (
+                <li key={r.slug}>
+                  <a
+                    href={`/guidebook/${r.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  >
+                    {r.title}
+                    <ExternalLink className="h-3 w-3 text-gray-400" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {!triage.urgent && !disagrees && triage.related.length === 0 && (
+          <p className="text-sm text-gray-500">
+            Nothing flagged: not time-sensitive, category agrees, and no existing guide covers it.
+          </p>
+        )}
+      </div>
+    </section>
   );
 }
