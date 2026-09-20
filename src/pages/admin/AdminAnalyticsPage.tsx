@@ -220,10 +220,12 @@ export default function AdminAnalyticsPage() {
                 <p className="text-sm font-semibold text-amber-900">Analytics is not available yet</p>
                 <p className="mt-1 text-sm text-amber-800">{(error as Error).message}</p>
                 <p className="mt-3 text-xs leading-relaxed text-amber-700">
-                  It needs a Google service account with the Analytics Data API enabled, stored as the
-                  Supabase secrets <code className="font-mono">GA4_PROPERTY_ID</code> (the numeric property
-                  id, not the G-… measurement id) and <code className="font-mono">GA4_SERVICE_ACCOUNT</code>.
-                  The service account's email also has to be a Viewer on the GA4 property.
+                  It needs <code className="font-mono">GA4_PROPERTY_ID</code> (the numeric property id, not
+                  the G-… measurement id) plus either <code className="font-mono">GA4_REFRESH_TOKEN</code>,
+                  issued by <code className="font-mono">scripts/get-ga4-token.mjs</code>, or a service
+                  account in <code className="font-mono">GA4_SERVICE_ACCOUNT</code> — stored as Supabase
+                  secrets. A service account also has to be a Viewer on the GA4 property; a refresh token
+                  does not, since it carries its owner's access.
                 </p>
               </div>
             </div>

@@ -203,8 +203,19 @@ Deno.serve(async (req: Request) => {
       ? await getAccessTokenFromRefreshToken(clientId!, clientSecret!, refreshToken!)
       : await getAccessToken(account!, SCOPE);
 
-    const [batch, realtime] = await Promise.all([
-      call(`${API}/properties/${propertyId}:batchRunReports`, token, { requests: buildRequests(days) }),
+    // batchRunReports takes at most five reports per call, so the nine are sent
+    // as two batches. They go out together and the replies are stitched back in
+    // order, because everything downstream indexes reports by position.
+    const requests = buildRequests(days);
+    const batches: Array<typeof requests> = [];
+    for (let i = 0; i < requests.length; i += 5) batches.push(requests.slice(i, i + 5));
+
+    const [reports, realtime] = await Promise.all([
+      Promise.all(
+        batches.map((requests) =>
+          call(`${API}/properties/${propertyId}:batchRunReports`, token, { requests })
+        ),
+      ).then((results) => results.flatMap((b) => (b.reports ?? []) as GaReport[])),
       // Realtime is a separate endpoint and deliberately not cached with the
       // rest — "who is on the site now" is the one number that must be now.
       call(`${API}/properties/${propertyId}:runRealtimeReport`, token, {
@@ -215,7 +226,7 @@ Deno.serve(async (req: Request) => {
       }).catch(() => null),
     ]);
 
-    const r = (batch.reports ?? []) as GaReport[];
+    const r = reports;
     const totals = (r[0]?.rows?.[0]?.metricValues ?? []).map((v) => Number(v.value ?? 0));
     const prevTotals = (r[0]?.rows?.[1]?.metricValues ?? []).map((v) => Number(v.value ?? 0));
 
