@@ -3,6 +3,7 @@
 // avoiding duplicates of existing posts. No DB writes.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { findDuplicates, type Post, type Topic } from "../_shared/duplicate-topics.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -33,6 +34,7 @@ const SCHEMA = {
   required: ["topics"],
 };
 
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -59,9 +61,15 @@ Deno.serve(async (req: Request) => {
   const count = Math.min(Math.max(Number(body.count) || 6, 3), 10);
   const focus = (body.focus || "").trim();
 
-  // Existing titles → avoid duplicates / find gaps.
-  const { data: existing } = await svc.from("blog_posts").select("title").limit(80);
-  const titles = (existing ?? []).map((r: { title: string }) => `- ${r.title}`).join("\n");
+  // Every post, drafts included — a draft on the same topic is still a clash.
+  // The prompt below still only carries a sample of these; the judgement pass
+  // after generation is what actually sees them all.
+  const { data: existing } = await svc
+    .from("blog_posts")
+    .select("title, slug")
+    .order("published_at", { ascending: false });
+  const posts: Post[] = (existing ?? []).filter((p: Post) => p.title?.trim());
+  const titles = posts.slice(0, 80).map((r) => `- ${r.title}`).join("\n");
 
   const prompt = `You are an SEO / AEO / GEO content strategist for koreabylocal.com — a Korea travel magazine written by local hosts (practical, first-person, traveler-focused).
 
@@ -105,5 +113,12 @@ For each topic give: a compelling title, 3-5 target keywords, the search intent,
     return json({ error: "ai_parse_failed", detail: String((e as Error).message) }, 502);
   }
 
-  return json({ success: true, topics });
+  const { duplicates, checked } = await findDuplicates(topics as Topic[], posts);
+  for (const [i, topic] of (topics as Topic[]).entries()) topic.duplicate = duplicates[i] ?? null;
+
+  // Flagged ideas stay in the list — they are still worth writing with a
+  // different angle — but they sink below the clean ones.
+  (topics as Topic[]).sort((a, b) => (a.duplicate?.probability ?? 0) - (b.duplicate?.probability ?? 0));
+
+  return json({ success: true, topics, duplicates_checked: checked });
 });
