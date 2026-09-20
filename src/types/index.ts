@@ -26,6 +26,50 @@ export interface AiTriage {
   at: string;
 }
 
+/** One recommendation under an article. */
+export interface RelatedItem {
+  slug: string;
+  title: string;
+  score: number;
+}
+
+/** What the edge function stores in blog_posts.related. */
+export interface RelatedPicks {
+  posts: RelatedItem[];
+  spots: RelatedItem[];
+  products: RelatedItem[];
+  model: string;
+  at: string;
+}
+
+function readItems(value: unknown): RelatedItem[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((r) => {
+    const row = r as Record<string, unknown>;
+    return typeof row?.slug === "string" && typeof row?.title === "string"
+      ? [{ slug: row.slug, title: row.title, score: typeof row.score === "number" ? row.score : 0 }]
+      : [];
+  });
+}
+
+/**
+ * Narrows blog_posts.related. Returns null when nothing has been computed or
+ * nothing cleared the bar, so a caller can treat "no recommendations" and
+ * "never judged" the same way: show nothing.
+ */
+export function readRelated(value: unknown): RelatedPicks | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const r = value as Record<string, unknown>;
+  const picks: RelatedPicks = {
+    posts: readItems(r.posts),
+    spots: readItems(r.spots),
+    products: readItems(r.products),
+    model: typeof r.model === "string" ? r.model : "",
+    at: typeof r.at === "string" ? r.at : "",
+  };
+  return picks.posts.length + picks.spots.length + picks.products.length > 0 ? picks : null;
+}
+
 /**
  * Narrows the jsonb column. Rows predate the feature, the judgement can be
  * skipped, and the shape could change, so anything unrecognised reads as null

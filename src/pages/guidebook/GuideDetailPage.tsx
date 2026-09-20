@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/common/Skeleton";
 import { supabase } from "@/lib/supabase";
 import { useRegions, useExperiences } from "@/hooks/useConcepts";
 import SpotCard from "@/components/home/SpotCard";
-import type { BlogPost } from "@/types";
+import RelatedPicks from "@/components/guidebook/RelatedPicks";
+import { readRelated, type BlogPost } from "@/types";
 
 interface TocItem { id: string; text: string; level: number }
 
@@ -23,6 +24,8 @@ function readingTime(html: string | null): number {
 export default function GuideDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: post, isLoading } = useBlogPost(slug);
+  // Judged when the article was published, so reading it costs nothing here.
+  const picks = readRelated((post as { related?: unknown } | undefined)?.related);
   const articleRef = useRef<HTMLDivElement>(null);
   const [toc, setToc] = useState<TocItem[]>([]);
 
@@ -335,10 +338,15 @@ export default function GuideDetailPage() {
         </aside>
       </section>
 
-      {/* Keep reading */}
-      <div className="mx-auto max-w-[1180px] px-4 pb-[clamp(48px,7vw,90px)] sm:px-6 lg:px-8">
-        <RelatedBlogPosts category={post.category} excludeId={post.id} />
-      </div>
+      {/* What to read, visit and buy next — judged per article at publish time. */}
+      {picks && <RelatedPicks picks={picks} />}
+
+      {/* Category fallback, only when nothing was judged for this article. */}
+      {!picks?.posts.length && (
+        <div className="mx-auto max-w-[1180px] px-4 pb-[clamp(48px,7vw,90px)] sm:px-6 lg:px-8">
+          <RelatedBlogPosts category={post.category} excludeId={post.id} />
+        </div>
+      )}
     </>
   );
 }
