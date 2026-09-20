@@ -7,6 +7,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { reviewArticle, type ArticleReview } from "../_shared/review-article.ts";
+import { applyAffiliates } from "../_shared/affiliate.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -180,11 +181,23 @@ Respond with ONLY a JSON object (no markdown fences):
   }
 
   const title = String(article.title || topic).slice(0, 200);
-  const content = String(article.content || "");
+  let content = String(article.content || "");
   const faqs = Array.isArray(article.faqs) ? article.faqs : [];
   const clip = (s: unknown, n: number) => (s ? String(s).slice(0, n) : null);
 
   // ── Save draft blog post + content_jobs row ──
+  // Affiliates first, so the review judges the article that actually ships —
+  // the disclosure and CTA carry no figures, but reviewing a different body
+  // than the one we save would be a lie.
+  let affiliates: string[] = [];
+  try {
+    const applied = await applyAffiliates({ title, html: content, excerpt: String(article.excerpt ?? "") });
+    content = applied.html;
+    affiliates = applied.programs;
+  } catch (e) {
+    console.error("generate-article: affiliate step threw:", (e as Error).message);
+  }
+
   // Reviewed before saving, because the verdict decides whether `publish` is
   // honoured. A null review (TypeSafe off, or failing) leaves the old behaviour
   // untouched rather than blocking the studio.
@@ -252,6 +265,7 @@ Respond with ONLY a JSON object (no markdown fences):
     success: true,
     post,
     review,
+    affiliates,
     // The studio asked to publish and did not get it — say so loudly.
     review_required: heldForReview,
   });
