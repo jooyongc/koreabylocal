@@ -6,6 +6,7 @@
 // Optional:         CONTENT_MODEL (default claude-haiku-4-5-20251001)
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { reviewArticle, type ArticleReview } from "../_shared/review-article.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -184,6 +185,21 @@ Respond with ONLY a JSON object (no markdown fences):
   const clip = (s: unknown, n: number) => (s ? String(s).slice(0, n) : null);
 
   // ── Save draft blog post + content_jobs row ──
+  // Reviewed before saving, because the verdict decides whether `publish` is
+  // honoured. A null review (TypeSafe off, or failing) leaves the old behaviour
+  // untouched rather than blocking the studio.
+  let review: ArticleReview | null = null;
+  try {
+    review = await reviewArticle(title, content);
+  } catch (e) {
+    console.error("generate-article: review threw:", (e as Error).message);
+  }
+
+  // A stated fare or opening time is exactly the thing this model invents, and
+  // a wrong one costs a traveler real money. Publishing waits for a human.
+  const heldForReview = Boolean(body.publish && review?.needs_review);
+  const publish = Boolean(body.publish) && !heldForReview;
+
   const hero =
     (await searchHero(`${title} South Korea`)) ??
     (typeof article.hero_image_url === "string" ? article.hero_image_url : null);
@@ -197,12 +213,12 @@ Respond with ONLY a JSON object (no markdown fences):
       excerpt: clip(article.excerpt, 400),
       category: String(article.category || "News"),
       author: "Korea by Local",
-      status: body.publish ? "published" : "draft",
+      status: publish ? "published" : "draft",
       seo_title: clip(article.seo_title, 60),
       seo_description: clip(article.seo_description, 160),
       hero_image_url: hero,
       faqs,
-      published_at: body.publish ? new Date().toISOString() : null,
+      published_at: publish ? new Date().toISOString() : null,
     })
     .select("id, slug, title")
     .single();
@@ -212,11 +228,18 @@ Respond with ONLY a JSON object (no markdown fences):
   const linksCount = (content.match(/<a\s/g) || []).length;
   await svc.from("content_jobs").insert({
     topic, keywords, tone,
-    status: body.publish ? "published" : "ready",
+    status: publish ? "published" : "ready",
     category: String(article.category || "News"),
     word_count: wordCount, links_count: linksCount,
     model: modelUsed, generated_title: title, blog_post_id: post.id,
+    review,
   });
 
-  return json({ success: true, post });
+  return json({
+    success: true,
+    post,
+    review,
+    // The studio asked to publish and did not get it — say so loudly.
+    review_required: heldForReview,
+  });
 });

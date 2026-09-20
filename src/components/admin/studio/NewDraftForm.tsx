@@ -1,10 +1,28 @@
 import { useState, type FormEvent, type KeyboardEvent, type Dispatch, type SetStateAction } from "react";
+import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
 import { Sparkles, Check, X, Plus, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 
 type Tone = "informative" | "editorial";
+
+interface ReviewedClaim {
+  sentence: string;
+  kinds: string[];
+  asserted: number;
+  expires: number;
+}
+
+interface ArticleReview {
+  needs_review: boolean;
+  claims: ReviewedClaim[];
+  quick_answer_ok: boolean | null;
+  voice_score: number | null;
+  examined: number;
+  model: string;
+  at: string;
+}
 
 interface NewDraftFormProps {
   topic: string;
@@ -20,6 +38,8 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
   const [tone, setTone] = useState<Tone>("informative");
   const [autoLink, setAutoLink] = useState(true);
   const [genSchema, setGenSchema] = useState(true);
+  // What the pre-publish check made of the last draft. Null means it did not run.
+  const [review, setReview] = useState<ArticleReview | null>(null);
 
   function addKeyword() {
     const value = keywordDraft.trim();
@@ -46,6 +66,7 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
     e.preventDefault();
     if (busy || !topic.trim()) return;
     setBusy(true);
+    setReview(null);
     const t = toast.loading("Claude is writing your draft…");
     try {
       const { data, error } = await supabase.functions.invoke("generate-article", {
@@ -59,7 +80,14 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
         } catch { /* keep msg */ }
         toast.error(msg, { id: t });
       } else if (data?.success) {
-        toast.success("Draft created — review & publish it in Blog admin.", { id: t });
+        const r = (data.review ?? null) as ArticleReview | null;
+        setReview(r);
+        toast.success(
+          r?.needs_review
+            ? `Draft created — ${r.claims.length} figure${r.claims.length === 1 ? "" : "s"} to verify before publishing.`
+            : "Draft created — review & publish it in Blog admin.",
+          { id: t },
+        );
         qc.invalidateQueries({ queryKey: ["admin", "content-jobs"] });
       } else {
         toast.error("Generation failed.", { id: t });
@@ -199,6 +227,7 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
           </>
         )}
       </button>
+      {review && <ReviewPanel review={review} />}
     </form>
   );
 }
@@ -230,5 +259,65 @@ function ToggleCheckbox({
       </span>
       {label}
     </label>
+  );
+}
+
+
+/**
+ * What the pre-publish check found. Jev cannot tell whether a figure is right —
+ * it only spots sentences that state one as fact, so this asks for a look
+ * rather than announcing an error.
+ */
+function ReviewPanel({ review }: { review: ArticleReview }) {
+  if (!review.needs_review && review.claims.length === 0) {
+    return (
+      <div className="mt-4 flex items-start gap-2 rounded-[14px] border border-green/25 bg-green/[0.06] px-3.5 py-3 text-[12.5px] text-white/75">
+        <CheckCircle2 className="mt-[1px] h-4 w-4 shrink-0 text-green" />
+        <span>
+          Checked {review.examined} sentence{review.examined === 1 ? "" : "s"} with figures — none stated as hard fact.
+          {review.quick_answer_ok === false && " The opening doesn't answer the title's question directly."}
+          {review.voice_score !== null && review.voice_score < 1 && " The voice reads closer to generic travel copy."}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 rounded-[14px] border border-gold/25 bg-gold/[0.06] p-4">
+      <div className="flex items-center gap-2 text-[13px] font-bold text-gold">
+        <AlertTriangle className="h-4 w-4" />
+        Verify {review.claims.length} figure{review.claims.length === 1 ? "" : "s"} before publishing
+      </div>
+      <p className="mt-1 text-[11.5px] leading-snug text-white/50">
+        These are stated as fact. The model doesn't know whether they're right — check each against a source.
+        Publishing is held until you do.
+      </p>
+
+      <ul className="mt-3 space-y-2">
+        {review.claims.map((c, i) => (
+          <li key={i} className="rounded-[10px] border border-white/10 bg-white/[0.03] p-3">
+            <p className="text-[12.5px] leading-snug text-white/85">{c.sentence}</p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {c.kinds.map((k) => (
+                <span key={k} className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] text-white/55">{k}</span>
+              ))}
+              <span className="text-[10.5px] text-white/40">stated as fact {Math.round(c.asserted * 100)}%</span>
+              {c.expires >= 0.5 && (
+                <span className="flex items-center gap-1 rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] text-white/55">
+                  <Clock3 className="h-3 w-3" /> goes out of date
+                </span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {(review.quick_answer_ok === false || (review.voice_score !== null && review.voice_score < 1)) && (
+        <p className="mt-3 border-t border-white/10 pt-2.5 text-[11.5px] text-white/50">
+          {review.quick_answer_ok === false && "The opening doesn't answer the title's question directly. "}
+          {review.voice_score !== null && review.voice_score < 1 && "The voice reads closer to generic travel copy."}
+        </p>
+      )}
+    </div>
   );
 }
