@@ -16,6 +16,7 @@ const TourPlanningPage = lazy(() => import("@/pages/transfers/TourPlanningPage")
 const GuidebookPage = lazy(() => import("@/pages/guidebook/GuidebookPage"));
 const GuideDetailPage = lazy(() => import("@/pages/guidebook/GuideDetailPage"));
 const AdminThumbnails = lazy(() => import("@/pages/admin/AdminThumbnailsPage"));
+const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalyticsPage"));
 const AskALocalPage = lazy(() => import("@/pages/ask-a-local/AskALocalPage"));
 const AskSuccessPage = lazy(() => import("@/pages/ask-a-local/AskSuccessPage"));
 const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
@@ -158,6 +159,7 @@ function App() {
             <Route path="/admin/blog/new" element={<AdminBlogNew />} />
             <Route path="/admin/blog/:id/edit" element={<AdminBlogEdit />} />
             <Route path="/admin/thumbnails" element={<AdminThumbnails />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
             <Route path="/admin/inquiries" element={<AdminInquiries />} />
