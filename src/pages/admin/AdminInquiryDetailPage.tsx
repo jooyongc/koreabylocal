@@ -44,10 +44,15 @@ export default function AdminInquiryDetailPage() {
       return;
     }
     try {
-      await replyMutation.mutateAsync({ id: inquiry.id, reply });
-      toast.success("Reply saved, marked as replied");
-    } catch {
-      toast.error("Failed to save reply");
+      const result = await replyMutation.mutateAsync({ id: inquiry.id, reply });
+      toast.success(
+        result.recorded
+          ? `Reply emailed to ${result.to ?? "the traveler"}`
+          : "Reply emailed, but saving it here failed — the traveler has it.",
+      );
+    } catch (e) {
+      // The message says whether anything was sent; never let a failure read as "sent".
+      toast.error((e as Error).message, { duration: 6000 });
     }
   };
 
@@ -151,7 +156,11 @@ export default function AdminInquiryDetailPage() {
 
           {/* Reply Section */}
           <section className="rounded-xl border border-gray-200 bg-white p-6">
-            <h2 className="mb-4 text-lg font-semibold text-primary">Admin Reply</h2>
+            <h2 className="text-lg font-semibold text-primary">Admin Reply</h2>
+            <p className="mb-4 mt-1 text-xs text-gray-500">
+              This is emailed to {inquiry.email} and the inquiry is marked replied. If the email
+              does not go out, nothing is recorded.
+            </p>
 
             {isReplied && existingReply && (
               <div className="mb-4 rounded-lg bg-emerald-50 p-4">
@@ -184,7 +193,7 @@ export default function AdminInquiryDetailPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {isReplied ? "Update Reply" : "Send Reply"}
+              {replyMutation.isPending ? "Sending…" : isReplied ? "Send Again" : "Send Reply"}
             </button>
           </section>
         </div>
