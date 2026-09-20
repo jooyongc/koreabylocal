@@ -27,8 +27,13 @@ const SAFE_TOP = Math.max(BADGE_SAFE_TOP, THUMB_HEIGHT * 0.125 + 24);
 const SAFE_BOTTOM = THUMB_HEIGHT * 0.125 + 24;
 
 const MARGIN_X = 64;
-/** The wash column. The photo keeps the right side. */
-const TEXT_WIDTH = THUMB_WIDTH * 0.56 - MARGIN_X;
+/**
+ * The headline may run to 74% of the width. Holding it to half the frame left
+ * it bunched into a narrow column on one side, wrapping into more lines than
+ * it needed; the extra room lets most titles set larger and in fewer lines.
+ * The photo keeps the right quarter, which is enough for it to read.
+ */
+const TEXT_WIDTH = THUMB_WIDTH * 0.74 - MARGIN_X;
 
 /**
  * One brand colour per Guidebook section. Chosen so a reader can tell sections
@@ -195,10 +200,12 @@ export async function renderThumbnail(opts: ThumbnailOptions): Promise<Blob> {
 
   // Opaque behind the headline, clear over the photo, so the text is always
   // legible no matter how busy or bright the picture is.
+  // The fade starts where the headline ends, so every line sits on a wash
+  // opaque enough to read against whatever the photo is doing underneath.
   const wash = ctx.createLinearGradient(0, 0, THUMB_WIDTH, 0);
   wash.addColorStop(0, `rgba(${r},${g},${b},1)`);
-  wash.addColorStop(0.42, `rgba(${r},${g},${b},0.97)`);
-  wash.addColorStop(0.68, `rgba(${r},${g},${b},0.55)`);
+  wash.addColorStop(0.60, `rgba(${r},${g},${b},0.96)`);
+  wash.addColorStop(0.80, `rgba(${r},${g},${b},0.62)`);
   wash.addColorStop(1, `rgba(${r},${g},${b},0)`);
   ctx.fillStyle = wash;
   ctx.fillRect(0, 0, THUMB_WIDTH, THUMB_HEIGHT);
