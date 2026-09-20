@@ -118,3 +118,50 @@ export async function getAccessToken(account: ServiceAccount, scope: string): Pr
 export function _resetTokenCache() {
   cached = null;
 }
+
+/**
+ * The other way in: an OAuth refresh token belonging to a person who can
+ * already see the GA4 property.
+ *
+ * This is how the site's Gmail sending works, and for GA4 it avoids the whole
+ * service-account route — no new key to create, and no need to add a robot
+ * account to the property, because the token carries the access its owner
+ * already has. The scopes are fixed when the token is issued, so none are
+ * passed here.
+ */
+export async function getAccessTokenFromRefreshToken(
+  clientId: string,
+  clientSecret: string,
+  refreshToken: string,
+): Promise<string> {
+  const cacheKey = `refresh:${refreshToken.slice(-12)}`;
+  if (cached && cached.scope === cacheKey && cached.expiresAt > Date.now() + 60_000) {
+    return cached.token;
+  }
+
+  const res = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+      grant_type: "refresh_token",
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.access_token) {
+    // invalid_grant means the token was revoked or the Google password changed.
+    const reason = data.error === "invalid_grant"
+      ? "the GA4 refresh token is no longer valid — re-run scripts/get-ga4-token.mjs"
+      : (data.error_description ?? data.error ?? "unknown");
+    throw new Error(`Google refused the refresh token (${res.status}): ${reason}`);
+  }
+
+  cached = {
+    token: data.access_token,
+    expiresAt: Date.now() + (data.expires_in ?? 3600) * 1000,
+    scope: cacheKey,
+  };
+  return cached.token;
+}

@@ -5,13 +5,6 @@ import { format } from "date-fns";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import type { BlogPost } from "@/types";
 
-const CATEGORY_COLORS: Record<string, string> = {
-  NEWS: "bg-blue-100 text-blue-700",
-  LOCALS: "bg-emerald-100 text-emerald-700",
-  KOREAN: "bg-orange-100 text-orange-700",
-  "K-CULTURE": "bg-purple-100 text-purple-700",
-};
-
 function formatViews(count: number): string {
   if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
   return String(count);
@@ -52,7 +45,7 @@ function BlogListCardInner({ post }: { post: BlogPost }) {
 
         {/* Category badge */}
         <span
-          className={`absolute left-2 top-2 rounded px-2 py-0.5 text-[10px] font-bold uppercase ${CATEGORY_COLORS[post.category] ?? "bg-gray-100 text-gray-700"}`}
+          className={"absolute left-2 top-2 rounded bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase text-ink backdrop-blur-[2px]"}
         >
           {post.category}
         </span>

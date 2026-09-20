@@ -4,15 +4,20 @@
 // API needs a service account, and a service-account key cannot go in
 // front-end code. So the browser asks this function, which holds the key.
 //
-// REQUIRED secrets: GA4_PROPERTY_ID (the NUMERIC property id, not G-…),
-// GA4_SERVICE_ACCOUNT (the downloaded JSON, whole).
+// REQUIRED secret: GA4_PROPERTY_ID (the NUMERIC property id, not G-…).
 //
-// The service account's email must also be added to the GA4 property as a
-// Viewer — Admin → Property access management. Forgetting that is the usual
-// cause of a 403, so it is reported in those words rather than as a raw error.
+// Then one of two ways to authenticate, tried in this order:
+//
+//   GA4_REFRESH_TOKEN — an OAuth token from someone who can already see the
+//     property, issued by scripts/get-ga4-token.mjs against the same Google
+//     client the site's Gmail sending uses. Nothing to create, nobody to grant.
+//   GA4_SERVICE_ACCOUNT — the downloaded JSON key, whole. Its email must also
+//     be added to the property as a Viewer (Admin → Property access
+//     management); forgetting that is the usual cause of a 403, so it is
+//     reported in those words rather than as a raw status.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getAccessToken, readServiceAccount } from "../_shared/google-auth.ts";
+import { getAccessToken, getAccessTokenFromRefreshToken, readServiceAccount } from "../_shared/google-auth.ts";
 
 const SCOPE = "https://www.googleapis.com/auth/analytics.readonly";
 const API = "https://analyticsdata.googleapis.com/v1beta";
@@ -168,10 +173,15 @@ Deno.serve(async (req: Request) => {
 
   const propertyId = Deno.env.get("GA4_PROPERTY_ID");
   const account = readServiceAccount(Deno.env.get("GA4_SERVICE_ACCOUNT"));
-  if (!propertyId || !account) {
+  const refreshToken = Deno.env.get("GA4_REFRESH_TOKEN");
+  const clientId = Deno.env.get("GMAIL_CLIENT_ID");
+  const clientSecret = Deno.env.get("GMAIL_CLIENT_SECRET");
+  const canRefresh = Boolean(refreshToken && clientId && clientSecret);
+
+  if (!propertyId || (!account && !canRefresh)) {
     return json({
       error: "not_configured",
-      detail: "Set GA4_PROPERTY_ID (numeric) and GA4_SERVICE_ACCOUNT (the JSON key file) as Supabase secrets.",
+      detail: "Set GA4_PROPERTY_ID (the numeric property id) and either GA4_REFRESH_TOKEN or GA4_SERVICE_ACCOUNT as Supabase secrets.",
     }, 503);
   }
 
@@ -187,7 +197,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const token = await getAccessToken(account, SCOPE);
+    // The refresh token is preferred: it belongs to a person who already has
+    // access, so there is nothing to grant and nothing extra to go stale.
+    const token = canRefresh
+      ? await getAccessTokenFromRefreshToken(clientId!, clientSecret!, refreshToken!)
+      : await getAccessToken(account!, SCOPE);
 
     const [batch, realtime] = await Promise.all([
       call(`${API}/properties/${propertyId}:batchRunReports`, token, { requests: buildRequests(days) }),

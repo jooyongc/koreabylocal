@@ -5,7 +5,6 @@ import { ImageIcon, Loader2, Play, RefreshCw, Check, AlertTriangle } from "lucid
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { buildThumbnail, saveThumbnail } from "@/lib/generateThumbnail";
-import { colorForCategory } from "@/lib/thumbnail";
 
 /**
  * Regenerates card thumbnails in bulk.
@@ -140,10 +139,9 @@ export default function AdminThumbnailsPage() {
                         <ImageIcon className="h-8 w-8" />
                       </div>
                     )}
-                    <span
-                      className="absolute left-2 top-2 rounded px-2 py-0.5 text-[10px] font-bold uppercase text-white"
-                      style={{ background: colorForCategory(row.category) }}
-                    >
+                    {/* White, not the category colour: the thumbnail behind it is
+                        already that colour, so a tinted badge disappeared into it. */}
+                    <span className="absolute left-2 top-2 rounded bg-white/80 px-2 py-0.5 text-[10px] font-bold uppercase text-ink backdrop-blur-[2px]">
                       {row.category}
                     </span>
                     {state.kind === "working" && (
