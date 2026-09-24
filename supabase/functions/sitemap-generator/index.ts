@@ -34,13 +34,24 @@ Deno.serve(async (_req: Request) => {
     { db: { schema: "koreabylocal" } },
   );
 
-  const [{ data: posts }, { data: spots }, { data: regions }] = await Promise.all([
+  const [postsRes, spotsRes, regionsRes] = await Promise.all([
     supabase.from("blog_posts").select("slug, updated_at, published_at")
       .eq("status", "published").order("published_at", { ascending: false }),
     supabase.from("experiences").select("slug, updated_at")
       .eq("is_active", true).order("updated_at", { ascending: false }),
-    supabase.from("regions").select("slug").order("sort_order"),
+    // Regions are keyed by `key`, not `slug` — /destinations/:region takes the key.
+    supabase.from("regions").select("key").eq("is_active", true).order("sort_order"),
   ]);
+
+  // Logged rather than swallowed: a query that fails here drops a whole section
+  // out of the sitemap, and an empty section looks exactly like a correct one.
+  for (const [name, res] of [["blog_posts", postsRes], ["experiences", spotsRes], ["regions", regionsRes]] as const) {
+    if (res.error) console.error(`sitemap-generator: ${name} query failed: ${res.error.message}`);
+  }
+
+  const posts = postsRes.data;
+  const spots = spotsRes.data;
+  const regions = regionsRes.data;
 
   const urls: string[] = [];
 
@@ -63,7 +74,7 @@ Deno.serve(async (_req: Request) => {
   }
 
   for (const region of regions ?? []) {
-    urls.push(entry(`/destinations/${region.slug}`, { changefreq: "weekly", priority: "0.7" }));
+    urls.push(entry(`/destinations/${region.key}`, { changefreq: "weekly", priority: "0.7" }));
   }
 
   // The articles, at the URL they actually live at.
