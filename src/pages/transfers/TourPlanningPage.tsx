@@ -8,7 +8,7 @@ export default function TourPlanningPage() {
       <PageSEO
         title="Tour Planning | Korea By Local"
         description="Custom tour planning services by local Korean experts. Design your perfect Korean itinerary with insider knowledge and local recommendations."
-        path="/transfers/tour-planning"
+        path="/getting-there/tour-planning"
       />
       <ProductListPage
         rootCategorySlug="transfers"

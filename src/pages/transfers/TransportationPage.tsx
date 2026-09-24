@@ -8,7 +8,7 @@ export default function TransportationPage() {
       <PageSEO
         title="Transportation | Korea By Local"
         description="Airport transfers, private cars, and reliable transportation services across Korea. Comfortable rides with experienced local drivers."
-        path="/transfers/transportation"
+        path="/getting-there/transportation"
       />
       <ProductListPage
         rootCategorySlug="transfers"

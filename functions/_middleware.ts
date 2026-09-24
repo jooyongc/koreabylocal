@@ -1,6 +1,11 @@
-// AUTO-GENERATED (.design-handoff/db/gen-redirects.mjs). Do not edit by hand.
-// (1) 301 legacy Imweb blog URLs -> new slugs (SEO continuity after cutover)
+import { articleMeta, buildHead, injectHead } from "./_meta.ts";
+
+// (1) 301 legacy Imweb blog URLs -> /guidebook/<slug> (SEO continuity after cutover)
 // (2) /sitemap.xml proxied from the sitemap-generator edge function
+// (3) real per-article metadata injected into the SPA shell for /guidebook/<slug>
+//
+// The MAP below is generated (.design-handoff/db/gen-redirects.mjs); the rest
+// of this file is hand-written.
 const MAP: Record<string, string> = {
   "12587233": "korean-kimchi-and-where-to-buy",
   "13258456": "what-to-eat-poupular-snacksbunsik-in-korea",
@@ -52,12 +57,14 @@ const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) => {
   const url = new URL(context.request.url);
 
-  // 301: legacy /blog/?bmode=view&idx=NNN -> /blog/<slug>
+  // 301: legacy /blog/?bmode=view&idx=NNN -> /guidebook/<slug>
   if (url.searchParams.get("bmode") === "view") {
     const idx = url.searchParams.get("idx");
     const slug = idx ? MAP[idx] : undefined;
     if (slug) {
-      return new Response(null, { status: 301, headers: { Location: `${url.origin}/blog/${slug}` } });
+      // Straight to the canonical URL: going via /blog/<slug> only to be
+      // redirected again cost every legacy link a second hop.
+      return new Response(null, { status: 301, headers: { Location: `${url.origin}/guidebook/${slug}` } });
     }
   }
 
@@ -70,6 +77,33 @@ export const onRequest = async (context: { request: Request; next: () => Promise
       status: res.status,
       headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=3600" },
     });
+  }
+
+  // /guidebook/<slug>: serve the shell with this article's real head.
+  const article = url.pathname.match(/^\/guidebook\/([^/]+)\/?$/);
+  if (article) {
+    const response = await context.next();
+    const type = response.headers.get("content-type") ?? "";
+    if (!response.ok || !type.includes("text/html")) return response;
+
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}&limit=1`,
+        { headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" } },
+      );
+      if (!res.ok) return response;
+      const [post] = await res.json();
+      if (!post) return response;
+
+      const html = injectHead(await response.text(), buildHead(articleMeta(post, url.origin)));
+      const headers = new Headers(response.headers);
+      headers.delete("content-length");
+      return new Response(html, { status: response.status, headers });
+    } catch {
+      // A page with the generic head still works; a page that failed to load
+      // does not. Never let the lookup break the response.
+      return response;
+    }
   }
 
   return context.next();

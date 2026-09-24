@@ -1,7 +1,31 @@
+// The sitemap, served at /sitemap.xml through the Pages middleware.
+//
+// Only final URLs belong here. The previous version listed the pre-renewal
+// paths — /blog/<slug>, /product/<slug>, /shop*, /tours, /transfers* — and 68
+// of its 76 entries answered 301, which wastes crawl budget and fills Search
+// Console with "page with redirect". It also listed /category/<slug>, for
+// which no route exists, so those were soft 404s, and it left out the 40 spot
+// pages entirely.
+//
+// Anything added here must be a path that answers 200 and renders real
+// content. When a section is renamed, this file changes with it.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SITE_URL = Deno.env.get("SITE_URL") || "https://koreabylocal.com";
+
+const day = (...candidates: Array<string | null | undefined>) => {
+  const found = candidates.find(Boolean);
+  return new Date(found ?? Date.now()).toISOString().split("T")[0];
+};
+
+const entry = (loc: string, opts: { lastmod?: string; changefreq: string; priority: string }) => `
+  <url>
+    <loc>${SITE_URL}${loc}</loc>${opts.lastmod ? `
+    <lastmod>${opts.lastmod}</lastmod>` : ""}
+    <changefreq>${opts.changefreq}</changefreq>
+    <priority>${opts.priority}</priority>
+  </url>`;
 
 Deno.serve(async (_req: Request) => {
   const supabase = createClient(
@@ -10,101 +34,54 @@ Deno.serve(async (_req: Request) => {
     { db: { schema: "koreabylocal" } },
   );
 
-  // Fetch all active products
-  const { data: products } = await supabase
-    .from("products")
-    .select("slug, updated_at")
-    .eq("status", "active")
-    .order("updated_at", { ascending: false });
+  const [{ data: posts }, { data: spots }, { data: regions }] = await Promise.all([
+    supabase.from("blog_posts").select("slug, updated_at, published_at")
+      .eq("status", "published").order("published_at", { ascending: false }),
+    supabase.from("experiences").select("slug, updated_at")
+      .eq("is_active", true).order("updated_at", { ascending: false }),
+    supabase.from("regions").select("slug").order("sort_order"),
+  ]);
 
-  // Fetch all published blog posts
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select("slug, updated_at, published_at")
-    .eq("status", "published")
-    .order("published_at", { ascending: false });
-
-  // Fetch active categories
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("slug")
-    .eq("is_active", true)
-    .order("sort_order");
-
-  // Build XML
   const urls: string[] = [];
 
-  // Static pages
-  const staticPages = [
+  // Every one of these is a route in App.tsx that renders a real page. The
+  // shop is switched off, so nothing under /shop, /product or /cart is here.
+  for (const page of [
     { loc: "/", priority: "1.0", changefreq: "daily" },
-    { loc: "/tours", priority: "0.9", changefreq: "daily" },
-    { loc: "/shop", priority: "0.9", changefreq: "daily" },
-    { loc: "/shop/magazine", priority: "0.7", changefreq: "monthly" },
-    { loc: "/shop/k-goods", priority: "0.7", changefreq: "weekly" },
-    { loc: "/shop/print", priority: "0.7", changefreq: "weekly" },
-    { loc: "/blog", priority: "0.8", changefreq: "daily" },
-    { loc: "/transfers", priority: "0.7", changefreq: "weekly" },
-    { loc: "/transfers/transportation", priority: "0.7", changefreq: "weekly" },
-    { loc: "/transfers/tour-planning", priority: "0.7", changefreq: "weekly" },
-    { loc: "/about", priority: "0.5", changefreq: "monthly" },
+    { loc: "/guidebook", priority: "0.9", changefreq: "daily" },
+    { loc: "/experiences", priority: "0.9", changefreq: "weekly" },
+    { loc: "/getting-there", priority: "0.7", changefreq: "weekly" },
+    { loc: "/getting-there/transportation", priority: "0.7", changefreq: "weekly" },
+    { loc: "/getting-there/tour-planning", priority: "0.7", changefreq: "weekly" },
     { loc: "/ask-a-local", priority: "0.6", changefreq: "monthly" },
+    { loc: "/ebook", priority: "0.6", changefreq: "monthly" },
+    { loc: "/about", priority: "0.5", changefreq: "monthly" },
     { loc: "/privacy", priority: "0.2", changefreq: "yearly" },
     { loc: "/terms", priority: "0.2", changefreq: "yearly" },
-  ];
-
-  for (const page of staticPages) {
-    urls.push(`
-  <url>
-    <loc>${SITE_URL}${page.loc}</loc>
-    <changefreq>${page.changefreq}</changefreq>
-    <priority>${page.priority}</priority>
-  </url>`);
+  ]) {
+    urls.push(entry(page.loc, { changefreq: page.changefreq, priority: page.priority }));
   }
 
-  // Category pages
-  if (categories) {
-    for (const cat of categories) {
-      urls.push(`
-  <url>
-    <loc>${SITE_URL}/category/${cat.slug}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>`);
-    }
+  for (const region of regions ?? []) {
+    urls.push(entry(`/destinations/${region.slug}`, { changefreq: "weekly", priority: "0.7" }));
   }
 
-  // Product pages
-  if (products) {
-    for (const product of products) {
-      const lastmod = product.updated_at
-        ? new Date(product.updated_at).toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0];
-      urls.push(`
-  <url>
-    <loc>${SITE_URL}/product/${product.slug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`);
-    }
+  // The articles, at the URL they actually live at.
+  for (const post of posts ?? []) {
+    urls.push(entry(`/guidebook/${post.slug}`, {
+      lastmod: day(post.updated_at, post.published_at),
+      changefreq: "monthly",
+      priority: "0.8",
+    }));
   }
 
-  // Blog post pages
-  if (posts) {
-    for (const post of posts) {
-      const lastmod = post.updated_at
-        ? new Date(post.updated_at).toISOString().split("T")[0]
-        : post.published_at
-          ? new Date(post.published_at).toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0];
-      urls.push(`
-  <url>
-    <loc>${SITE_URL}/blog/${post.slug}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>`);
-    }
+  // Bookable spots — real pages that were missing from the sitemap entirely.
+  for (const spot of spots ?? []) {
+    urls.push(entry(`/spots/${spot.slug}`, {
+      lastmod: day(spot.updated_at),
+      changefreq: "weekly",
+      priority: "0.7",
+    }));
   }
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

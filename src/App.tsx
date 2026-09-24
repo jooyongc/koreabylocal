@@ -92,8 +92,8 @@ function App() {
           <Route path="/experiences" element={<ExperiencesPage />} />
 
           <Route path="/getting-there" element={<TransfersPage />} />
-          <Route path="/transfers/transportation" element={<TransportationPage />} />
-          <Route path="/transfers/tour-planning" element={<TourPlanningPage />} />
+          <Route path="/getting-there/transportation" element={<TransportationPage />} />
+          <Route path="/getting-there/tour-planning" element={<TourPlanningPage />} />
 
           <Route path="/guidebook" element={<GuidebookPage />} />
           <Route path="/guidebook/:slug" element={<GuideDetailPage />} />
