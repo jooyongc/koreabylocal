@@ -52,29 +52,34 @@ export default function Hero() {
           ) : post ? (
             <Link
               to={`/guidebook/${post.slug}`}
-              className="group relative flex min-h-[280px] flex-col justify-end overflow-hidden bg-accent p-[clamp(24px,3vw,36px)] text-white lg:min-h-full"
+              className="group flex h-full min-h-[280px] flex-col justify-center gap-4 bg-accent p-[clamp(24px,3vw,36px)] text-white"
             >
-              {image && (
-                <img
-                  src={image}
-                  alt={post.title}
-                  className="absolute inset-0 h-full w-full object-cover opacity-45 transition-transform duration-500 group-hover:scale-105"
-                />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
-
-              <span className="relative mb-auto inline-flex w-fit items-center gap-1.5 rounded-full border border-white/50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
                 Featured Read
               </span>
 
-              <div className="relative">
+              {/* Cropped the same way the article page crops it (16:8) — the
+                  thumbnail already has the headline drawn into the photo, sized
+                  for exactly this ratio. A taller/narrower box here would zoom
+                  in and cut that baked-in text off. */}
+              {image && (
+                <div className="relative aspect-[16/8] w-full overflow-hidden rounded-[14px]">
+                  <img
+                    src={image}
+                    alt={post.title}
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+              )}
+
+              <div>
                 {post.category && (
                   <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/75">
                     {formatCategory(post.category)}
                   </span>
                 )}
-                <h2 className="mt-1 font-display text-[24px] font-extrabold leading-[1.1]">{post.title}</h2>
-                {post.excerpt && <p className="mt-1.5 line-clamp-2 text-[14px] text-white/85">{post.excerpt}</p>}
+                <h2 className="mt-1 font-display text-[22px] font-extrabold leading-[1.1]">{post.title}</h2>
+                {post.excerpt && <p className="mt-1.5 line-clamp-2 text-[13.5px] text-white/85">{post.excerpt}</p>}
               </div>
             </Link>
           ) : (
