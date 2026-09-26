@@ -15,7 +15,7 @@
 
 -- ── experiences: spot fields ─────────────────────────────────────────────────
 alter table koreabylocal.experiences add column if not exists spot_type text;
-  -- eats, cafes, culture, nightlife, shops, outdoors, walks
+  -- eats, cafes, culture, nightlife, shops, outdoors, beauty
 alter table koreabylocal.experiences add column if not exists area text;
   -- 세부 지역: hongdae, euljiro, seomyeon, hanok_village 등
 alter table koreabylocal.experiences add column if not exists tagline text;

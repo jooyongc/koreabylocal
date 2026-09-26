@@ -13,6 +13,7 @@ export default function TypeFilter() {
           <Chip
             key={t.value}
             label={t.label}
+            emoji={t.emoji}
             active={type === t.value}
             onClick={() => setType(t.value)}
           />
@@ -22,7 +23,17 @@ export default function TypeFilter() {
   );
 }
 
-function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+function Chip({
+  label,
+  emoji,
+  active,
+  onClick,
+}: {
+  label: string;
+  emoji?: string;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
@@ -30,6 +41,11 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
         active ? "bg-ink text-white" : "border border-gray-200 bg-white text-gray-600 hover:border-ink/30"
       }`}
     >
+      {emoji && (
+        <span aria-hidden="true" className="mr-1">
+          {emoji}
+        </span>
+      )}
       {label}
     </button>
   );

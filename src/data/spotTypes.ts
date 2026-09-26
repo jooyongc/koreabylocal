@@ -1,6 +1,7 @@
 export interface SpotType {
   value: string;
   label: string;
+  emoji?: string;
 }
 
 export const SPOT_TYPES: SpotType[] = [
@@ -10,5 +11,5 @@ export const SPOT_TYPES: SpotType[] = [
   { value: "nightlife", label: "Nightlife" },
   { value: "shops", label: "Shops" },
   { value: "outdoors", label: "Outdoors" },
-  { value: "walks", label: "Walks" },
+  { value: "beauty", label: "Beauty", emoji: "💄" },
 ];
