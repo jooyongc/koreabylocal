@@ -6,6 +6,7 @@ import RichTextField from "./RichTextField";
 import SpotLocationSection from "./SpotLocationSection";
 import SpotImagesSection from "./SpotImagesSection";
 import SpotRelatedPostsSection from "./SpotRelatedPostsSection";
+import SpotAffiliateSection from "./SpotAffiliateSection";
 import SpotFormActions from "./SpotFormActions";
 import { useCreateSpot, useUpdateSpot } from "@/hooks/useSpotMutation";
 import type { SpotFormData } from "@/types/admin";
@@ -46,6 +47,8 @@ export default function SpotForm({ mode, spotId, defaultValues }: Props) {
       images: [],
       related_post_slugs: [],
       badge: "",
+      affiliate_url: "",
+      affiliate_network: "",
       editor_pick: false,
       is_active: true,
       sort_order: 0,
@@ -85,6 +88,7 @@ export default function SpotForm({ mode, spotId, defaultValues }: Props) {
             <RichTextField name="tips" label="Tips from a local" placeholder="Practical tips — how to get there, what to order..." />
             <SpotLocationSection />
             <SpotImagesSection />
+            <SpotAffiliateSection />
             <SpotRelatedPostsSection />
           </div>
 

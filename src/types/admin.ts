@@ -71,6 +71,8 @@ export interface SpotFormData {
   images: string[];
   related_post_slugs: string[];
   badge: string;
+  affiliate_url: string;
+  affiliate_network: string;
   editor_pick: boolean;
   is_active: boolean;
   sort_order: number;

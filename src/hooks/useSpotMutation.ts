@@ -25,6 +25,8 @@ function toRow(data: SpotFormData) {
     images: data.images,
     related_post_slugs: data.related_post_slugs,
     badge: data.badge || null,
+    affiliate_url: data.affiliate_url || null,
+    affiliate_network: data.affiliate_network || null,
     editor_pick: data.editor_pick,
     is_active: data.is_active,
     sort_order: data.sort_order,

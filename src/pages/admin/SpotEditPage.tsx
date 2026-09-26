@@ -51,6 +51,8 @@ export default function SpotEditPage() {
     images: (Array.isArray(spot.images) ? (spot.images as string[]) : []),
     related_post_slugs: spot.related_post_slugs ?? [],
     badge: spot.badge ?? "",
+    affiliate_url: spot.affiliate_url ?? "",
+    affiliate_network: spot.affiliate_network ?? "",
     editor_pick: spot.editor_pick,
     is_active: spot.is_active,
     sort_order: spot.sort_order,
