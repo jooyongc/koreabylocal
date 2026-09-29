@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { format } from "date-fns";
 import PageSEO from "@/components/common/PageSEO";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import { useBlogList, BLOG_PAGE_SIZE } from "@/hooks/useBlogList";
 import { BlogListSkeleton } from "@/components/blog";
 import Pagination from "@/components/product/Pagination";
@@ -167,12 +168,15 @@ function FeaturedCard({ post }: { post: BlogPost }) {
       className="flex w-full flex-wrap overflow-hidden rounded-[24px] bg-ink text-left shadow-[0_18px_50px_rgba(26,26,26,0.18)]"
     >
       <div className="relative min-h-[300px] flex-[2_1_360px] overflow-hidden bg-[#222]">
-        <div
-          role="img"
-          aria-label={post.title}
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${post.thumbnail_url ?? ""})` }}
-        />
+        {post.thumbnail_url && (
+          <OptimizedImage
+            src={post.thumbnail_url}
+            alt={post.title}
+            preset="full"
+            priority
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
         <span className="absolute left-[18px] top-[18px] rounded-[7px] bg-gold px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.06em] text-ink">
           Editor's pick {post.category}
         </span>
@@ -203,12 +207,14 @@ function MagazineCard({ post }: { post: BlogPost }) {
       className="group flex flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_8px_26px_rgba(26,26,26,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(26,26,26,0.16)]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-cream-200">
-        <div
-          role="img"
-          aria-label={post.title}
-          className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-          style={{ backgroundImage: `url(${post.thumbnail_url ?? ""})` }}
-        />
+        {post.thumbnail_url && (
+          <OptimizedImage
+            src={post.thumbnail_url}
+            alt={post.title}
+            preset="card"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
         <span className="absolute left-3 top-3 rounded-[7px] bg-ink/80 px-2.5 py-[5px] text-[10.5px] font-extrabold uppercase tracking-[0.06em] text-white">
           {post.category}
         </span>

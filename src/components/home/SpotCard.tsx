@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { SpotRow } from "@/hooks/useSpots";
 import { SPOT_TYPES } from "@/data/spotTypes";
+import OptimizedImage from "@/components/common/OptimizedImage";
 
 export default function SpotCard({ spot }: { spot: SpotRow }) {
   const image = spot.thumbnail_url ?? (Array.isArray(spot.images) ? (spot.images as string[])[0] : undefined);
@@ -14,11 +15,11 @@ export default function SpotCard({ spot }: { spot: SpotRow }) {
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-cream-200">
         {image && (
-          <div
-            role="img"
-            aria-label={spot.title}
-            className="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-            style={{ backgroundImage: `url(${image})` }}
+          <OptimizedImage
+            src={image}
+            alt={spot.title}
+            preset="card"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         )}
         {typeInfo && (

@@ -49,22 +49,34 @@
     <!-- Default Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
 
-    <!-- Fonts: Pretendard (body/Korean) + Bricolage Grotesque (display) + Newsreader (serif accent) -->
+    <!-- Fonts: Pretendard (body/Korean) + Bricolage Grotesque (display) + Newsreader (serif accent).
+         Loaded as non-blocking preloads that swap to an active stylesheet once fetched
+         (rather than a plain <link rel="stylesheet">, which would block first paint on
+         two external font CSS round-trips), with a noscript fallback for no-JS. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="preload"
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
       as="style"
-    />
-    <link
-      rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+      />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap"
+      />
+    </noscript>
 
     <!-- DNS prefetch for Supabase storage -->
     <link rel="dns-prefetch" href="https://agkkvtfwqmzgbrqhvohs.supabase.co" />
