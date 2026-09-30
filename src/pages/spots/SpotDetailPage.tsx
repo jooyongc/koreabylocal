@@ -10,13 +10,21 @@ import {
   ExternalLink,
   Loader2,
   MessageCircle,
+  Check,
+  X as XIcon,
 } from "lucide-react";
 import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
-import { useSpot } from "@/hooks/useSpot";
+import { useSpot, type SpotDetailRow } from "@/hooks/useSpot";
 import { useExperiences, useRegion } from "@/hooks/useConcepts";
 import { useBlogPostsBySlugs } from "@/hooks/useBlogPost";
 import { supabase } from "@/lib/supabase";
 import SpotCard from "@/components/home/SpotCard";
+
+function money(n: number | null, currency: string | null): string | undefined {
+  if (n == null) return undefined;
+  const symbol = currency === "KRW" ? "₩" : currency === "JPY" ? "¥" : "$";
+  return `${symbol}${Number(n) % 1 === 0 ? n : Number(n).toFixed(2)}`;
+}
 
 export default function SpotDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -132,6 +140,12 @@ export default function SpotDetailPage() {
                 <h2 className="font-display text-[19px] font-extrabold text-ink">Tips from a local</h2>
                 <p className="mt-2.5 text-[15.5px] leading-[1.7] text-ink">{spot.tips}</p>
               </section>
+            )}
+
+            {/* Bookable-experience showcase — only when a partner link is set (admin's
+                "Affiliate Booking" section). Ends in a banner out to the partner site. */}
+            {spot.affiliate_url && (
+              <BookingShowcase spot={spot} />
             )}
 
             {/* Place info card */}
@@ -253,5 +267,88 @@ export default function SpotDetailPage() {
         </div>
       </div>
     </>
+  );
+}
+
+/** Highlights + what's included/excluded + a bottom booking banner out to the partner. */
+function BookingShowcase({ spot }: { spot: SpotDetailRow }) {
+  const highlights = Array.isArray(spot.highlights) ? (spot.highlights as string[]) : [];
+  const included = spot.included ?? [];
+  const excluded = spot.excluded ?? [];
+  const price = money(spot.price, spot.currency);
+  const comparePrice = money(spot.compare_price, spot.currency);
+  const partner = spot.affiliate_network || "our partner";
+
+  return (
+    <section className="mt-8">
+      {highlights.length > 0 && (
+        <div>
+          <h2 className="font-display text-[19px] font-extrabold text-ink">Highlights</h2>
+          <ul className="mt-2.5 space-y-2">
+            {highlights.map((h, i) => (
+              <li key={i} className="flex items-start gap-2 text-[15px] leading-[1.6] text-ink">
+                <Check className="mt-1 h-4 w-4 shrink-0 text-accent" />
+                <span>{h}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {(included.length > 0 || excluded.length > 0) && (
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {included.length > 0 && (
+            <div>
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.04em] text-muted-2">What's included</h3>
+              <ul className="mt-2 space-y-1.5">
+                {included.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[14px] text-ink">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {excluded.length > 0 && (
+            <div>
+              <h3 className="text-[13px] font-bold uppercase tracking-[0.04em] text-muted-2">Not included</h3>
+              <ul className="mt-2 space-y-1.5">
+                {excluded.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-[14px] text-muted">
+                    <XIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-3" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Booking banner */}
+      <div className="mt-7 flex flex-col items-start gap-4 rounded-2xl bg-ink p-6 text-white sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          {price && (
+            <div className="flex items-baseline gap-2">
+              <span className="text-[12px] text-white/60">from</span>
+              <span className="font-display text-[26px] font-extrabold">{price}</span>
+              {comparePrice && <span className="text-[14px] text-white/50 line-through">{comparePrice}</span>}
+            </div>
+          )}
+          <p className="mt-1 text-[12px] text-white/60">
+            We may earn a commission if you book through this link — it doesn't change the price you pay.
+          </p>
+        </div>
+        <a
+          href={spot.affiliate_url ?? undefined}
+          target="_blank"
+          rel="nofollow sponsored noopener"
+          className="w-full shrink-0 rounded-[13px] bg-accent px-7 py-3.5 text-center text-[14.5px] font-bold text-white transition-opacity hover:opacity-90 sm:w-auto"
+        >
+          Book on {partner} <ExternalLink className="ml-1.5 inline h-3.5 w-3.5" />
+        </a>
+      </div>
+    </section>
   );
 }

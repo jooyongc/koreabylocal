@@ -2,6 +2,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { SpotFormData } from "@/types/admin";
 
+/** Turns a one-item-per-line textarea into a clean array, or null if empty. */
+function linesToArray(text: string): string[] | null {
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  return lines.length > 0 ? lines : null;
+}
+
 function toRow(data: SpotFormData) {
   return {
     title: data.title,
@@ -27,6 +33,9 @@ function toRow(data: SpotFormData) {
     badge: data.badge || null,
     affiliate_url: data.affiliate_url || null,
     affiliate_network: data.affiliate_network || null,
+    highlights: linesToArray(data.highlights),
+    included: linesToArray(data.included),
+    excluded: linesToArray(data.excluded),
     editor_pick: data.editor_pick,
     is_active: data.is_active,
     sort_order: data.sort_order,

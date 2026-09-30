@@ -73,6 +73,10 @@ export interface SpotFormData {
   badge: string;
   affiliate_url: string;
   affiliate_network: string;
+  /** One per line in the form; stored as an array/jsonb column. */
+  highlights: string;
+  included: string;
+  excluded: string;
   editor_pick: boolean;
   is_active: boolean;
   sort_order: number;
