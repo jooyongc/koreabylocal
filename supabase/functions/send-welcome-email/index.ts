@@ -67,13 +67,16 @@ function buildEmail(payload: WelcomePayload): { subject: string; html: string } 
         `
           <h1 style="margin:0 0 12px;font-size:21px;color:#12184a">Your checklist is ready!</h1>
           <p style="margin:0 0 22px;font-size:14.5px;line-height:1.7;color:#4b5563">
-            ${greeting} thanks for signing up. Here's your free, locally-made Korea travel checklist —
-            everything to sort out before you land, from SIM cards to must-try dishes.
+            Hi! Annyeong! I'm Sohyun, a travel content creator at Korea by Local. Are you ready for Korea?
+            We're so excited to welcome you! Go through this checklist carefully, one by one — and while
+            you're in Korea, be sure to stop by our site for more useful local tips!
           </p>
           ${buttonHtml(CHECKLIST_PDF_URL, "Download the checklist (PDF)")}
           <p style="margin:26px 0 0;font-size:13.5px;line-height:1.7;color:#6b7280">
-            While you're at it, browse our <a href="${SITE_URL}" style="color:#ff2e97;font-weight:600">curated local spots</a>
-            or say hi on <a href="${SITE_URL}/ask-a-local" style="color:#ff2e97;font-weight:600">Ask a Local</a>.
+            — Sohyun, Korea by Local<br />
+            <a href="${SITE_URL}" style="color:#ff2e97;font-weight:600">koreabylocal.com</a>
+            &nbsp;&middot;&nbsp;
+            <a href="https://instagram.com/koreabylocal.travel" style="color:#ff2e97;font-weight:600">@koreabylocal.travel</a>
           </p>
         `,
       ),
