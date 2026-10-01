@@ -21,7 +21,8 @@ import { supabase } from "@/lib/supabase";
 import SpotCard from "@/components/home/SpotCard";
 
 function money(n: number | null, currency: string | null): string | undefined {
-  if (n == null) return undefined;
+  // price is NOT NULL DEFAULT 0 and the spot form never sets it, so 0 means "no price".
+  if (n == null || Number(n) <= 0) return undefined;
   const symbol = currency === "KRW" ? "₩" : currency === "JPY" ? "¥" : "$";
   return `${symbol}${Number(n) % 1 === 0 ? n : Number(n).toFixed(2)}`;
 }

@@ -25,7 +25,8 @@ export type AffiliateExperienceRow = Pick<
 >;
 
 function money(n: number | null, currency: string | null): string | undefined {
-  if (n == null) return undefined;
+  // price is NOT NULL DEFAULT 0 and the spot form never sets it, so 0 means "no price".
+  if (n == null || Number(n) <= 0) return undefined;
   const symbol = currency === "KRW" ? "₩" : currency === "JPY" ? "¥" : "$";
   return `${symbol}${Number(n) % 1 === 0 ? n : Number(n).toFixed(2)}`;
 }
@@ -72,9 +73,13 @@ export default function AffiliateExperienceCard({ x }: { x: AffiliateExperienceR
         </div>
         <div className="mt-auto flex items-end justify-between gap-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-[11px] text-muted-2">from</span>
-            <span className="font-display text-[21px] font-extrabold text-ink">{price ?? "—"}</span>
-            {comparePrice && <span className="text-[13px] text-muted-3 line-through">{comparePrice}</span>}
+            {price && (
+              <>
+                <span className="text-[11px] text-muted-2">from</span>
+                <span className="font-display text-[21px] font-extrabold text-ink">{price}</span>
+                {comparePrice && <span className="text-[13px] text-muted-3 line-through">{comparePrice}</span>}
+              </>
+            )}
           </div>
           {x.affiliate_network && (
             <span className="shrink-0 rounded-[7px] bg-ink/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
