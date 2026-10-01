@@ -1,8 +1,9 @@
-import { articleMeta, buildHead, injectHead } from "./_meta.ts";
+import { type ArticleMeta, articleMeta, buildHead, injectHead, regionMeta, spotMeta } from "./_meta.ts";
 
 // (1) 301 legacy Imweb blog URLs -> /guidebook/<slug> (SEO continuity after cutover)
 // (2) /sitemap.xml proxied from the sitemap-generator edge function
-// (3) real per-article metadata injected into the SPA shell for /guidebook/<slug>
+// (3) real per-page metadata injected into the SPA shell for /guidebook/<slug>,
+//     /spots/<slug> and /destinations/<key>
 //
 // The MAP below is generated (.design-handoff/db/gen-redirects.mjs); the rest
 // of this file is hand-written.
@@ -79,32 +80,75 @@ export const onRequest = async (context: { request: Request; next: () => Promise
     });
   }
 
-  // /guidebook/<slug>: serve the shell with this article's real head.
+  // /guidebook/<slug>, /spots/<slug>, /destinations/<key>: serve the shell
+  // with the page's own head.
   const article = url.pathname.match(/^\/guidebook\/([^/]+)\/?$/);
   if (article) {
-    const response = await context.next();
-    const type = response.headers.get("content-type") ?? "";
-    if (!response.ok || !type.includes("text/html")) return response;
-
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}&limit=1`,
-        { headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" } },
+    return withHead(context, async () => {
+      const post = await one(
+        `blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}`,
       );
-      if (!res.ok) return response;
-      const [post] = await res.json();
-      if (!post) return response;
+      return post ? articleMeta(post, url.origin) : null;
+    });
+  }
 
-      const html = injectHead(await response.text(), buildHead(articleMeta(post, url.origin)));
-      const headers = new Headers(response.headers);
-      headers.delete("content-length");
-      return new Response(html, { status: response.status, headers });
-    } catch {
-      // A page with the generic head still works; a page that failed to load
-      // does not. Never let the lookup break the response.
-      return response;
-    }
+  const spot = url.pathname.match(/^\/spots\/([^/]+)\/?$/);
+  if (spot) {
+    return withHead(context, async () => {
+      const row = await one(
+        `experiences?select=title,slug,tagline,description,thumbnail_url,images,region,area,location,address,phone,latitude,longitude,hours&is_active=eq.true&slug=eq.${encodeURIComponent(spot[1])}`,
+      );
+      if (!row) return null;
+      const region = row.region
+        ? await one(`regions?select=name&key=eq.${encodeURIComponent(row.region)}`)
+        : null;
+      return spotMeta(row, region?.name ?? null, url.origin);
+    });
+  }
+
+  const destination = url.pathname.match(/^\/destinations\/([^/]+)\/?$/);
+  if (destination) {
+    return withHead(context, async () => {
+      const region = await one(
+        `regions?select=key,name,description,blurb,cover_image_url&key=eq.${encodeURIComponent(destination[1])}`,
+      );
+      return region ? regionMeta(region, url.origin) : null;
+    });
   }
 
   return context.next();
 };
+
+/** First row of a PostgREST query against the koreabylocal schema, or null. */
+// deno-lint-ignore no-explicit-any
+async function one(query: string): Promise<any | null> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${query}&limit=1`, {
+    headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" },
+  });
+  if (!res.ok) return null;
+  const [row] = await res.json();
+  return row ?? null;
+}
+
+async function withHead(
+  context: { next: () => Promise<Response> },
+  lookup: () => Promise<ArticleMeta | null>,
+): Promise<Response> {
+  const response = await context.next();
+  const type = response.headers.get("content-type") ?? "";
+  if (!response.ok || !type.includes("text/html")) return response;
+
+  try {
+    const meta = await lookup();
+    if (!meta) return response;
+
+    const html = injectHead(await response.text(), buildHead(meta));
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    return new Response(html, { status: response.status, headers });
+  } catch {
+    // A page with the generic head still works; a page that failed to load
+    // does not. Never let the lookup break the response.
+    return response;
+  }
+}
