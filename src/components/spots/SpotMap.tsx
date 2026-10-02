@@ -55,7 +55,7 @@ export default function SpotMap({ spots, activeId = null, onSelect, simple = fal
           {active && (
             <InfoWindow
               position={{ lat: active.latitude, lng: active.longitude }}
-              pixelOffset={[0, -56]}
+              pixelOffset={[0, -58]}
               headerDisabled
               onCloseClick={() => onSelect?.(null)}
             >
