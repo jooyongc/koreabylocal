@@ -46,7 +46,8 @@ export function useSpots({ area, type, pageSize = 12 }: UseSpotsParams) {
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false })
         .range(from, to);
-      if (area) q = q.eq("region", area);
+      // Spots store the region name ("Seoul"), filters pass the region key ("seoul").
+      if (area) q = q.ilike("region", area);
       if (type) q = q.eq("spot_type", type);
 
       const { data, error } = await q;

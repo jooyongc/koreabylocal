@@ -1,10 +1,8 @@
 import { NavLink } from "react-router-dom";
-import NavDropdown from "./NavDropdown";
 
-// IA: three clear pillars — Travel Blog (articles), Experiences (curated
-// tours, plus logistics under "Getting There"), Ask a Local (paid concierge
-// Q&A) — kept separate from E-book so the two products are never confused.
-const EXPERIENCES_ITEMS = [{ label: "Getting There", href: "/getting-there" }];
+// IA: Travel Blog (articles), Things to Do (local spots), Getting There
+// (transport — its own menu, headed for partner bookings), Ask a Local (paid
+// concierge Q&A) — kept separate from E-book so the two products are never confused.
 
 export default function DesktopNav() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -18,7 +16,13 @@ export default function DesktopNav() {
         Travel Blog
       </NavLink>
 
-      <NavDropdown label="Experiences" href="/experiences" items={EXPERIENCES_ITEMS} />
+      <NavLink to="/things-to-do" className={linkClass}>
+        Things to Do
+      </NavLink>
+
+      <NavLink to="/getting-there" className={linkClass}>
+        Getting There
+      </NavLink>
 
       <NavLink to="/ask-a-local" className={linkClass}>
         Ask a Local

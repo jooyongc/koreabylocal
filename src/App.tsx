@@ -24,7 +24,7 @@ const EbookSuccessPage = lazy(() => import("@/pages/ebook/EbookSuccessPage"));
 const EbookDownloadPage = lazy(() => import("@/pages/ebook/EbookDownloadPage"));
 const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
 const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
-const ExperiencesPage = lazy(() => import("@/pages/experiences/ExperiencesPage"));
+const ThingsToDoPage = lazy(() => import("@/pages/things-to-do/ThingsToDoPage"));
 const AboutPage = lazy(() => import("@/pages/about/AboutPage"));
 const PrivacyPage = lazy(() => import("@/pages/legal/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/legal/TermsPage"));
@@ -90,7 +90,8 @@ function App() {
 
           <Route path="/spots/:slug" element={<SpotDetailPage />} />
           <Route path="/destinations/:region" element={<DestinationPage />} />
-          <Route path="/experiences" element={<ExperiencesPage />} />
+          <Route path="/things-to-do" element={<ThingsToDoPage />} />
+          <Route path="/experiences" element={<Navigate to="/things-to-do" replace />} />
 
           <Route path="/getting-there" element={<TransfersPage />} />
           <Route path="/getting-there/transportation" element={<TransportationPage />} />

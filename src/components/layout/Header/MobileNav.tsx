@@ -9,16 +9,13 @@ interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-// IA: three clear pillars — Travel Blog (articles), Experiences (curated
-// tours, plus logistics under "Getting There"), Ask a Local (paid concierge
-// Q&A) — kept separate from E-book so the two products are never confused.
+// IA: Travel Blog (articles), Things to Do (local spots), Getting There
+// (transport — its own menu, headed for partner bookings), Ask a Local (paid
+// concierge Q&A) — kept separate from E-book so the two products are never confused.
 const NAV_ITEMS: NavItem[] = [
   { label: "Travel Blog", href: "/guidebook" },
-  {
-    label: "Experiences",
-    href: "/experiences",
-    children: [{ label: "Getting There", href: "/getting-there" }],
-  },
+  { label: "Things to Do", href: "/things-to-do" },
+  { label: "Getting There", href: "/getting-there" },
   { label: "Ask a Local", href: "/ask-a-local" },
   { label: "E-book", href: "/ebook", badge: "NEW" },
   { label: "About", href: "/about" },

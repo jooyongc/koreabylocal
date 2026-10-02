@@ -1,5 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import type { SpotFormData } from "@/types/admin";
+import { parseGoogleMapsLatLng } from "@/lib/geo";
 
 const PRICE_RANGES = ["$", "$$", "$$$"];
 
@@ -8,7 +9,15 @@ const inputCls =
 const labelCls = "mb-1 block text-sm font-medium text-gray-700";
 
 export default function SpotLocationSection() {
-  const { register } = useFormContext<SpotFormData>();
+  const { register, setValue } = useFormContext<SpotFormData>();
+
+  // Pasting a full Google Maps link fills the coordinates the site map needs.
+  const fillCoords = (url: string) => {
+    const c = parseGoogleMapsLatLng(url);
+    if (!c) return;
+    setValue("latitude", c.lat, { shouldDirty: true });
+    setValue("longitude", c.lng, { shouldDirty: true });
+  };
 
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-6">
@@ -21,7 +30,16 @@ export default function SpotLocationSection() {
 
         <div>
           <label className={labelCls}>Google Maps URL</label>
-          <input {...register("google_maps_url")} className={inputCls} placeholder="https://maps.google.com/..." />
+          <input
+            {...register("google_maps_url", { onChange: (e) => fillCoords(e.target.value) })}
+            className={inputCls}
+            placeholder="https://www.google.com/maps/place/..."
+          />
+          <p className="mt-1 text-xs text-gray-400">
+            Paste the full link from the browser's address bar — latitude and longitude fill in automatically and put the
+            spot on the site map. Short share links (maps.app.goo.gl) carry no coordinates: open one first, then copy the
+            address bar.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

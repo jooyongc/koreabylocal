@@ -149,7 +149,8 @@ export function useRegion(key: string | undefined) {
       const { data, error } = await supabase
         .from("regions")
         .select("*")
-        .eq("key", key!)
+        // Called with a URL key ("seoul") or a spot's region name ("Seoul").
+        .ilike("key", key!)
         .maybeSingle();
       if (error) throw error;
       return data;

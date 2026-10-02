@@ -1,9 +1,7 @@
 import PageSEO from "@/components/common/PageSEO";
 import NewsletterBanner from "@/components/home/NewsletterBanner";
 import Hero from "@/components/home/Hero";
-import AreaFilter from "@/components/home/AreaFilter";
-import TypeFilter from "@/components/home/TypeFilter";
-import SpotGrid from "@/components/home/SpotGrid";
+import HomeSpotsPreview from "@/components/home/HomeSpotsPreview";
 import CuratedExperiences from "@/components/home/CuratedExperiences";
 import EbookBanner from "@/components/home/EbookBanner";
 import TripGenieBanner from "@/components/home/TripGenieBanner";
@@ -52,9 +50,7 @@ export default function HomePage() {
       <section className="bg-paper">
         <div className="mx-auto max-w-[1180px] px-4 pb-[clamp(24px,4vw,40px)] sm:px-6 lg:px-8">
           <div className="rounded-[20px] border-[1.5px] border-ink p-[clamp(20px,3vw,32px)]">
-            <AreaFilter />
-            <TypeFilter />
-            <SpotGrid />
+            <HomeSpotsPreview />
           </div>
         </div>
       </section>

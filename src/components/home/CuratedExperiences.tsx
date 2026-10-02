@@ -21,10 +21,10 @@ export default function CuratedExperiences() {
               <p className="mt-1.5 text-[15px] text-muted">Hand-picked tours &amp; activities from our partners</p>
             </div>
             <Link
-              to="/experiences"
+              to="/things-to-do"
               className="inline-flex items-center gap-1.5 text-[14px] font-bold text-accent transition-colors hover:text-accent-dark"
             >
-              Browse All Experiences <ArrowRight className="h-4 w-4" />
+              Browse All Things to Do <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
