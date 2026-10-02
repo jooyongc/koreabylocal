@@ -58,6 +58,24 @@ const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) => {
   const url = new URL(context.request.url);
 
+  // A request for a build file that doesn't exist falls through to the SPA
+  // fallback and gets index.html with a 200 — and /assets/* is served
+  // "immutable" for a year. During a deploy's rollout, edges briefly hand out
+  // the new HTML before its new assets, so browsers cached the fallback HTML
+  // as the app's entry script and the site never started for them. A missing
+  // asset must be an uncached 404 instead, which the app's stale-chunk reload
+  // recovers from.
+  if (url.pathname.startsWith("/assets/")) {
+    const res = await context.next();
+    if ((res.headers.get("content-type") ?? "").includes("text/html")) {
+      return new Response("Not found", {
+        status: 404,
+        headers: { "Content-Type": "text/plain", "Cache-Control": "no-store" },
+      });
+    }
+    return res;
+  }
+
   // 301: legacy /blog/?bmode=view&idx=NNN -> /guidebook/<slug>
   if (url.searchParams.get("bmode") === "view") {
     const idx = url.searchParams.get("idx");

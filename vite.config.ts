@@ -13,6 +13,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        // "name.hash" rather than Vite's default "name-hash": every built file
+        // got a new URL once, after browsers cached the SPA fallback HTML
+        // under the old URLs for a year (see functions/_middleware.ts).
+        entryFileNames: "assets/[name].[hash].js",
+        chunkFileNames: "assets/[name].[hash].js",
+        assetFileNames: "assets/[name].[hash].[ext]",
         manualChunks(id) {
           if (id.includes("node_modules")) {
             // React core. Anchored to the package directory: a bare "/react/"

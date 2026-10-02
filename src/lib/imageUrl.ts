@@ -18,6 +18,10 @@ export function resizedUrl(url: string, width: number, quality = 75): string | n
       u.pathname = u.pathname.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
       u.searchParams.set("width", String(width));
       u.searchParams.set("quality", String(quality));
+      // The default ("cover") keeps the original height when only a width is
+      // given, so a 1200x750 thumbnail came back as a 300x750 crop. "contain"
+      // scales to the width and keeps the aspect ratio.
+      u.searchParams.set("resize", "contain");
       return u.toString();
     }
     if (u.hostname === "images.unsplash.com") {

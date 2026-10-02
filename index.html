@@ -96,6 +96,23 @@
       @media (min-width:1024px){.boot-i{padding:14px 32px}.boot-m{display:none}}
     </style>
     <div id="root"><div class="boot"><div class="boot-h"><div class="boot-i"><span class="boot-m"></span><img src="/logo.png" alt="Korea by Local" width="162" height="32" /></div></div></div></div>
+    <script>
+      // If the app still hasn't replaced the static shell a few seconds after
+      // load, its entry script failed (e.g. a deploy still rolling out to this
+      // edge) — reload once rather than leave a header over a blank page.
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          if (!document.querySelector("#root > .boot")) return;
+          try {
+            if (sessionStorage.getItem("kbl-boot-reload")) return;
+            sessionStorage.setItem("kbl-boot-reload", "1");
+          } catch (e) {
+            return;
+          }
+          location.reload();
+        }, 4000);
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
