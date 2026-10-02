@@ -4,7 +4,7 @@ import { APIProvider, AdvancedMarker, InfoWindow, Map, useMap } from "@vis.gl/re
 import OptimizedImage from "@/components/common/OptimizedImage";
 import LogoPin from "@/components/spots/LogoPin";
 import { hasCoords, type MapSpot } from "@/hooks/useMapSpots";
-import { GOOGLE_MAPS_KEY as API_KEY, MAP_ID, SEOUL } from "@/lib/maps";
+import { GOOGLE_MAPS_KEY as API_KEY, MAP_ID, RENDERING_TYPE, SEOUL } from "@/lib/maps";
 
 interface Props {
   spots: MapSpot[];
@@ -28,6 +28,7 @@ export default function SpotMap({ spots, activeId = null, onSelect, simple = fal
       <APIProvider apiKey={API_KEY} language="en" region="KR">
         <Map
           mapId={MAP_ID}
+          renderingType={RENDERING_TYPE}
           defaultCenter={SEOUL}
           defaultZoom={11}
           gestureHandling={simple ? "cooperative" : "greedy"}

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Bold, Italic, List, Heading2, Link as LinkIcon, Code } from "lucide-react";
 import "@/styles/editor.css";
@@ -20,8 +19,8 @@ export default function RichTextEditor({ value, onChange, placeholder, htmlRows 
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Link.configure({ openOnClick: false }),
+      // StarterKit v3 already includes Link; adding it again registered it twice.
+      StarterKit.configure({ link: { openOnClick: false } }),
       Placeholder.configure({ placeholder: placeholder ?? "Write..." }),
     ],
     content: value,

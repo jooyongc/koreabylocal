@@ -20,3 +20,11 @@ export const MAPS_ENABLED = !!GOOGLE_MAPS_KEY;
 export const MAP_ID = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "846254e4f3eaedcd989c8771";
 
 export const SEOUL = { lat: 37.5665, lng: 126.978 };
+
+/**
+ * Raster, not vector: Google's vector map has thin data for Korea, so zooming
+ * in on a Seoul street (the admin picker goes to zoom 17) froze on a blurred
+ * frame and dropped the markers. The cloud style and advanced markers work the
+ * same on raster.
+ */
+export const RENDERING_TYPE = "RASTER" as const;

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { APIProvider, AdvancedMarker, Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Loader2, MapPin, Search } from "lucide-react";
-import { GOOGLE_MAPS_KEY, MAP_ID, SEOUL } from "@/lib/maps";
+import { GOOGLE_MAPS_KEY, MAP_ID, RENDERING_TYPE, SEOUL } from "@/lib/maps";
 import LogoPin from "@/components/spots/LogoPin";
 import { isRealLocation } from "@/lib/geo";
 import type { SpotFormData } from "@/types/admin";
@@ -56,6 +56,7 @@ function Picker() {
       <div className="h-[320px] overflow-hidden rounded-lg border border-gray-200">
         <Map
           mapId={MAP_ID}
+          renderingType={RENDERING_TYPE}
           defaultCenter={position ?? SEOUL}
           defaultZoom={position ? 16 : 11}
           gestureHandling="greedy"
