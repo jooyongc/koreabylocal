@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { APIProvider, AdvancedMarker, InfoWindow, Map, Pin, useMap } from "@vis.gl/react-google-maps";
+import { APIProvider, AdvancedMarker, InfoWindow, Map, useMap } from "@vis.gl/react-google-maps";
 import OptimizedImage from "@/components/common/OptimizedImage";
+import LogoPin from "@/components/spots/LogoPin";
 import { hasCoords, type MapSpot } from "@/hooks/useMapSpots";
 import { GOOGLE_MAPS_KEY as API_KEY, MAP_ID, SEOUL } from "@/lib/maps";
 
@@ -46,19 +47,14 @@ export default function SpotMap({ spots, activeId = null, onSelect, simple = fal
                 zIndex={on ? 10 : 1}
                 onClick={() => onSelect?.(on ? null : s.id)}
               >
-                <Pin
-                  background={on ? "#12184a" : "#ff2e97"}
-                  borderColor="#ffffff"
-                  glyphColor="#ffffff"
-                  scale={on ? 1.25 : 1}
-                />
+                <LogoPin active={on} />
               </AdvancedMarker>
             );
           })}
           {active && (
             <InfoWindow
               position={{ lat: active.latitude, lng: active.longitude }}
-              pixelOffset={[0, -40]}
+              pixelOffset={[0, -54]}
               headerDisabled
               onCloseClick={() => onSelect?.(null)}
             >

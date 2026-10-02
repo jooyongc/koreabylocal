@@ -1,9 +1,10 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { APIProvider, AdvancedMarker, Map, Pin, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
+import { APIProvider, AdvancedMarker, Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { GOOGLE_MAPS_KEY, MAP_ID, SEOUL } from "@/lib/maps";
+import LogoPin from "@/components/spots/LogoPin";
 import { isRealLocation } from "@/lib/geo";
 import type { SpotFormData } from "@/types/admin";
 
@@ -75,7 +76,7 @@ function Picker() {
                 if (p) setPosition({ lat: p.lat(), lng: p.lng() });
               }}
             >
-              <Pin background="#ff2e97" borderColor="#ffffff" glyphColor="#ffffff" />
+              <LogoPin active />
             </AdvancedMarker>
           )}
         </Map>

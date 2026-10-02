@@ -12,9 +12,11 @@ export const GOOGLE_MAPS_KEY = RAW_KEY?.startsWith("AIza") ? RAW_KEY : undefined
 export const MAPS_ENABLED = !!GOOGLE_MAPS_KEY;
 
 /**
- * Advanced markers need a Map ID. DEMO_MAP_ID works everywhere; set
- * VITE_GOOGLE_MAPS_MAP_ID to a real one (Cloud console → Map Management) to style the map.
+ * Advanced markers need a Map ID, and the map's look comes from the cloud
+ * style attached to it: "koreabylocal-mono" (light, monochrome — so the pink
+ * pins carry the colour), in GCP project gen-lang-client-0072618778 → Google
+ * Maps Platform → Map Management. Map IDs aren't secret; they ship in the page.
  */
-export const MAP_ID = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "DEMO_MAP_ID";
+export const MAP_ID = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "846254e4f3eaedcd989c8771";
 
 export const SEOUL = { lat: 37.5665, lng: 126.978 };
