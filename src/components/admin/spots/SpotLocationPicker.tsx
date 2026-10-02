@@ -94,8 +94,10 @@ function FlyTo({ target }: { target: { at: LatLng; n: number } | null }) {
   const map = useMap();
   useEffect(() => {
     if (!map || !target) return;
-    map.panTo(target.at);
-    map.setZoom(17);
+    // One jump, not panTo + setZoom: the two animations together left the
+    // raster map stuck on a blurred, upscaled frame until something else made
+    // it repaint (a page scroll did).
+    map.moveCamera({ center: target.at, zoom: 17 });
   }, [map, target]);
   return null;
 }
