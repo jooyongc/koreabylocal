@@ -2,12 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
 import { SPOT_CARD_COLUMNS, type SpotRow } from "@/hooks/useSpots";
+import { isRealLocation } from "@/lib/geo";
 
 export type MapSpot = SpotRow &
   Pick<Tables<"experiences">, "region" | "category" | "latitude" | "longitude" | "affiliate_url">;
 
 export const hasCoords = (s: MapSpot): s is MapSpot & { latitude: number; longitude: number } =>
-  s.latitude != null && s.longitude != null;
+  isRealLocation(s.latitude, s.longitude);
 
 /**
  * Every active spot with what the map and the card need. The whole list is a

@@ -187,7 +187,8 @@ export function spotMeta(
       address: spot.address,
       telephone: spot.phone,
       url: canonical,
-      geo: spot.latitude != null && spot.longitude != null
+      // (0, 0) is what the imweb import wrote for "no location".
+      geo: spot.latitude != null && spot.longitude != null && !(Number(spot.latitude) === 0 && Number(spot.longitude) === 0)
         ? { "@type": "GeoCoordinates", latitude: spot.latitude, longitude: spot.longitude }
         : null,
       openingHours: spot.hours,

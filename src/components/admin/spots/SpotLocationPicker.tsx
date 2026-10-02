@@ -4,6 +4,7 @@ import { useFormContext } from "react-hook-form";
 import { APIProvider, AdvancedMarker, Map, Pin, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { GOOGLE_MAPS_KEY, MAP_ID, SEOUL } from "@/lib/maps";
+import { isRealLocation } from "@/lib/geo";
 import type { SpotFormData } from "@/types/admin";
 
 /**
@@ -31,7 +32,7 @@ function Picker() {
   const { watch, setValue } = useFormContext<SpotFormData>();
   const lat = watch("latitude");
   const lng = watch("longitude");
-  const position: LatLng | null = lat != null && lng != null ? { lat: Number(lat), lng: Number(lng) } : null;
+  const position: LatLng | null = isRealLocation(lat, lng) ? { lat: Number(lat), lng: Number(lng) } : null;
   // Bumped when a search result should move the camera; clicks and drags don't.
   const [flyTo, setFlyTo] = useState<{ at: LatLng; n: number } | null>(null);
 

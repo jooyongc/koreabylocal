@@ -20,6 +20,7 @@ import { useBlogPostsBySlugs } from "@/hooks/useBlogPost";
 import { supabase } from "@/lib/supabase";
 import SpotCard from "@/components/home/SpotCard";
 import OptimizedImage from "@/components/common/OptimizedImage";
+import { isRealLocation } from "@/lib/geo";
 
 function money(n: number | null, currency: string | null): string | undefined {
   // price is NOT NULL DEFAULT 0 and the spot form never sets it, so 0 means "no price".
@@ -75,7 +76,7 @@ export default function SpotDetailPage() {
     address: spot.address ?? undefined,
     telephone: spot.phone ?? undefined,
     url: `${SITE_URL}/spots/${spot.slug}`,
-    ...(spot.latitude != null && spot.longitude != null
+    ...(isRealLocation(spot.latitude, spot.longitude)
       ? { geo: { "@type": "GeoCoordinates", latitude: spot.latitude, longitude: spot.longitude } }
       : {}),
     ...(spot.hours ? { openingHours: spot.hours } : {}),
@@ -210,7 +211,7 @@ export default function SpotDetailPage() {
               )}
             </div>
 
-            {spot.latitude != null && spot.longitude != null && (
+            {isRealLocation(spot.latitude, spot.longitude) && (
               <div className="mt-6 overflow-hidden rounded-2xl border border-ink/10">
                 <iframe
                   title={`Map to ${spot.title}`}

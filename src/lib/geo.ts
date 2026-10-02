@@ -3,6 +3,17 @@ export interface LatLng {
   lng: number;
 }
 
+/**
+ * True for a usable location. (0, 0) — a point in the Atlantic — is what the
+ * imweb import wrote for "no location", so it counts as missing.
+ */
+export function isRealLocation(lat: number | null | undefined, lng: number | null | undefined): boolean {
+  if (lat == null || lng == null) return false;
+  const a = Number(lat);
+  const b = Number(lng);
+  return Number.isFinite(a) && Number.isFinite(b) && !(a === 0 && b === 0);
+}
+
 const valid = (lat: number, lng: number) =>
   Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
 
