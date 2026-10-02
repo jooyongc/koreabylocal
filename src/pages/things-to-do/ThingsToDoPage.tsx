@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import PageSEO from "@/components/common/PageSEO";
 import SpotCard from "@/components/home/SpotCard";
-import SpotMap, { MAPS_ENABLED } from "@/components/spots/SpotMap";
+import SpotMap from "@/components/spots/SpotMap";
+import { MAPS_ENABLED } from "@/lib/maps";
 import { useMapSpots } from "@/hooks/useMapSpots";
 
 /**

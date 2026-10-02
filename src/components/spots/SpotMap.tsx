@@ -3,17 +3,7 @@ import { Link } from "react-router-dom";
 import { APIProvider, AdvancedMarker, InfoWindow, Map, Pin, useMap } from "@vis.gl/react-google-maps";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import { hasCoords, type MapSpot } from "@/hooks/useMapSpots";
-
-const RAW_KEY = (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined)?.trim();
-// Real browser keys start with "AIza"; anything else is a placeholder, and
-// Google would still draw a degraded map with it, so treat it as no key.
-const API_KEY = RAW_KEY?.startsWith("AIza") ? RAW_KEY : undefined;
-/** Pages lay themselves out without the map when there's no key. */
-export const MAPS_ENABLED = !!API_KEY;
-// Advanced markers need a Map ID. DEMO_MAP_ID works everywhere; set
-// VITE_GOOGLE_MAPS_MAP_ID to a real one (Cloud console → Map Management) to style the map.
-const MAP_ID = (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) || "DEMO_MAP_ID";
-const SEOUL = { lat: 37.5665, lng: 126.978 };
+import { GOOGLE_MAPS_KEY as API_KEY, MAP_ID, SEOUL } from "@/lib/maps";
 
 interface Props {
   spots: MapSpot[];

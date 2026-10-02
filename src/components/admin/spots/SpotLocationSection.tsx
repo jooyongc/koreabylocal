@@ -1,6 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import type { SpotFormData } from "@/types/admin";
 import { parseGoogleMapsLatLng } from "@/lib/geo";
+import SpotLocationPicker from "./SpotLocationPicker";
 
 const PRICE_RANGES = ["$", "$$", "$$$"];
 
@@ -23,6 +24,8 @@ export default function SpotLocationSection() {
     <section className="rounded-xl border border-gray-200 bg-white p-6">
       <h2 className="mb-4 text-lg font-semibold text-primary">Location & Contact</h2>
       <div className="space-y-4">
+        <SpotLocationPicker />
+
         <div>
           <label className={labelCls}>Address</label>
           <input {...register("address")} className={inputCls} placeholder="Street address" />

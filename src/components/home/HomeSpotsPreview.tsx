@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import OptimizedImage from "@/components/common/OptimizedImage";
-import SpotMap, { MAPS_ENABLED } from "@/components/spots/SpotMap";
+import SpotMap from "@/components/spots/SpotMap";
+import { MAPS_ENABLED } from "@/lib/maps";
 import { useMapSpots } from "@/hooks/useMapSpots";
 
 const PREVIEW_COUNT = 5;
