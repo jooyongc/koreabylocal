@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
+import { subscribe } from "@/lib/subscribe";
 import { markSubscribed } from "@/lib/subscription";
 
 interface EmailCaptureModalProps {
@@ -30,13 +31,9 @@ export default function EmailCaptureModal({
     if (!email.trim() || submitting) return;
     setSubmitting(true);
     const trimmedEmail = email.trim();
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source,
-      lead_magnet: leadMagnet,
-    });
+    const { error } = await subscribe(trimmedEmail, source, leadMagnet);
     setSubmitting(false);
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    if (error) {
       toast.error("Something went wrong — please try again.");
       return;
     }

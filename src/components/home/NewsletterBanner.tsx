@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { subscribe } from "@/lib/subscribe";
 import { markSubscribed } from "@/lib/subscription";
 
 const STORAGE_KEY = "kbl_newsletter_banner_dismissed_until";
@@ -38,12 +39,8 @@ export default function NewsletterBanner() {
     if (!email.trim() || status === "submitting") return;
     setStatus("submitting");
     const trimmedEmail = email.trim();
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source: "homepage_banner",
-      lead_magnet: "checklist",
-    });
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    const { error } = await subscribe(trimmedEmail, "homepage_banner", "checklist");
+    if (error) {
       setStatus("idle");
       return;
     }

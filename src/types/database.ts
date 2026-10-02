@@ -875,6 +875,7 @@ export type Database = {
           status: string
           subscribed_at: string
           unsubscribed_at: string | null
+          unsubscribe_token: string
         }
         Insert: {
           id?: never
@@ -886,6 +887,7 @@ export type Database = {
           status?: string
           subscribed_at?: string
           unsubscribed_at?: string | null
+          unsubscribe_token?: string
         }
         Update: {
           id?: never
@@ -897,6 +899,85 @@ export type Database = {
           status?: string
           subscribed_at?: string
           unsubscribed_at?: string | null
+          unsubscribe_token?: string
+        }
+        Relationships: []
+      }
+      newsletter_campaigns: {
+        Row: {
+          id: number
+          subject: string
+          preheader: string | null
+          body_html: string
+          status: string
+          recipient_count: number
+          sent_count: number
+          failed_count: number
+          created_at: string
+          updated_at: string
+          started_at: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          id?: never
+          subject: string
+          preheader?: string | null
+          body_html?: string
+          status?: string
+          recipient_count?: number
+          sent_count?: number
+          failed_count?: number
+          created_at?: string
+          updated_at?: string
+          started_at?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          id?: never
+          subject?: string
+          preheader?: string | null
+          body_html?: string
+          status?: string
+          recipient_count?: number
+          sent_count?: number
+          failed_count?: number
+          created_at?: string
+          updated_at?: string
+          started_at?: string | null
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
+      newsletter_deliveries: {
+        Row: {
+          id: number
+          campaign_id: number
+          subscriber_id: number
+          email: string
+          status: string
+          error: string | null
+          sent_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          campaign_id: number
+          subscriber_id: number
+          email: string
+          status?: string
+          error?: string | null
+          sent_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          campaign_id?: number
+          subscriber_id?: number
+          email?: string
+          status?: string
+          error?: string | null
+          sent_at?: string | null
+          created_at?: string
         }
         Relationships: []
       }
@@ -1069,6 +1150,10 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
+      subscribe: {
+        Args: { p_email: string; p_source?: string | null; p_lead_magnet?: string | null }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

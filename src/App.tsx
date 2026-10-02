@@ -28,6 +28,7 @@ const ExperiencesPage = lazy(() => import("@/pages/experiences/ExperiencesPage")
 const AboutPage = lazy(() => import("@/pages/about/AboutPage"));
 const PrivacyPage = lazy(() => import("@/pages/legal/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/legal/TermsPage"));
+const UnsubscribePage = lazy(() => import("@/pages/UnsubscribePage"));
 
 // ── Auth pages ────────────────────────────────────────────────
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
@@ -108,6 +109,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
+          <Route path="/unsubscribe" element={<UnsubscribePage />} />
 
           {/* ── Legacy redirects (v3 renewal — preserve SEO) ── */}
           <Route path="/blog" element={<Navigate to="/guidebook" replace />} />

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Download, Users, UserPlus, Loader2 } from "lucide-react";
 import { format, subDays, startOfDay } from "date-fns";
@@ -9,6 +10,7 @@ import { Skeleton } from "@/components/common/Skeleton";
 import { supabase } from "@/lib/supabase";
 import { useAdminSubscriberList, type AdminSubscriberRow } from "@/hooks/useAdminSubscriberList";
 import { useSetSubscriberStatus } from "@/hooks/useSubscriberMutation";
+import NewsletterPanel from "@/components/admin/newsletter/NewsletterPanel";
 
 const STATUS_COLORS: Record<string, string> = {
   active: "bg-emerald-100 text-emerald-700",
@@ -136,6 +138,10 @@ export default function SubscribersPage() {
   const { data, isLoading, search, status, page, setFilter } = useAdminSubscriberList();
   const { data: stats } = useSubscriberStats();
   const [exporting, setExporting] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = searchParams.get("tab") === "newsletters" ? "newsletters" : "subscribers";
+  const setTab = (next: "subscribers" | "newsletters") =>
+    setSearchParams(next === "newsletters" ? { tab: "newsletters" } : {});
 
   const handleExport = async () => {
     setExporting(true);
@@ -153,7 +159,9 @@ export default function SubscribersPage() {
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-primary">Subscribers</h1>
-            <p className="mt-1 text-sm text-text-secondary">Newsletter and lead-magnet subscribers.</p>
+            <p className="mt-1 text-sm text-text-secondary">
+              Everyone who signed up for the newsletter or a free download — and the newsletters sent to them.
+            </p>
           </div>
           <button
             onClick={handleExport}
@@ -196,6 +204,23 @@ export default function SubscribersPage() {
           </div>
         </div>
 
+        <div className="mb-5 flex gap-1 border-b border-gray-200">
+          {(["subscribers", "newsletters"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-medium capitalize transition-colors ${
+                tab === t ? "border-primary text-primary" : "border-transparent text-gray-500 hover:text-primary"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+
+        {tab === "newsletters" ? (
+          <NewsletterPanel />
+        ) : (
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1 sm:max-w-xs">
@@ -235,6 +260,7 @@ export default function SubscribersPage() {
             </>
           )}
         </div>
+        )}
       </div>
     </>
   );

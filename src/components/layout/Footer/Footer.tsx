@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Facebook, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { subscribe } from "@/lib/subscribe";
 import { markSubscribed } from "@/lib/subscription";
 import { useRegions } from "@/hooks/useConcepts";
 import Logo from "@/components/layout/Header/Logo";
@@ -30,11 +31,8 @@ function FooterNewsletterForm() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail || status === "submitting") return;
     setStatus("submitting");
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source: "footer",
-    });
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    const { error } = await subscribe(trimmedEmail, "footer");
+    if (error) {
       setStatus("idle");
       return;
     }

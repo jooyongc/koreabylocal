@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, Loader2, BookOpen } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { subscribe } from "@/lib/subscribe";
 import { hasSubscribed, markSubscribed } from "@/lib/subscription";
 
 const SESSION_KEY = "kbl_exit_popup_shown";
@@ -64,12 +65,8 @@ export default function ExitIntentPopup() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail || status === "submitting") return;
     setStatus("submitting");
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source: "popup",
-      lead_magnet: "ebook_sample",
-    });
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    const { error } = await subscribe(trimmedEmail, "popup", "ebook_sample");
+    if (error) {
       setStatus("idle");
       return;
     }
