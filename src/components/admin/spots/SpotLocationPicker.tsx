@@ -77,7 +77,7 @@ function Picker() {
                 if (p) setPosition({ lat: p.lat(), lng: p.lng() });
               }}
             >
-              <LogoPin active />
+              <LogoPin />
             </AdvancedMarker>
           )}
         </Map>
