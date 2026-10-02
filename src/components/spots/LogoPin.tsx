@@ -1,30 +1,27 @@
+const PINK = "#FF33CD"; // the logo symbol's pink
+
 /**
- * Map pin drawn from the logo's pink mark: the "LO" with the smile under it,
- * in white on a #FF33CD drop. Anchored at its tip (bottom centre), which is
- * where an AdvancedMarker puts custom content by default.
+ * Map pin made from the official logo symbol (the pink "LO" with the smile,
+ * public/map-pin-symbol.png, cut from the brand folder's KoreabyLocal_fabicon
+ * .png) on a white tile, with a pink tail whose tip marks the spot. The tip is
+ * the bottom centre, which is where an AdvancedMarker anchors custom content.
  */
 export default function LogoPin({ active = false }: { active?: boolean }) {
-  const size = active ? 1.3 : 1;
   return (
-    <svg
-      viewBox="0 0 40 52"
-      width={40 * size}
-      height={52 * size}
-      aria-hidden
-      className="block transition-[width,height] duration-200"
-      style={{ filter: `drop-shadow(0 ${active ? 6 : 3}px ${active ? 8 : 4}px rgba(18, 24, 74, ${active ? 0.45 : 0.3}))` }}
+    <div
+      className="flex flex-col items-center transition-transform duration-200"
+      style={{
+        transform: active ? "scale(1.25)" : undefined,
+        transformOrigin: "bottom center",
+        filter: `drop-shadow(0 ${active ? 6 : 3}px ${active ? 8 : 4}px rgba(18, 24, 74, ${active ? 0.4 : 0.28}))`,
+      }}
     >
-      <path
-        d="M20 50.5c-1-2.6-6.4-9.9-11.4-16.1A18 18 0 1 1 31.4 34.4C26.4 40.6 21 47.9 20 50.5z"
-        fill="#FF33CD"
-        stroke="#fff"
-        strokeWidth={active ? 2.6 : 2}
-      />
-      <g fill="none" stroke="#fff" strokeLinecap="round">
-        <path d="M12.6 9.5v13.6h5.4" strokeWidth="3.4" strokeLinejoin="round" />
-        <circle cx="25.6" cy="16.6" r="5.6" strokeWidth="3.4" />
-        <path d="M12.4 27.6c4.6 4.4 10.6 4.4 15.2 0" strokeWidth="3" />
-      </g>
-    </svg>
+      <div className="rounded-[12px] bg-white p-[3px]" style={{ boxShadow: `0 0 0 2px ${PINK}` }}>
+        <img src="/map-pin-symbol.png" width={38} height={38} alt="" draggable={false} className="block rounded-[9px]" />
+      </div>
+      <svg width="14" height="9" viewBox="0 0 14 9" aria-hidden className="-mt-px block">
+        <path d="M0 0h14L7 9z" fill={PINK} />
+      </svg>
+    </div>
   );
 }
