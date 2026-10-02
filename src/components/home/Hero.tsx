@@ -15,7 +15,7 @@ function formatCategory(raw: string): string {
 
 export default function Hero() {
   const { data: post, isLoading } = useFeaturedBlogPost();
-  const image = post?.thumbnail_url ?? post?.hero_image_url ?? undefined;
+  const image = post?.hero_image_url ?? undefined;
 
   return (
     <section className="bg-paper">
@@ -51,39 +51,39 @@ export default function Hero() {
               <Loader2 className="h-6 w-6 animate-spin text-accent" />
             </div>
           ) : post ? (
+            // The post's hero photo fills the whole panel, with the text over a
+            // gradient at the bottom. Not the thumbnail: that has the headline
+            // drawn into it, which read twice next to the real title.
             <Link
               to={`/guidebook/${post.slug}`}
-              className="group flex h-full min-h-[280px] flex-col justify-center gap-4 bg-accent p-[clamp(24px,3vw,36px)] text-white"
+              className="group relative flex h-full min-h-[340px] flex-col justify-between overflow-hidden bg-accent p-[clamp(24px,3vw,36px)] text-white"
             >
-              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
-                Featured Read
-              </span>
-
-              {/* Cropped the same way the article page crops it (16:8) — the
-                  thumbnail already has the headline drawn into the photo, sized
-                  for exactly this ratio. A taller/narrower box here would zoom
-                  in and cut that baked-in text off. */}
               {image && (
-                <div className="relative aspect-[16/8] w-full overflow-hidden rounded-[14px]">
+                <>
                   {/* The homepage's largest paint: resized and fetched first. */}
                   <OptimizedImage
                     src={image}
-                    alt={post.title}
-                    preset="card"
+                    alt=""
+                    preset="detail"
                     priority
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-ink/10" />
+                </>
               )}
 
-              <div>
+              <span className="relative inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.1em]">
+                Featured Read
+              </span>
+
+              <div className="relative">
                 {post.category && (
-                  <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/75">
+                  <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/80">
                     {formatCategory(post.category)}
                   </span>
                 )}
-                <h2 className="mt-1 font-display text-[22px] font-extrabold leading-[1.1]">{post.title}</h2>
-                {post.excerpt && <p className="mt-1.5 line-clamp-2 text-[13.5px] text-white/85">{post.excerpt}</p>}
+                <h2 className="mt-1 font-display text-[clamp(22px,2.4vw,28px)] font-extrabold leading-[1.1]">{post.title}</h2>
+                {post.excerpt && <p className="mt-2 line-clamp-2 text-[13.5px] text-white/85">{post.excerpt}</p>}
               </div>
             </Link>
           ) : (
