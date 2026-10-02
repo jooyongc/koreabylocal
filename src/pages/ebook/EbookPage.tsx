@@ -1,4 +1,5 @@
 import { useState } from "react";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { Loader2, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
@@ -132,7 +133,7 @@ export default function EbookPage() {
         <div className="grid gap-[clamp(24px,4vw,48px)] lg:grid-cols-[minmax(0,340px)_1fr] lg:items-start">
           {ebook.cover_image_url && (
             <div className="overflow-hidden rounded-[20px] bg-cream-200 shadow-[0_20px_44px_rgba(26,26,26,0.16)]">
-              <img src={ebook.cover_image_url} alt={ebook.title} className="w-full object-cover" />
+              <OptimizedImage src={ebook.cover_image_url} alt={ebook.title} preset="detail" priority className="w-full object-cover" />
             </div>
           )}
 
@@ -199,7 +200,7 @@ export default function EbookPage() {
             >
               {ebook.preview_images.map((img, i) => (
                 <SwiperSlide key={i}>
-                  <img src={img} alt={`Preview page ${i + 1}`} loading="lazy" className="aspect-[3/4] w-full rounded-xl object-cover" />
+                  <OptimizedImage src={img} alt={`Preview page ${i + 1}`} preset="card" className="aspect-[3/4] w-full rounded-xl object-cover" />
                 </SwiperSlide>
               ))}
             </Swiper>

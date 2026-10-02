@@ -1,7 +1,7 @@
 // Copies spot and blog images off the old imweb CDN into Supabase Storage and
 // points the rows at the copies.
 //
-// Why: every spot photo (thumbnail + gallery) and some blog thumbnails still
+// Why: every spot photo (thumbnail + gallery) and some blog hero images still
 // live on cdn.imweb.me as full-size originals — up to 2.7 MB a PNG, 8 MB on the
 // homepage alone. That host can't resize, and the images vanish if the imweb
 // account ever lapses. In Storage they get the render endpoint's resizing/WebP
@@ -34,7 +34,7 @@ const db = createClient(SUPABASE_URL, SERVICE, {
 });
 
 interface Spot { id: number; slug: string; thumbnail_url: string | null; images: unknown }
-interface Post { id: number; slug: string; thumbnail_url: string | null }
+interface Post { id: number; slug: string; thumbnail_url: string | null; hero_image_url: string | null }
 
 const EXT: Record<string, string> = {
   "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
@@ -49,7 +49,7 @@ const asImages = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x i
 
 const { data: spots, error: spotsError } = await db.from("experiences").select("id, slug, thumbnail_url, images");
 if (spotsError) throw spotsError;
-const { data: posts, error: postsError } = await db.from("blog_posts").select("id, slug, thumbnail_url");
+const { data: posts, error: postsError } = await db.from("blog_posts").select("id, slug, thumbnail_url, hero_image_url");
 if (postsError) throw postsError;
 
 // Each imweb URL once, with the storage folder it should land in.
@@ -58,7 +58,7 @@ for (const s of (spots ?? []) as Spot[]) {
   for (const u of [s.thumbnail_url, ...asImages(s.images)]) if (u && IMWEB.test(u) && !todo.has(u)) todo.set(u, `spots/${s.id}`);
 }
 for (const p of (posts ?? []) as Post[]) {
-  if (p.thumbnail_url && IMWEB.test(p.thumbnail_url) && !todo.has(p.thumbnail_url)) todo.set(p.thumbnail_url, `blog/${p.id}`);
+  for (const u of [p.thumbnail_url, p.hero_image_url]) if (u && IMWEB.test(u) && !todo.has(u)) todo.set(u, `blog/${p.id}`);
 }
 
 console.log(`${todo.size} imweb image(s) referenced by ${spots?.length ?? 0} spots and ${posts?.length ?? 0} posts.`);
@@ -116,8 +116,9 @@ for (const s of (spots ?? []) as Spot[]) {
 let postRows = 0;
 for (const p of (posts ?? []) as Post[]) {
   const thumb = swap(p.thumbnail_url);
-  if (thumb === p.thumbnail_url) continue;
-  const { error } = await db.from("blog_posts").update({ thumbnail_url: thumb }).eq("id", p.id);
+  const hero = swap(p.hero_image_url);
+  if (thumb === p.thumbnail_url && hero === p.hero_image_url) continue;
+  const { error } = await db.from("blog_posts").update({ thumbnail_url: thumb, hero_image_url: hero }).eq("id", p.id);
   if (error) failed.push(`post ${p.slug}: ${error.message}`);
   else postRows++;
 }

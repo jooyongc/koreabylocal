@@ -1,4 +1,5 @@
 import { Star, MapPin } from "lucide-react";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import type { Tables } from "@/types/database";
 
 export const AFFILIATE_EXPERIENCE_COLUMNS =
@@ -46,10 +47,10 @@ export default function AffiliateExperienceCard({ x }: { x: AffiliateExperienceR
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-cream-200">
         {image && (
-          <img
+          <OptimizedImage
             src={image}
             alt={x.title}
-            loading="lazy"
+            preset="card"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         )}

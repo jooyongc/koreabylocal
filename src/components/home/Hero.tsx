@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useFeaturedBlogPost } from "@/hooks/useConcepts";
+import OptimizedImage from "@/components/common/OptimizedImage";
 
 const AREAS = ["SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
 
@@ -64,9 +65,12 @@ export default function Hero() {
                   in and cut that baked-in text off. */}
               {image && (
                 <div className="relative aspect-[16/8] w-full overflow-hidden rounded-[14px]">
-                  <img
+                  {/* The homepage's largest paint: resized and fetched first. */}
+                  <OptimizedImage
                     src={image}
                     alt={post.title}
+                    preset="card"
+                    priority
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
