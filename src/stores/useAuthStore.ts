@@ -85,6 +85,9 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         event === "USER_UPDATED"
       ) {
         if (session?.user) {
+          // The hourly token refresh, or a repeat SIGNED_IN for whoever is
+          // already loaded, doesn't change the profile — skip the round trip.
+          if (event !== "USER_UPDATED" && get().user?.id === session.user.id) return;
           const profile = await fetchProfile(session.user.id);
           set({ user: profile, isLoading: false });
         }

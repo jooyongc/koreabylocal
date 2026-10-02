@@ -86,7 +86,7 @@ export const onRequest = async (context: { request: Request; next: () => Promise
   if (article) {
     return withHead(context, async () => {
       const post = await one(
-        `blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}`,
+        `blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,hero_image_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}`,
       );
       return post ? articleMeta(post, url.origin) : null;
     });
@@ -100,7 +100,7 @@ export const onRequest = async (context: { request: Request; next: () => Promise
       );
       if (!row) return null;
       const region = row.region
-        ? await one(`regions?select=name&key=eq.${encodeURIComponent(row.region)}`)
+        ? await one(`regions?select=name&key=ilike.${encodeURIComponent(row.region)}`)
         : null;
       return spotMeta(row, region?.name ?? null, url.origin);
     });
@@ -119,13 +119,30 @@ export const onRequest = async (context: { request: Request; next: () => Promise
   return context.next();
 };
 
-/** First row of a PostgREST query against the koreabylocal schema, or null. */
+/**
+ * First row of a PostgREST query against the koreabylocal schema, or null.
+ * Cached at the edge for a few minutes: an uncached lookup added ~0.3 s to
+ * every article and spot page, and a post edited in the CMS only needs to show
+ * its new title to crawlers within minutes, not instantly.
+ */
+const LOOKUP_TTL_SECONDS = 300;
 // deno-lint-ignore no-explicit-any
 async function one(query: string): Promise<any | null> {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${query}&limit=1`, {
-    headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" },
-  });
-  if (!res.ok) return null;
+  const url = `${SUPABASE_URL}/rest/v1/${query}&limit=1`;
+  // deno-lint-ignore no-explicit-any
+  const cache = (globalThis as any).caches?.default as Cache | undefined;
+  let res = cache ? await cache.match(url) : undefined;
+  if (!res) {
+    res = await fetch(url, {
+      headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" },
+    });
+    if (!res.ok) return null;
+    if (cache) {
+      const copy = new Response(res.clone().body, res);
+      copy.headers.set("Cache-Control", `public, max-age=${LOOKUP_TTL_SECONDS}`);
+      await cache.put(url, copy).catch(() => {});
+    }
+  }
   const [row] = await res.json();
   return row ?? null;
 }

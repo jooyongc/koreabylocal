@@ -3,7 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
 
-export type AdminSpotRow = Tables<"experiences">;
+// Only what the list table shows, not every column of every spot.
+const LIST_COLUMNS = "id, title, slug, thumbnail_url, region, spot_type, is_active, editor_pick, sort_order, created_at";
+export type AdminSpotRow = Pick<
+  Tables<"experiences">,
+  "id" | "title" | "slug" | "thumbnail_url" | "region" | "spot_type" | "is_active" | "editor_pick" | "sort_order" | "created_at"
+>;
 
 const PAGE_SIZE = 20;
 
@@ -21,12 +26,13 @@ export function useAdminSpotList() {
     queryFn: async () => {
       let q = supabase
         .from("experiences")
-        .select("*", { count: "exact" })
+        .select(LIST_COLUMNS, { count: "exact" })
         .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
 
       if (search) q = q.ilike("title", `%${search}%`);
-      if (region) q = q.eq("region", region);
+      // Spots store the region name ("Seoul"); the filter passes the key ("seoul").
+      if (region) q = q.ilike("region", region);
       if (spotType) q = q.eq("spot_type", spotType);
 
       const from = (page - 1) * PAGE_SIZE;

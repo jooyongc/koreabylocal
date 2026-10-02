@@ -14,6 +14,8 @@
 // page it always did — react-helmet simply overwrites tags that already say
 // the right thing.
 
+import { responsiveImage, type ResponsiveImage } from "../src/lib/imageUrl.ts";
+
 const ESCAPES: Record<string, string> = {
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 };
@@ -36,6 +38,12 @@ export interface ArticleMeta {
   kind: "article" | "page";
   /** Structured data for a plain page (a spot's LocalBusiness, say). */
   jsonLd?: Record<string, unknown> | null;
+  /**
+   * The page's hero, preloaded so the browser starts it with the HTML instead
+   * of after the JS has run. Same URLs the page's <img> asks for, or it would
+   * be downloaded twice.
+   */
+  hero?: ResponsiveImage | null;
 }
 
 export function buildHead(meta: ArticleMeta, siteName = "Korea by Local"): string {
@@ -52,6 +60,12 @@ export function buildHead(meta: ArticleMeta, siteName = "Korea by Local"): strin
     `<meta name="twitter:title" content="${esc(meta.title)}"/>`,
     `<meta name="twitter:description" content="${esc(meta.description)}"/>`,
   ];
+  if (meta.hero) {
+    const set = meta.hero.srcSet
+      ? ` imagesrcset="${esc(meta.hero.srcSet)}" imagesizes="${esc(meta.hero.sizes ?? "100vw")}"`
+      : "";
+    parts.push(`<link rel="preload" as="image" href="${esc(meta.hero.src)}"${set} fetchpriority="high"/>`);
+  }
   if (meta.image) {
     parts.push(`<meta property="og:image" content="${esc(meta.image)}"/>`);
     parts.push(`<meta name="twitter:image" content="${esc(meta.image)}"/>`);
@@ -103,7 +117,7 @@ export function articleMeta(
   post: {
     title: string; slug: string; excerpt?: string | null; content?: string | null;
     seo_title?: string | null; seo_description?: string | null;
-    thumbnail_url?: string | null; published_at?: string | null;
+    thumbnail_url?: string | null; hero_image_url?: string | null; published_at?: string | null;
     updated_at?: string | null; author?: string | null; category?: string | null;
   },
   origin: string,
@@ -123,6 +137,10 @@ export function articleMeta(
     author: post.author ?? "Korea by Local",
     section: post.category ?? null,
     kind: "article",
+    // GuideDetailPage's hero: hero_image_url, else the thumbnail, at preset "full".
+    hero: post.hero_image_url || post.thumbnail_url
+      ? responsiveImage((post.hero_image_url || post.thumbnail_url)!, "full")
+      : null,
   };
 }
 
@@ -158,6 +176,8 @@ export function spotMeta(
     canonical,
     image,
     kind: "page",
+    // SpotDetailPage's hero at preset "full".
+    hero: image ? responsiveImage(image, "full") : null,
     jsonLd: compact({
       "@context": "https://schema.org",
       "@type": "LocalBusiness",

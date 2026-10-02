@@ -6,7 +6,6 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "react-hot-toast";
 import App from "./App";
 import "./styles/globals.css";
-import "./i18n";
 
 // Auto-recover from stale chunks after a deploy: when a lazy-loaded chunk's
 // hashed filename no longer exists (new deploy), the dynamic import fails. Reload

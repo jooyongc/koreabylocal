@@ -19,6 +19,7 @@ import { useExperiences, useRegion } from "@/hooks/useConcepts";
 import { useBlogPostsBySlugs } from "@/hooks/useBlogPost";
 import { supabase } from "@/lib/supabase";
 import SpotCard from "@/components/home/SpotCard";
+import OptimizedImage from "@/components/common/OptimizedImage";
 
 function money(n: number | null, currency: string | null): string | undefined {
   // price is NOT NULL DEFAULT 0 and the spot form never sets it, so 0 means "no price".
@@ -93,7 +94,7 @@ export default function SpotDetailPage() {
       {/* 1. Hero */}
       {hero && (
         <div className="h-[400px] w-full overflow-hidden bg-cream-200">
-          <img src={hero} alt={spot.title} className="h-full w-full object-cover" />
+          <OptimizedImage src={hero} alt={spot.title} preset="full" priority className="h-full w-full object-cover" />
         </div>
       )}
 

@@ -5,6 +5,13 @@ import type { Inquiry } from "@/types";
 
 const PAGE_SIZE = 20;
 
+// Only what the list table shows — the message body and attachments load on the detail page.
+const LIST_COLUMNS = "id, name, email, subject, category, status, payment_status, ai_triage, created_at";
+export type AdminInquiryListRow = Pick<
+  Inquiry,
+  "id" | "name" | "email" | "subject" | "category" | "status" | "payment_status" | "ai_triage" | "created_at"
+>;
+
 export function useAdminInquiryList() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -18,7 +25,7 @@ export function useAdminInquiryList() {
     queryFn: async () => {
       let q = supabase
         .from("inquiries")
-        .select("*", { count: "exact" })
+        .select(LIST_COLUMNS, { count: "exact" })
         .order("created_at", { ascending: false });
 
       if (status) q = q.eq("status", status);
@@ -35,7 +42,7 @@ export function useAdminInquiryList() {
       if (error) throw error;
 
       return {
-        inquiries: (data ?? []) as Inquiry[],
+        inquiries: (data ?? []) as AdminInquiryListRow[],
         totalCount: count ?? 0,
         totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
       };

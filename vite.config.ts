@@ -15,12 +15,14 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            // React core
+            // React core. Anchored to the package directory: a bare "/react/"
+            // also matched node_modules/@tiptap/react/, which dragged the
+            // admin editor into this always-loaded chunk on every public page.
             if (
-              id.includes("/react/") ||
-              id.includes("/react-dom/") ||
-              id.includes("/react-router") ||
-              id.includes("/scheduler/")
+              id.includes("/node_modules/react/") ||
+              id.includes("/node_modules/react-dom/") ||
+              id.includes("/node_modules/react-router") ||
+              id.includes("/node_modules/scheduler/")
             ) {
               return "vendor";
             }

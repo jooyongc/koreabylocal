@@ -7,6 +7,7 @@ import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
 import { useBlogPost } from "@/hooks/useBlogPost";
 import { BlogContent, ShareButtons, RelatedBlogPosts, PostNavigation } from "@/components/blog";
 import { Skeleton } from "@/components/common/Skeleton";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import { supabase } from "@/lib/supabase";
 import { useRegions, useExperiences } from "@/hooks/useConcepts";
 import SpotCard from "@/components/home/SpotCard";
@@ -234,11 +235,14 @@ export default function GuideDetailPage() {
       {/* Hero image — a topic-relevant image (not the list thumbnail) */}
       {heroImage && (
         <section className="mx-auto max-w-[1000px] px-4 sm:px-6">
-          <div
-            role="img"
-            aria-label={post.title}
-            className="aspect-[16/8] rounded-[20px] bg-cover bg-center shadow-[0_14px_40px_rgba(26,26,26,0.14)]"
-            style={{ backgroundImage: `url(${heroImage})` }}
+          {/* A real <img> with priority: as a CSS background the browser only
+              found it after React rendered, which was most of the page's LCP. */}
+          <OptimizedImage
+            src={heroImage}
+            alt={post.title}
+            preset="full"
+            priority
+            className="aspect-[16/8] w-full rounded-[20px] bg-cream-200 object-cover shadow-[0_14px_40px_rgba(26,26,26,0.14)]"
           />
         </section>
       )}

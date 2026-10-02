@@ -5,6 +5,14 @@ import type { BlogPost } from "@/types";
 
 const PAGE_SIZE = 20;
 
+// Only what the list table shows: select("*") pulled every article's full HTML
+// (~136 KB per page of 20 instead of ~9 KB).
+const LIST_COLUMNS = "id, title, slug, category, status, thumbnail_url, view_count, created_at";
+export type AdminBlogListRow = Pick<
+  BlogPost,
+  "id" | "title" | "slug" | "category" | "status" | "thumbnail_url" | "view_count" | "created_at"
+>;
+
 export function useAdminBlogList() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -18,7 +26,7 @@ export function useAdminBlogList() {
     queryFn: async () => {
       let q = supabase
         .from("blog_posts")
-        .select("*", { count: "exact" })
+        .select(LIST_COLUMNS, { count: "exact" })
         .order("created_at", { ascending: false });
 
       if (search) q = q.ilike("title", `%${search}%`);
@@ -31,7 +39,7 @@ export function useAdminBlogList() {
       if (error) throw error;
 
       return {
-        posts: (data ?? []) as BlogPost[],
+        posts: (data ?? []) as AdminBlogListRow[],
         totalCount: count ?? 0,
         totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
       };
