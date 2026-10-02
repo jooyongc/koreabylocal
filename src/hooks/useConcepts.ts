@@ -85,26 +85,35 @@ export function useEditorPickSpot() {
   });
 }
 
-export type FeaturedBlogPostRow = Pick<
-  Tables<"blog_posts">,
-  "slug" | "title" | "excerpt" | "category" | "thumbnail_url" | "hero_image_url"
->;
+export type HeroPostRow = Pick<Tables<"blog_posts">, "slug" | "title" | "excerpt" | "category" | "hero_image_url"> & {
+  /** Pinned by an admin ("featured"), rather than just recent. */
+  featured: boolean;
+};
 
-/** The single blog post an admin has flagged to appear in the homepage Hero. */
-export function useFeaturedBlogPost() {
+const HERO_POST_COLUMNS = "slug, title, excerpt, category, hero_image_url";
+
+/**
+ * The posts the homepage Hero rotates through: the one an admin pinned as
+ * featured first (if any), then the latest published posts, `count` in all.
+ */
+export function useHeroPosts(count = 5) {
   return useQuery({
-    queryKey: ["featured-blog-post"],
-    queryFn: async (): Promise<FeaturedBlogPostRow | null> => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("slug, title, excerpt, category, thumbnail_url, hero_image_url")
-        .eq("status", "published")
-        .eq("featured", true)
-        .order("published_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
+    queryKey: ["hero-posts", count],
+    queryFn: async (): Promise<HeroPostRow[]> => {
+      const published = () => supabase.from("blog_posts").select(HERO_POST_COLUMNS).eq("status", "published");
+      const [pinned, latest] = await Promise.all([
+        published().eq("featured", true).order("published_at", { ascending: false }).limit(1).maybeSingle(),
+        published().order("published_at", { ascending: false }).limit(count),
+      ]);
+      if (pinned.error) throw pinned.error;
+      if (latest.error) throw latest.error;
+
+      const rows: HeroPostRow[] = pinned.data ? [{ ...pinned.data, featured: true }] : [];
+      for (const p of latest.data ?? []) {
+        if (rows.length >= count) break;
+        if (!rows.some((r) => r.slug === p.slug)) rows.push({ ...p, featured: false });
+      }
+      return rows;
     },
   });
 }
