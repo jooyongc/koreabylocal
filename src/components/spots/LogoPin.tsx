@@ -1,10 +1,11 @@
-const PINK = "#FF33CD"; // the logo symbol's pink
+const PINK = "#FC33D4"; // the round symbol's pink
 
 /**
- * Map pin made from the official logo symbol (the pink "LO" with the smile,
- * public/map-pin-symbol.png, cut from the brand folder's KoreabyLocal_fabicon
- * .png) on a white tile, with a pink tail whose tip marks the spot. The tip is
- * the bottom centre, which is where an AdvancedMarker anchors custom content.
+ * Map pin made from the brand's round symbol — white "LO" and smile on a pink
+ * disc (public/map-pin-symbol.png, scaled from the 16384 px original) — with a
+ * thin white ring to lift it off the grey map and a pink tail whose tip marks
+ * the spot. The tip is the bottom centre, where an AdvancedMarker anchors
+ * custom content.
  */
 export default function LogoPin({ active = false }: { active?: boolean }) {
   return (
@@ -16,11 +17,18 @@ export default function LogoPin({ active = false }: { active?: boolean }) {
         filter: `drop-shadow(0 ${active ? 6 : 3}px ${active ? 8 : 4}px rgba(18, 24, 74, ${active ? 0.4 : 0.28}))`,
       }}
     >
-      <div className="rounded-[12px] bg-white p-[3px]" style={{ boxShadow: `0 0 0 2px ${PINK}` }}>
-        <img src="/map-pin-symbol.png" width={38} height={38} alt="" draggable={false} className="block rounded-[9px]" />
-      </div>
-      <svg width="14" height="9" viewBox="0 0 14 9" aria-hidden className="-mt-px block">
-        <path d="M0 0h14L7 9z" fill={PINK} />
+      <img
+        src="/map-pin-symbol.png"
+        width={44}
+        height={44}
+        alt=""
+        draggable={false}
+        className="block rounded-full"
+        style={{ boxShadow: "0 0 0 2.5px #fff" }}
+      />
+      {/* Tucked under the disc so the pink joins it over the white ring. */}
+      <svg width="14" height="10" viewBox="0 0 14 10" aria-hidden className="-mt-[3px] block">
+        <path d="M0 0h14L7 10z" fill={PINK} />
       </svg>
     </div>
   );
