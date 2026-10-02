@@ -1,9 +1,12 @@
+import pinSymbol from "@/assets/map-pin-symbol.png";
+
 const PINK = "#FC33D4"; // the round symbol's pink
 
 /**
  * Map pin made from the brand's round symbol — white "LO" and smile on a pink
- * disc (public/map-pin-symbol.png, scaled from the 16384 px original) — with a
- * thin white ring to lift it off the grey map and a pink tail whose tip marks
+ * disc (src/assets/map-pin-symbol.png, scaled from the 16384 px original;
+ * imported so its URL is content-hashed and a new pin never hides behind a
+ * cached old one) — with a thin white ring to lift it off the grey map and a pink tail whose tip marks
  * the spot. The tip is the bottom centre, where an AdvancedMarker anchors
  * custom content.
  */
@@ -18,7 +21,7 @@ export default function LogoPin({ active = false }: { active?: boolean }) {
       }}
     >
       <img
-        src="/map-pin-symbol.png"
+        src={pinSymbol}
         width={44}
         height={44}
         alt=""
