@@ -2,7 +2,7 @@ import { useState } from "react";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { Loader2, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
+import { Loader2, Lock, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
 import toast from "react-hot-toast";
 import PageSEO from "@/components/common/PageSEO";
 import { useEbooks } from "@/hooks/useEbooks";
@@ -37,12 +37,16 @@ const FAQS = [
     a: "A downloadable PDF, readable on any phone, tablet, e-reader or computer.",
   },
   {
+    q: "How do I pay?",
+    a: "Through PayPal's secure checkout. Your download button appears the moment payment goes through, and the link is emailed to you too.",
+  },
+  {
     q: "What's your refund policy?",
     a: "Full refund within 7 days if it's not for you — just email us.",
   },
   {
     q: "Do I get future updates?",
-    a: "Yes. Major updates are free — redownload anytime from the same link.",
+    a: "Yes. Major updates are free — email us and we'll send you a fresh download link.",
   },
 ];
 
@@ -173,6 +177,9 @@ export default function EbookPage() {
                 Free Sample — 2 chapters
               </button>
             </div>
+            <p className="mt-3 flex items-center gap-1.5 text-[12px] text-muted-2">
+              <Lock className="h-3 w-3" /> You'll pay on PayPal's secure checkout page. Full refund within 7 days.
+            </p>
           </div>
         </div>
 

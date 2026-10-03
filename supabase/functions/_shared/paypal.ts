@@ -1,12 +1,13 @@
 // PayPal Orders v2, server side. The browser is never trusted to say a payment
 // happened — it only hands back an order id, and we ask PayPal ourselves.
 //
-// Redirect flow, which is what the Ask a Local checkout needs:
+// Redirect flow, used by both paid things on the site (Ask a Local and the
+// e-book):
 //   createOrder() → send the buyer to approveUrl → PayPal returns them to
 //   returnUrl?token=<orderId> → captureOrder(orderId) takes the money.
 //
 // REQUIRED secrets: PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET.
-// Optional: PAYPAL_ENV=live|sandbox (default live, matching verify-paypal-order).
+// Optional: PAYPAL_ENV=live|sandbox (default live).
 
 const ENV = () => (Deno.env.get("PAYPAL_ENV") ?? "live").toLowerCase();
 const base = () => (ENV() === "sandbox" ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com");
@@ -114,6 +115,7 @@ export interface CaptureResult {
   currency: string | null;
   captureId: string | null;
   payerEmail: string | null;
+  payerName: string | null;
 }
 
 /**
@@ -134,19 +136,20 @@ export async function captureOrder(orderId: string, opts: PayPalOptions = {}): P
   if (!res.ok) {
     const alreadyCaptured = JSON.stringify(data).includes("ORDER_ALREADY_CAPTURED");
     if (!alreadyCaptured) {
-      return { ok: false, status: `http_${res.status}`, referenceId: null, amount: null, currency: null, captureId: null, payerEmail: null };
+      return { ok: false, status: `http_${res.status}`, referenceId: null, amount: null, currency: null, captureId: null, payerEmail: null, payerName: null };
     }
     const lookup = await doFetch(`${base()}/v2/checkout/orders/${encodeURIComponent(orderId)}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     data = await lookup.json().catch(() => ({}));
     if (!lookup.ok) {
-      return { ok: false, status: `http_${lookup.status}`, referenceId: null, amount: null, currency: null, captureId: null, payerEmail: null };
+      return { ok: false, status: `http_${lookup.status}`, referenceId: null, amount: null, currency: null, captureId: null, payerEmail: null, payerName: null };
     }
   }
 
   const unit = data.purchase_units?.[0];
   const capture = unit?.payments?.captures?.[0];
+  const payerName = [data.payer?.name?.given_name, data.payer?.name?.surname].filter(Boolean).join(" ");
 
   return {
     ok: data.status === "COMPLETED",
@@ -156,5 +159,6 @@ export async function captureOrder(orderId: string, opts: PayPalOptions = {}): P
     currency: capture?.amount?.currency_code ?? unit?.amount?.currency_code ?? null,
     captureId: capture?.id ?? null,
     payerEmail: data.payer?.email_address ?? null,
+    payerName: payerName || null,
   };
 }

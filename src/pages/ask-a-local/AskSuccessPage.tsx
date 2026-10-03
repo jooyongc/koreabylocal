@@ -13,9 +13,7 @@ type State = "capturing" | "done" | "failed";
  */
 export default function AskSuccessPage() {
   const [searchParams] = useSearchParams();
-  // Polar used checkout_id; kept so a link from an older checkout still lands
-  // somewhere sensible rather than on "nothing to show here".
-  const orderId = searchParams.get("token") ?? searchParams.get("checkout_id");
+  const orderId = searchParams.get("token");
 
   const [state, setState] = useState<State>(orderId ? "capturing" : "failed");
   // React runs effects twice in StrictMode; one payment should mean one call.

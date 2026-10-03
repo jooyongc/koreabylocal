@@ -211,7 +211,7 @@ export default function AskALocalPage() {
             </button>
           </div>
           <p className="mt-2.5 flex items-center gap-1.5 text-[12px] text-muted-2">
-            <Lock className="h-3 w-3" /> You'll pay $1 on a secure checkout page. Your question is sent to a
+            <Lock className="h-3 w-3" /> You'll pay $1 on PayPal's secure checkout page. Your question is sent to a
             local the moment payment goes through.
           </p>
 
