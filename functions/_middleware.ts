@@ -106,7 +106,9 @@ export const onRequest = async (context: { request: Request; next: () => Promise
       const post = await one(
         `blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,hero_image_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}`,
       );
-      return post ? articleMeta(post, url.origin) : null;
+      return post
+        ? { meta: articleMeta(post, url.origin), article: post }
+        : { meta: null, missing: true };
     });
   }
 
@@ -167,23 +169,68 @@ async function one(query: string): Promise<any | null> {
 
 async function withHead(
   context: { next: () => Promise<Response> },
-  lookup: () => Promise<ArticleMeta | null>,
+  lookup: () => Promise<ArticleMeta | null | { meta: ArticleMeta | null; article?: {title:string;content?:string|null}; missing?:boolean }>,
 ): Promise<Response> {
   const response = await context.next();
   const type = response.headers.get("content-type") ?? "";
   if (!response.ok || !type.includes("text/html")) return response;
 
   try {
-    const meta = await lookup();
+    const found = await lookup();
+    const meta = found && "meta" in found ? found.meta : found;
+    if (found && "missing" in found && found.missing) {
+      const headers = new Headers(response.headers);
+      headers.delete("content-length");
+      headers.set("Cache-Control", "no-store");
+      return new Response(await response.text(), { status: 404, headers });
+    }
     if (!meta) return response;
 
-    const html = injectHead(await response.text(), buildHead(meta));
+    let html = injectHead(await response.text(), buildHead(meta));
     const headers = new Headers(response.headers);
     headers.delete("content-length");
-    return new Response(html, { status: response.status, headers });
+    const article = found && "article" in found ? found.article : undefined;
+    if (!article) return new Response(html, { status: response.status, headers });
+    const safeContent = await sanitizeArticle(article.content ?? "");
+    const faq = Array.from(safeContent.matchAll(/<strong>Q:\s*([\s\S]*?)<\/strong>\s*<br\s*\/?>(?:\s*)A:\s*([\s\S]*?)(?=<\/p>)/gi), match => ({
+      "@type": "Question", name: plain(match[1]),
+      acceptedAnswer: { "@type": "Answer", text: plain(match[2]) },
+    })).filter(row => row.name && row.acceptedAnswer.text);
+    if (faq.length >= 3 && faq.length <= 5) {
+      const faqJson = JSON.stringify({"@context":"https://schema.org","@type":"FAQPage",mainEntity:faq}).replace(/</g, "\\u003c");
+      html = html.replace("</head>", `<script type="application/ld+json">${faqJson}</script></head>`);
+    }
+    const body = `<article class="crawler-article"><h1>${escapeHtml(article.title)}</h1>${safeContent}</article>`;
+    return new HTMLRewriter()
+      .on("#root", { element(element) { element.setInnerContent(body, { html: true }); } })
+      .transform(new Response(html, { status: response.status, headers }));
   } catch {
     // A page with the generic head still works; a page that failed to load
     // does not. Never let the lookup break the response.
     return response;
   }
+}
+
+const unsafeTags = new Set(["script", "style", "iframe", "object", "embed", "svg", "form", "input", "button", "template"]);
+const semanticTags = new Set(["p", "h2", "h3", "h4", "ul", "ol", "li", "a", "img", "strong", "em", "blockquote", "table", "thead", "tbody", "tr", "th", "td", "br", "hr", "figure", "figcaption", "code", "pre"]);
+const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
+const plain = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/&(?:amp|lt|gt|quot|#39|nbsp);/g, entity => ({"&amp;":"&","&lt;":"<","&gt;":">","&quot;":'"',"&#39;":"'","&nbsp;":" "}[entity]!)).replace(/\s+/g, " ").trim();
+
+/** Render real, published article text in the first HTML response for non-JS crawlers. */
+async function sanitizeArticle(content: string): Promise<string> {
+  const source = new Response(content.slice(0, 200000), { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  return new HTMLRewriter().on("*", {
+    element(element) {
+      const tag = element.tagName.toLowerCase();
+      if (unsafeTags.has(tag)) { element.remove(); return; }
+      if (!semanticTags.has(tag)) { element.removeAndKeepContent(); return; }
+      for (const [name, value] of Array.from(element.attributes)) {
+        const key = name.toLowerCase();
+        const isHref = tag === "a" && key === "href" && /^(https:\/\/|\/[^/]|#)/i.test(value);
+        const isSrc = tag === "img" && key === "src" && /^https:\/\//i.test(value);
+        const isAlt = tag === "img" && key === "alt";
+        if (!isHref && !isSrc && !isAlt) element.removeAttribute(name);
+      }
+    },
+  }).transform(source).text();
 }
