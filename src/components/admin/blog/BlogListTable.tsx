@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { Trash2, Eye } from "lucide-react";
-import type { BlogPost } from "@/types";
+import type { AdminBlogListRow } from "@/hooks/useAdminBlogList";
 
 const statusBadge: Record<string, string> = {
   published: "bg-green-100 text-green-700",
@@ -16,7 +16,7 @@ const categoryColor: Record<string, string> = {
 };
 
 interface Props {
-  posts: BlogPost[];
+  posts: AdminBlogListRow[];
   onDelete: (id: number) => void;
 }
 

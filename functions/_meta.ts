@@ -14,6 +14,8 @@
 // page it always did — react-helmet simply overwrites tags that already say
 // the right thing.
 
+import { responsiveImage, type ResponsiveImage } from "../src/lib/imageUrl.ts";
+
 const ESCAPES: Record<string, string> = {
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 };
@@ -34,6 +36,14 @@ export interface ArticleMeta {
   section?: string | null;
   /** Article pages get Article markup; everything else stays a plain page. */
   kind: "article" | "page";
+  /** Structured data for a plain page (a spot's LocalBusiness, say). */
+  jsonLd?: Record<string, unknown> | null;
+  /**
+   * The page's hero, preloaded so the browser starts it with the HTML instead
+   * of after the JS has run. Same URLs the page's <img> asks for, or it would
+   * be downloaded twice.
+   */
+  hero?: ResponsiveImage | null;
 }
 
 export function buildHead(meta: ArticleMeta, siteName = "Korea by Local"): string {
@@ -50,13 +60,20 @@ export function buildHead(meta: ArticleMeta, siteName = "Korea by Local"): strin
     `<meta name="twitter:title" content="${esc(meta.title)}"/>`,
     `<meta name="twitter:description" content="${esc(meta.description)}"/>`,
   ];
+  if (meta.hero) {
+    const set = meta.hero.srcSet
+      ? ` imagesrcset="${esc(meta.hero.srcSet)}" imagesizes="${esc(meta.hero.sizes ?? "100vw")}"`
+      : "";
+    parts.push(`<link rel="preload" as="image" href="${esc(meta.hero.src)}"${set} fetchpriority="high"/>`);
+  }
   if (meta.image) {
     parts.push(`<meta property="og:image" content="${esc(meta.image)}"/>`);
     parts.push(`<meta name="twitter:image" content="${esc(meta.image)}"/>`);
   }
 
+  let ld: Record<string, unknown> | null = meta.jsonLd ?? null;
   if (meta.kind === "article") {
-    const ld: Record<string, unknown> = {
+    ld = {
       "@context": "https://schema.org",
       "@type": "Article",
       headline: meta.title,
@@ -69,6 +86,8 @@ export function buildHead(meta: ArticleMeta, siteName = "Korea by Local"): strin
     if (meta.updatedAt) ld.dateModified = meta.updatedAt;
     if (meta.author) ld.author = { "@type": "Person", name: meta.author };
     if (meta.section) ld.articleSection = meta.section;
+  }
+  if (ld) {
     // </script> inside the JSON would close this tag early.
     parts.push(
       `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>`,
@@ -98,7 +117,7 @@ export function articleMeta(
   post: {
     title: string; slug: string; excerpt?: string | null; content?: string | null;
     seo_title?: string | null; seo_description?: string | null;
-    thumbnail_url?: string | null; published_at?: string | null;
+    thumbnail_url?: string | null; hero_image_url?: string | null; published_at?: string | null;
     updated_at?: string | null; author?: string | null; category?: string | null;
   },
   origin: string,
@@ -118,5 +137,90 @@ export function articleMeta(
     author: post.author ?? "Korea by Local",
     section: post.category ?? null,
     kind: "article",
+    // GuideDetailPage's hero: hero_image_url, else the thumbnail, at preset "full".
+    hero: post.hero_image_url || post.thumbnail_url
+      ? responsiveImage((post.hero_image_url || post.thumbnail_url)!, "full")
+      : null,
+  };
+}
+
+/** Drops undefined/null/"" so the JSON-LD carries only what we actually know. */
+const compact = (o: Record<string, unknown>) =>
+  Object.fromEntries(Object.entries(o).filter(([, v]) => v != null && v !== ""));
+
+// Spots and destinations mirror the strings their pages set through PageSEO,
+// so the crawler's first look and the rendered page agree.
+
+export function spotMeta(
+  spot: {
+    title: string; slug: string; tagline?: string | null; description?: string | null;
+    thumbnail_url?: string | null; images?: unknown; location?: string | null; area?: string | null;
+    address?: string | null; phone?: string | null; latitude?: number | null; longitude?: number | null;
+    hours?: string | null;
+  },
+  regionName: string | null,
+  origin: string,
+): ArticleMeta {
+  const place = regionName || spot.area || spot.location;
+  const images = Array.isArray(spot.images) ? spot.images.filter((i): i is string => typeof i === "string" && !!i) : [];
+  const image = spot.thumbnail_url || images[0] || null;
+  const description = (
+    spot.tagline?.trim() || spot.description?.trim() ||
+    `${spot.title} — a local spot in ${spot.location ?? "Korea"}.`
+  ).slice(0, 160);
+  const canonical = `${origin}/spots/${spot.slug}`;
+
+  return {
+    title: place ? `${spot.title} — ${place} | Korea by Local` : `${spot.title} | Korea by Local`,
+    description,
+    canonical,
+    image,
+    kind: "page",
+    // SpotDetailPage's hero at preset "full".
+    hero: image ? responsiveImage(image, "full") : null,
+    jsonLd: compact({
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: spot.title,
+      description,
+      image,
+      address: spot.address,
+      telephone: spot.phone,
+      url: canonical,
+      // (0, 0) is what the imweb import wrote for "no location".
+      geo: spot.latitude != null && spot.longitude != null && !(Number(spot.latitude) === 0 && Number(spot.longitude) === 0)
+        ? { "@type": "GeoCoordinates", latitude: spot.latitude, longitude: spot.longitude }
+        : null,
+      openingHours: spot.hours,
+    }),
+  };
+}
+
+export function regionMeta(
+  region: {
+    key: string; name: string; description?: string | null; blurb?: string | null;
+    cover_image_url?: string | null;
+  },
+  origin: string,
+): ArticleMeta {
+  const description = (
+    region.description?.trim() || region.blurb?.trim() || `Explore ${region.name} with Korea By Local.`
+  ).slice(0, 160);
+  const canonical = `${origin}/destinations/${region.key}`;
+
+  return {
+    title: `${region.name} Travel Guide — Local's Picks | Korea by Local`,
+    description,
+    canonical,
+    image: region.cover_image_url ?? null,
+    kind: "page",
+    jsonLd: compact({
+      "@context": "https://schema.org",
+      "@type": "TouristDestination",
+      name: region.name,
+      description,
+      image: region.cover_image_url,
+      url: canonical,
+    }),
   };
 }

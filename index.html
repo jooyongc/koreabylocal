@@ -83,8 +83,36 @@
     <link rel="preconnect" href="https://agkkvtfwqmzgbrqhvohs.supabase.co" crossorigin />
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Painted straight from the HTML, before any JS: the header the app is
+         about to render, so the first thing a visitor sees is the site, not a
+         blank page. React replaces it on mount; sizes match Header.tsx. -->
+    <style>
+      .boot{min-height:100vh;background:#fafaf8}
+      .boot-h{border-bottom:1px solid rgba(18,24,74,.1)}
+      .boot-i{max-width:1320px;margin:0 auto;padding:14px 16px;display:flex;align-items:center}
+      .boot-m{width:40px;height:40px;margin:0 4px 0 -4px}
+      .boot-i img{height:32px;width:auto;display:block}
+      @media (min-width:640px){.boot-i{padding:14px 24px}}
+      @media (min-width:1024px){.boot-i{padding:14px 32px}.boot-m{display:none}}
+    </style>
+    <div id="root"><div class="boot"><div class="boot-h"><div class="boot-i"><span class="boot-m"></span><img src="/logo.png" alt="Korea by Local" width="162" height="32" /></div></div></div></div>
+    <script>
+      // If the app still hasn't replaced the static shell a few seconds after
+      // load, its entry script failed (e.g. a deploy still rolling out to this
+      // edge) — reload once rather than leave a header over a blank page.
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          if (!document.querySelector("#root > .boot")) return;
+          try {
+            if (sessionStorage.getItem("kbl-boot-reload")) return;
+            sessionStorage.setItem("kbl-boot-reload", "1");
+          } catch (e) {
+            return;
+          }
+          location.reload();
+        }, 4000);
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
-    <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" defer></script>
   </body>
 </html>

@@ -1,8 +1,9 @@
-import { articleMeta, buildHead, injectHead } from "./_meta.ts";
+import { type ArticleMeta, articleMeta, buildHead, injectHead, regionMeta, spotMeta } from "./_meta.ts";
 
 // (1) 301 legacy Imweb blog URLs -> /guidebook/<slug> (SEO continuity after cutover)
 // (2) /sitemap.xml proxied from the sitemap-generator edge function
-// (3) real per-article metadata injected into the SPA shell for /guidebook/<slug>
+// (3) real per-page metadata injected into the SPA shell for /guidebook/<slug>,
+//     /spots/<slug> and /destinations/<key>
 //
 // The MAP below is generated (.design-handoff/db/gen-redirects.mjs); the rest
 // of this file is hand-written.
@@ -57,6 +58,24 @@ const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) => {
   const url = new URL(context.request.url);
 
+  // A request for a build file that doesn't exist falls through to the SPA
+  // fallback and gets index.html with a 200 — and /assets/* is served
+  // "immutable" for a year. During a deploy's rollout, edges briefly hand out
+  // the new HTML before its new assets, so browsers cached the fallback HTML
+  // as the app's entry script and the site never started for them. A missing
+  // asset must be an uncached 404 instead, which the app's stale-chunk reload
+  // recovers from.
+  if (url.pathname.startsWith("/assets/")) {
+    const res = await context.next();
+    if ((res.headers.get("content-type") ?? "").includes("text/html")) {
+      return new Response("Not found", {
+        status: 404,
+        headers: { "Content-Type": "text/plain", "Cache-Control": "no-store" },
+      });
+    }
+    return res;
+  }
+
   // 301: legacy /blog/?bmode=view&idx=NNN -> /guidebook/<slug>
   if (url.searchParams.get("bmode") === "view") {
     const idx = url.searchParams.get("idx");
@@ -79,32 +98,139 @@ export const onRequest = async (context: { request: Request; next: () => Promise
     });
   }
 
-  // /guidebook/<slug>: serve the shell with this article's real head.
+  // /guidebook/<slug>, /spots/<slug>, /destinations/<key>: serve the shell
+  // with the page's own head.
   const article = url.pathname.match(/^\/guidebook\/([^/]+)\/?$/);
   if (article) {
-    const response = await context.next();
-    const type = response.headers.get("content-type") ?? "";
-    if (!response.ok || !type.includes("text/html")) return response;
-
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}&limit=1`,
-        { headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" } },
+    return withHead(context, async () => {
+      const post = await one(
+        `blog_posts?select=title,slug,excerpt,content,seo_title,seo_description,thumbnail_url,hero_image_url,published_at,updated_at,author,category&status=eq.published&slug=eq.${encodeURIComponent(article[1])}`,
       );
-      if (!res.ok) return response;
-      const [post] = await res.json();
-      if (!post) return response;
+      return post
+        ? { meta: articleMeta(post, url.origin), article: post }
+        : { meta: null, missing: true };
+    });
+  }
 
-      const html = injectHead(await response.text(), buildHead(articleMeta(post, url.origin)));
-      const headers = new Headers(response.headers);
-      headers.delete("content-length");
-      return new Response(html, { status: response.status, headers });
-    } catch {
-      // A page with the generic head still works; a page that failed to load
-      // does not. Never let the lookup break the response.
-      return response;
-    }
+  const spot = url.pathname.match(/^\/spots\/([^/]+)\/?$/);
+  if (spot) {
+    return withHead(context, async () => {
+      const row = await one(
+        `experiences?select=title,slug,tagline,description,thumbnail_url,images,region,area,location,address,phone,latitude,longitude,hours&is_active=eq.true&slug=eq.${encodeURIComponent(spot[1])}`,
+      );
+      if (!row) return null;
+      const region = row.region
+        ? await one(`regions?select=name&key=ilike.${encodeURIComponent(row.region)}`)
+        : null;
+      return spotMeta(row, region?.name ?? null, url.origin);
+    });
+  }
+
+  const destination = url.pathname.match(/^\/destinations\/([^/]+)\/?$/);
+  if (destination) {
+    return withHead(context, async () => {
+      const region = await one(
+        `regions?select=key,name,description,blurb,cover_image_url&key=eq.${encodeURIComponent(destination[1])}`,
+      );
+      return region ? regionMeta(region, url.origin) : null;
+    });
   }
 
   return context.next();
 };
+
+/**
+ * First row of a PostgREST query against the koreabylocal schema, or null.
+ * Cached at the edge for a few minutes: an uncached lookup added ~0.3 s to
+ * every article and spot page, and a post edited in the CMS only needs to show
+ * its new title to crawlers within minutes, not instantly.
+ */
+const LOOKUP_TTL_SECONDS = 300;
+// deno-lint-ignore no-explicit-any
+async function one(query: string): Promise<any | null> {
+  const url = `${SUPABASE_URL}/rest/v1/${query}&limit=1`;
+  // deno-lint-ignore no-explicit-any
+  const cache = (globalThis as any).caches?.default as Cache | undefined;
+  let res = cache ? await cache.match(url) : undefined;
+  if (!res) {
+    res = await fetch(url, {
+      headers: { Authorization: `Bearer ${ANON}`, apikey: ANON, "Accept-Profile": "koreabylocal" },
+    });
+    if (!res.ok) return null;
+    if (cache) {
+      const copy = new Response(res.clone().body, res);
+      copy.headers.set("Cache-Control", `public, max-age=${LOOKUP_TTL_SECONDS}`);
+      await cache.put(url, copy).catch(() => {});
+    }
+  }
+  const [row] = await res.json();
+  return row ?? null;
+}
+
+async function withHead(
+  context: { next: () => Promise<Response> },
+  lookup: () => Promise<ArticleMeta | null | { meta: ArticleMeta | null; article?: {title:string;content?:string|null}; missing?:boolean }>,
+): Promise<Response> {
+  const response = await context.next();
+  const type = response.headers.get("content-type") ?? "";
+  if (!response.ok || !type.includes("text/html")) return response;
+
+  try {
+    const found = await lookup();
+    const meta = found && "meta" in found ? found.meta : found;
+    if (found && "missing" in found && found.missing) {
+      const headers = new Headers(response.headers);
+      headers.delete("content-length");
+      headers.set("Cache-Control", "no-store");
+      return new Response(await response.text(), { status: 404, headers });
+    }
+    if (!meta) return response;
+
+    let html = injectHead(await response.text(), buildHead(meta));
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    const article = found && "article" in found ? found.article : undefined;
+    if (!article) return new Response(html, { status: response.status, headers });
+    const safeContent = await sanitizeArticle(article.content ?? "");
+    const faq = Array.from(safeContent.matchAll(/<strong>Q:\s*([\s\S]*?)<\/strong>\s*<br\s*\/?>(?:\s*)A:\s*([\s\S]*?)(?=<\/p>)/gi), match => ({
+      "@type": "Question", name: plain(match[1]),
+      acceptedAnswer: { "@type": "Answer", text: plain(match[2]) },
+    })).filter(row => row.name && row.acceptedAnswer.text);
+    if (faq.length >= 3 && faq.length <= 5) {
+      const faqJson = JSON.stringify({"@context":"https://schema.org","@type":"FAQPage",mainEntity:faq}).replace(/</g, "\\u003c");
+      html = html.replace("</head>", `<script type="application/ld+json">${faqJson}</script></head>`);
+    }
+    const body = `<article class="crawler-article"><h1>${escapeHtml(article.title)}</h1>${safeContent}</article>`;
+    return new HTMLRewriter()
+      .on("#root", { element(element) { element.setInnerContent(body, { html: true }); } })
+      .transform(new Response(html, { status: response.status, headers }));
+  } catch {
+    // A page with the generic head still works; a page that failed to load
+    // does not. Never let the lookup break the response.
+    return response;
+  }
+}
+
+const unsafeTags = new Set(["script", "style", "iframe", "object", "embed", "svg", "form", "input", "button", "template"]);
+const semanticTags = new Set(["p", "h2", "h3", "h4", "ul", "ol", "li", "a", "img", "strong", "em", "blockquote", "table", "thead", "tbody", "tr", "th", "td", "br", "hr", "figure", "figcaption", "code", "pre"]);
+const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
+const plain = (value: string) => value.replace(/<[^>]*>/g, " ").replace(/&(?:amp|lt|gt|quot|#39|nbsp);/g, entity => ({"&amp;":"&","&lt;":"<","&gt;":">","&quot;":'"',"&#39;":"'","&nbsp;":" "}[entity]!)).replace(/\s+/g, " ").trim();
+
+/** Render real, published article text in the first HTML response for non-JS crawlers. */
+async function sanitizeArticle(content: string): Promise<string> {
+  const source = new Response(content.slice(0, 200000), { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  return new HTMLRewriter().on("*", {
+    element(element) {
+      const tag = element.tagName.toLowerCase();
+      if (unsafeTags.has(tag)) { element.remove(); return; }
+      if (!semanticTags.has(tag)) { element.removeAndKeepContent(); return; }
+      for (const [name, value] of Array.from(element.attributes)) {
+        const key = name.toLowerCase();
+        const isHref = tag === "a" && key === "href" && /^(https:\/\/|\/[^/]|#)/i.test(value);
+        const isSrc = tag === "img" && key === "src" && /^https:\/\//i.test(value);
+        const isAlt = tag === "img" && key === "alt";
+        if (!isHref && !isSrc && !isAlt) element.removeAttribute(name);
+      }
+    },
+  }).transform(source).text();
+}

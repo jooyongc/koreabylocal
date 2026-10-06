@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
 import { supabase } from "@/lib/supabase";
+import { subscribe as addSubscriber } from "@/lib/subscribe";
 import { markSubscribed } from "@/lib/subscription";
 
 export default function NewsletterCta() {
@@ -15,12 +16,9 @@ export default function NewsletterCta() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail || submitting) return;
     setSubmitting(true);
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source: "guidebook_cta",
-    });
+    const { error } = await addSubscriber(trimmedEmail, "guidebook_cta");
     setSubmitting(false);
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    if (error) {
       toast.error("Something went wrong — please try again.");
       return;
     }

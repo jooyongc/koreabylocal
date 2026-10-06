@@ -19,9 +19,12 @@ import { useExperiences, useRegion } from "@/hooks/useConcepts";
 import { useBlogPostsBySlugs } from "@/hooks/useBlogPost";
 import { supabase } from "@/lib/supabase";
 import SpotCard from "@/components/home/SpotCard";
+import OptimizedImage from "@/components/common/OptimizedImage";
+import { isRealLocation } from "@/lib/geo";
 
 function money(n: number | null, currency: string | null): string | undefined {
-  if (n == null) return undefined;
+  // price is NOT NULL DEFAULT 0 and the spot form never sets it, so 0 means "no price".
+  if (n == null || Number(n) <= 0) return undefined;
   const symbol = currency === "KRW" ? "₩" : currency === "JPY" ? "¥" : "$";
   return `${symbol}${Number(n) % 1 === 0 ? n : Number(n).toFixed(2)}`;
 }
@@ -73,7 +76,7 @@ export default function SpotDetailPage() {
     address: spot.address ?? undefined,
     telephone: spot.phone ?? undefined,
     url: `${SITE_URL}/spots/${spot.slug}`,
-    ...(spot.latitude != null && spot.longitude != null
+    ...(isRealLocation(spot.latitude, spot.longitude)
       ? { geo: { "@type": "GeoCoordinates", latitude: spot.latitude, longitude: spot.longitude } }
       : {}),
     ...(spot.hours ? { openingHours: spot.hours } : {}),
@@ -92,7 +95,7 @@ export default function SpotDetailPage() {
       {/* 1. Hero */}
       {hero && (
         <div className="h-[400px] w-full overflow-hidden bg-cream-200">
-          <img src={hero} alt={spot.title} className="h-full w-full object-cover" />
+          <OptimizedImage src={hero} alt={spot.title} preset="full" priority className="h-full w-full object-cover" />
         </div>
       )}
 
@@ -208,7 +211,7 @@ export default function SpotDetailPage() {
               )}
             </div>
 
-            {spot.latitude != null && spot.longitude != null && (
+            {isRealLocation(spot.latitude, spot.longitude) && (
               <div className="mt-6 overflow-hidden rounded-2xl border border-ink/10">
                 <iframe
                   title={`Map to ${spot.title}`}

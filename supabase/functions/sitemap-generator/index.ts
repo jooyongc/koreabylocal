@@ -60,7 +60,7 @@ Deno.serve(async (_req: Request) => {
   for (const page of [
     { loc: "/", priority: "1.0", changefreq: "daily" },
     { loc: "/guidebook", priority: "0.9", changefreq: "daily" },
-    { loc: "/experiences", priority: "0.9", changefreq: "weekly" },
+    { loc: "/things-to-do", priority: "0.9", changefreq: "weekly" },
     { loc: "/getting-there", priority: "0.7", changefreq: "weekly" },
     { loc: "/getting-there/transportation", priority: "0.7", changefreq: "weekly" },
     { loc: "/getting-there/tour-planning", priority: "0.7", changefreq: "weekly" },

@@ -1,6 +1,30 @@
 import { useState } from "react";
 import { Share2, Link as LinkIcon, Check } from "lucide-react";
 
+// KakaoTalk sharing needs the app's JavaScript key; without one the SDK can't
+// initialise, so the button is hidden rather than shown broken. The SDK itself
+// is fetched on the first click instead of on every page load.
+const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY as string | undefined;
+const KAKAO_SDK = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js";
+
+function loadKakao(): Promise<NonNullable<Window["Kakao"]>> {
+  return new Promise((resolve, reject) => {
+    const ready = () => {
+      const k = window.Kakao;
+      if (!k) return reject(new Error("kakao_unavailable"));
+      if (!k.isInitialized()) k.init(KAKAO_JS_KEY!);
+      resolve(k);
+    };
+    if (window.Kakao) return ready();
+    const script = document.createElement("script");
+    script.src = KAKAO_SDK;
+    script.async = true;
+    script.onload = ready;
+    script.onerror = () => reject(new Error("kakao_unavailable"));
+    document.head.appendChild(script);
+  });
+}
+
 interface ShareButtonsProps {
   url: string;
   title: string;
@@ -16,9 +40,10 @@ export default function ShareButtons({
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const shareKakao = () => {
-    if (!window.Kakao?.Share) return;
-    window.Kakao.Share.sendDefault({
+  const shareKakao = async () => {
+    const kakao = await loadKakao().catch(() => null);
+    if (!kakao) return;
+    kakao.Share.sendDefault({
       objectType: "feed",
       content: {
         title,
@@ -39,7 +64,7 @@ export default function ShareButtons({
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       "facebook-share",
-      "width=580,height=400"
+      "width=580,height=400",
     );
   };
 
@@ -47,7 +72,7 @@ export default function ShareButtons({
     window.open(
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
       "twitter-share",
-      "width=580,height=400"
+      "width=580,height=400",
     );
   };
 
@@ -68,16 +93,18 @@ export default function ShareButtons({
       </span>
 
       {/* KakaoTalk */}
-      <button
-        onClick={shareKakao}
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEE500] transition-opacity hover:opacity-80"
-        aria-label="Share on KakaoTalk"
-        title="KakaoTalk"
-      >
-        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#000000">
-          <path d="M12 3C6.48 3 2 6.58 2 10.9c0 2.78 1.86 5.22 4.65 6.6l-.95 3.52c-.08.3.25.55.52.38L10 18.9c.65.1 1.32.15 2 .15 5.52 0 10-3.58 10-7.95S17.52 3 12 3z" />
-        </svg>
-      </button>
+      {KAKAO_JS_KEY && (
+        <button
+          onClick={shareKakao}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FEE500] transition-opacity hover:opacity-80"
+          aria-label="Share on KakaoTalk"
+          title="KakaoTalk"
+        >
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="#000000">
+            <path d="M12 3C6.48 3 2 6.58 2 10.9c0 2.78 1.86 5.22 4.65 6.6l-.95 3.52c-.08.3.25.55.52.38L10 18.9c.65.1 1.32.15 2 .15 5.52 0 10-3.58 10-7.95S17.52 3 12 3z" />
+          </svg>
+        </button>
+      )}
 
       {/* Facebook */}
       <button

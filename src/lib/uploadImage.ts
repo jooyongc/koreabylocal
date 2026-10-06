@@ -16,7 +16,9 @@ export async function uploadImage(
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-  const { error } = await supabase.storage.from(bucket).upload(path, file);
+  // The name is unique per upload, so the file never changes: let browsers and
+  // the CDN keep it for a year instead of revalidating on every view.
+  const { error } = await supabase.storage.from(bucket).upload(path, file, { cacheControl: "31536000" });
   if (error) throw error;
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(path);

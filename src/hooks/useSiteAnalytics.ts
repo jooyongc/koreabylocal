@@ -24,15 +24,27 @@ export function useSiteAnalytics() {
   const { data: gaId } = useGa4Setting();
   useEffect(() => {
     if (!gaId || !/^G-[A-Z0-9]+$/i.test(gaId)) return;
-    if (document.getElementById("ga4-src")) return; // load only once
-    const src = document.createElement("script");
-    src.id = "ga4-src";
-    src.async = true;
-    src.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-    document.head.appendChild(src);
+    if (document.getElementById("ga4-init")) return; // load only once
+
+    // Queue the config now so the first page_view is never lost...
     const init = document.createElement("script");
     init.id = "ga4-init";
     init.text = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`;
     document.head.appendChild(init);
+
+    // ...but fetch gtag.js (~180 KB) only once the page has loaded and gone
+    // idle, so it never competes with the page's own scripts and images.
+    const load = () => {
+      if (document.getElementById("ga4-src")) return;
+      const src = document.createElement("script");
+      src.id = "ga4-src";
+      src.async = true;
+      src.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+      document.head.appendChild(src);
+    };
+    const whenIdle = () =>
+      "requestIdleCallback" in window ? window.requestIdleCallback(load, { timeout: 4000 }) : setTimeout(load, 2000);
+    if (document.readyState === "complete") whenIdle();
+    else window.addEventListener("load", whenIdle, { once: true });
   }, [gaId]);
 }

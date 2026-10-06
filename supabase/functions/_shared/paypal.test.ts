@@ -167,7 +167,7 @@ Deno.test("captureOrder() reads a completed capture", async () => {
     const res = await captureOrder("ORDER1", { fetch: fn });
     assertEquals(res, {
       ok: true, status: "COMPLETED", referenceId: "42",
-      amount: "1.00", currency: "USD", captureId: "CAP1", payerEmail: "buyer@example.com",
+      amount: "1.00", currency: "USD", captureId: "CAP1", payerEmail: "buyer@example.com", payerName: null,
     });
   });
 });

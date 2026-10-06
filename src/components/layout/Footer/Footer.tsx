@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Facebook, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { subscribe } from "@/lib/subscribe";
 import { markSubscribed } from "@/lib/subscription";
 import { useRegions } from "@/hooks/useConcepts";
 import Logo from "@/components/layout/Header/Logo";
 
 const RESOURCE_LINKS = [
   { label: "Travel Blog", href: "/guidebook" },
-  { label: "Experiences", href: "/experiences" },
+  { label: "Things to Do", href: "/things-to-do" },
   { label: "Ask a Local", href: "/ask-a-local" },
   { label: "Getting There", href: "/getting-there" },
   { label: "E-book", href: "/ebook" },
@@ -30,11 +31,8 @@ function FooterNewsletterForm() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail || status === "submitting") return;
     setStatus("submitting");
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source: "footer",
-    });
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    const { error } = await subscribe(trimmedEmail, "footer");
+    if (error) {
       setStatus("idle");
       return;
     }

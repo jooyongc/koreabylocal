@@ -1,13 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { Loader2, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
+import { Gift, Loader2, Lock, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
 import toast from "react-hot-toast";
 import PageSEO from "@/components/common/PageSEO";
 import { useEbooks } from "@/hooks/useEbooks";
 import { supabase } from "@/lib/supabase";
 import EmailCaptureModal from "@/components/ebook/EmailCaptureModal";
-import ClaimFreeEbookModal from "@/components/ebook/ClaimFreeEbookModal";
 // @ts-expect-error -- CSS module imports handled by Vite
 import "swiper/css";
 // @ts-expect-error -- CSS module imports handled by Vite
@@ -31,29 +32,66 @@ const TABLE_OF_CONTENTS = [
   "Practical tips & useful phrases",
 ];
 
+const FORMAT_FAQ = {
+  q: "What format is the e-book?",
+  a: "A downloadable PDF, readable on any phone, tablet, e-reader or computer.",
+};
+
+const UPDATES_FAQ = {
+  q: "Do I get future updates?",
+  a: "Yes. Major updates are free — email us and we'll send you a fresh download link.",
+};
+
 const FAQS = [
+  FORMAT_FAQ,
   {
-    q: "What format is the e-book?",
-    a: "A downloadable PDF, readable on any phone, tablet, e-reader or computer.",
+    q: "How do I pay?",
+    a: "Through PayPal's secure checkout. Your download button appears the moment payment goes through, and the link is emailed to you too.",
   },
   {
     q: "What's your refund policy?",
     a: "Full refund within 7 days if it's not for you — just email us.",
   },
+  UPDATES_FAQ,
+];
+
+// A $0 book never reaches PayPal (it won't open an order for nothing), so
+// there is nothing to pay for or refund.
+const FREE_FAQS = [
+  FORMAT_FAQ,
   {
-    q: "Do I get future updates?",
-    a: "Yes. Major updates are free — redownload anytime from the same link.",
+    q: "Is it really free?",
+    a: "Yes — no payment and no card. Leave your email and the download starts right away. We'll email you the link too, along with occasional Korea travel tips you can unsubscribe from anytime.",
   },
+  UPDATES_FAQ,
 ];
 
 export default function EbookPage() {
   const { data: ebooks, isLoading } = useEbooks();
   const ebook = ebooks?.[0];
+  const isFree = !!ebook && Number(ebook.price_usd) === 0;
+  const navigate = useNavigate();
   const [buying, setBuying] = useState(false);
   const [showSample, setShowSample] = useState(false);
-  const [showFreeClaim, setShowFreeClaim] = useState(false);
+  const [showFree, setShowFree] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
-  const isFree = !!ebook && Number(ebook.price_usd) === 0;
+  const faqs = isFree ? FREE_FAQS : FAQS;
+
+  // Free books are handed over for an email (claim-free-ebook subscribes it);
+  // the download page then fetches the file.
+  const claimFree = async (email: string) => {
+    if (!ebook) return false;
+    const { data, error } = await supabase.functions.invoke("claim-free-ebook", {
+      body: { ebook_id: ebook.id, email },
+    });
+    if (error || !data?.download_token) {
+      toast.error("Couldn't get your copy. Please try again.");
+      return false;
+    }
+    toast.success("Your download is starting — we've emailed you the link too.");
+    navigate(`/ebook/download/${data.download_token}`);
+    return true;
+  };
 
   const buyNow = async () => {
     if (!ebook || buying) return;
@@ -135,7 +173,7 @@ export default function EbookPage() {
         <div className="grid gap-[clamp(24px,4vw,48px)] lg:grid-cols-[minmax(0,340px)_1fr] lg:items-start">
           {ebook.cover_image_url && (
             <div className="overflow-hidden rounded-[20px] bg-cream-200 shadow-[0_20px_44px_rgba(26,26,26,0.16)]">
-              <img src={ebook.cover_image_url} alt={ebook.title} className="w-full object-cover" />
+              <OptimizedImage src={ebook.cover_image_url} alt={ebook.title} preset="detail" priority className="w-full object-cover" />
             </div>
           )}
 
@@ -155,39 +193,43 @@ export default function EbookPage() {
             )}
 
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="font-display text-[36px] font-extrabold text-ink">
-                {isFree ? "Free" : money(Number(ebook.price_usd))}
-              </span>
-              {!isFree && <span className="text-[13px] text-muted-2">one-time</span>}
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
               {isFree ? (
-                <button
-                  onClick={() => setShowFreeClaim(true)}
-                  className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90"
-                >
-                  Get it free
-                </button>
+                <span className="font-display text-[36px] font-extrabold text-ink">Free</span>
               ) : (
                 <>
-                  <button
-                    onClick={buyNow}
-                    disabled={buying}
-                    className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                  >
-                    {buying && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Buy Now
-                  </button>
-                  <button
-                    onClick={() => setShowSample(true)}
-                    className="rounded-[13px] border border-ink/15 bg-white px-8 py-4 text-[15.5px] font-bold text-ink transition-colors hover:border-accent hover:text-accent"
-                  >
-                    Free Sample — 2 chapters
-                  </button>
+                  <span className="font-display text-[36px] font-extrabold text-ink">{money(Number(ebook.price_usd))}</span>
+                  <span className="text-[13px] text-muted-2">one-time</span>
                 </>
               )}
             </div>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <button
+                onClick={isFree ? () => setShowFree(true) : buyNow}
+                disabled={buying}
+                className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {buying && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isFree ? "Download free" : "Buy Now"}
+              </button>
+              {!isFree && (
+                <button
+                  onClick={() => setShowSample(true)}
+                  className="rounded-[13px] border border-ink/15 bg-white px-8 py-4 text-[15.5px] font-bold text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  Free Sample — 2 chapters
+                </button>
+              )}
+            </div>
+            {isFree ? (
+              <p className="mt-3 flex items-center gap-1.5 text-[12px] text-muted-2">
+                <Gift className="h-3 w-3" /> No payment needed — just your email. The download starts right away.
+              </p>
+            ) : (
+              <p className="mt-3 flex items-center gap-1.5 text-[12px] text-muted-2">
+                <Lock className="h-3 w-3" /> You'll pay on PayPal's secure checkout page. Full refund within 7 days.
+              </p>
+            )}
           </div>
         </div>
 
@@ -215,7 +257,7 @@ export default function EbookPage() {
             >
               {ebook.preview_images.map((img, i) => (
                 <SwiperSlide key={i}>
-                  <img src={img} alt={`Preview page ${i + 1}`} loading="lazy" className="aspect-[3/4] w-full rounded-xl object-cover" />
+                  <OptimizedImage src={img} alt={`Preview page ${i + 1}`} preset="card" className="aspect-[3/4] w-full rounded-xl object-cover" />
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -239,7 +281,7 @@ export default function EbookPage() {
         <div className="mt-[clamp(32px,5vw,56px)]">
           <h2 className="font-display text-[20px] font-extrabold text-ink">Questions</h2>
           <div className="mt-4 flex flex-col gap-2.5">
-            {FAQS.map((f, i) => {
+            {faqs.map((f, i) => {
               const isOpen = openFaq === i;
               return (
                 <button
@@ -271,6 +313,18 @@ export default function EbookPage() {
         </div>
       </div>
 
+      {showFree && (
+        <EmailCaptureModal
+          title="Get your free copy"
+          description="Enter your email and the download starts right away. We'll email you the link too, plus occasional Korea travel tips — unsubscribe anytime."
+          source="ebook_page"
+          leadMagnet="free_ebook"
+          submitLabel="Download free"
+          onSubmitEmail={claimFree}
+          onClose={() => setShowFree(false)}
+        />
+      )}
+
       {showSample && (
         <EmailCaptureModal
           title="Get a free sample"
@@ -282,9 +336,6 @@ export default function EbookPage() {
         />
       )}
 
-      {showFreeClaim && (
-        <ClaimFreeEbookModal ebookId={ebook.id} title={ebook.title} onClose={() => setShowFreeClaim(false)} />
-      )}
     </>
   );
 }

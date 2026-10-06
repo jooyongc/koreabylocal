@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Sun, Navigation2, Loader2, MessageCircle, BookOpen } from "lucide-react";
 import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
@@ -74,7 +75,7 @@ export default function DestinationPage() {
       {/* Hero */}
       <div className="relative flex min-h-[280px] items-end overflow-hidden bg-ink sm:min-h-[340px]">
         {region.cover_image_url && (
-          <img src={region.cover_image_url} alt={region.name} className="absolute inset-0 h-full w-full object-cover" />
+          <OptimizedImage src={region.cover_image_url} alt={region.name} preset="hero" priority className="absolute inset-0 h-full w-full object-cover" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/10" />
         <div className="relative mx-auto w-full max-w-[1180px] px-4 pb-8 sm:px-6 lg:px-8">

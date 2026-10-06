@@ -8,6 +8,7 @@
 /product/*  /ebook  301
 /transfers  /getting-there  301
 /transfers/*  /getting-there/:splat  301
+/experiences  /things-to-do  301
 
 # imweb 기존 URL (v2 계획에서 유지)
 /TRANSFERS  /getting-there  301

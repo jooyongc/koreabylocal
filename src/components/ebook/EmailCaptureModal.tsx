@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
+import { subscribe } from "@/lib/subscribe";
 import { markSubscribed } from "@/lib/subscription";
 
 interface EmailCaptureModalProps {
@@ -10,6 +11,12 @@ interface EmailCaptureModalProps {
   source: string;
   leadMagnet: string;
   successMessage?: string;
+  submitLabel?: string;
+  /**
+   * Replaces the default subscribe-and-welcome-email flow, for forms whose
+   * server call subscribes the address itself. Resolve true to close.
+   */
+  onSubmitEmail?: (email: string) => Promise<boolean>;
   onClose: () => void;
 }
 
@@ -20,6 +27,8 @@ export default function EmailCaptureModal({
   source,
   leadMagnet,
   successMessage = "Check your inbox — it's on the way!",
+  submitLabel = "Send it to me",
+  onSubmitEmail,
   onClose,
 }: EmailCaptureModalProps) {
   const [email, setEmail] = useState("");
@@ -30,13 +39,18 @@ export default function EmailCaptureModal({
     if (!email.trim() || submitting) return;
     setSubmitting(true);
     const trimmedEmail = email.trim();
-    const { error } = await supabase.from("subscribers").insert({
-      email: trimmedEmail,
-      source,
-      lead_magnet: leadMagnet,
-    });
+    if (onSubmitEmail) {
+      const ok = await onSubmitEmail(trimmedEmail);
+      setSubmitting(false);
+      if (ok) {
+        markSubscribed();
+        onClose();
+      }
+      return;
+    }
+    const { error } = await subscribe(trimmedEmail, source, leadMagnet);
     setSubmitting(false);
-    if (error && !error.message.toLowerCase().includes("duplicate")) {
+    if (error) {
       toast.error("Something went wrong — please try again.");
       return;
     }
@@ -78,7 +92,7 @@ export default function EmailCaptureModal({
             className="flex items-center justify-center gap-2 rounded-[13px] bg-accent py-[12px] text-[15px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Send it to me
+            {submitLabel}
           </button>
         </form>
       </div>

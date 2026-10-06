@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 interface LogoProps {
   shrink?: boolean;
-  /** Use on dark backgrounds (e.g. the footer) — swaps to the white/pink variant. */
+  /** Use on dark backgrounds (e.g. the footer) — the same logo with the navy turned white. */
   inverted?: boolean;
   className?: string;
 }
@@ -12,7 +12,7 @@ export default function Logo({ shrink = false, inverted = false, className = "" 
   return (
     <Link to="/" aria-label="Korea by Local — home" className={`inline-flex items-center ${className}`}>
       <img
-        src={inverted ? "/logo-white.svg" : "/logo.png"}
+        src={inverted ? "/logo-inverted.png" : "/logo.png"}
         alt="Korea by Local"
         className={`w-auto ${shrink ? "h-7" : "h-8"}`}
         decoding="async"

@@ -19,6 +19,8 @@ export interface MailMessage {
   subject: string;
   html: string;
   replyTo?: string;
+  /** Extra headers, e.g. List-Unsubscribe on newsletters. */
+  headers?: Record<string, string>;
 }
 
 export type SendResult = { ok: true; id: string } | { ok: false; status: number; error: string };
@@ -73,6 +75,7 @@ function buildRawMessage(msg: MailMessage): string {
     `To: ${oneLine(msg.to)}`,
     ...(msg.replyTo ? [`Reply-To: ${oneLine(msg.replyTo)}`] : []),
     `Subject: ${encodeHeader(msg.subject)}`,
+    ...Object.entries(msg.headers ?? {}).map(([name, value]) => `${oneLine(name)}: ${oneLine(value)}`),
     "MIME-Version: 1.0",
     'Content-Type: text/html; charset="UTF-8"',
     "Content-Transfer-Encoding: base64",

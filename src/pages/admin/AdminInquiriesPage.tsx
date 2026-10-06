@@ -4,7 +4,7 @@ import { Search, Clock } from "lucide-react";
 import { format } from "date-fns";
 import Pagination from "@/components/product/Pagination";
 import { Skeleton } from "@/components/common/Skeleton";
-import { useAdminInquiryList } from "@/hooks/useAdminInquiryList";
+import { useAdminInquiryList, type AdminInquiryListRow } from "@/hooks/useAdminInquiryList";
 import { readTriage, type Inquiry } from "@/types";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -31,7 +31,7 @@ const CATEGORY_COLORS: Record<string, string> = {
  * Shown only when the judgement read the question differently from the drop
  * down the visitor picked — either label can be the more useful one.
  */
-function CategoryDisagreement({ inquiry }: { inquiry: Inquiry }) {
+function CategoryDisagreement({ inquiry }: { inquiry: Pick<Inquiry, "category" | "ai_triage"> }) {
   const triage = readTriage(inquiry.ai_triage);
   const read = triage?.category;
   if (!read || read.toLowerCase() === inquiry.category.toLowerCase()) return null;
@@ -42,7 +42,7 @@ function CategoryDisagreement({ inquiry }: { inquiry: Inquiry }) {
   );
 }
 
-function InquiryTable({ inquiries }: { inquiries: Inquiry[] }) {
+function InquiryTable({ inquiries }: { inquiries: AdminInquiryListRow[] }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
       <table className="w-full text-left text-sm">

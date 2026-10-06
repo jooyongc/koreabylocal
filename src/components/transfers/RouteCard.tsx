@@ -1,4 +1,5 @@
 import { Clock } from "lucide-react";
+import OptimizedImage from "@/components/common/OptimizedImage";
 import { Link } from "react-router-dom";
 
 export interface TransferRoute {
@@ -23,10 +24,10 @@ export default function RouteCard({ route, to }: RouteCardProps) {
       aria-label={`Book transfer: ${route.route}, ${route.type}, ${route.price}`}
       className="flex items-center gap-3.5 rounded-[18px] bg-white p-3.5 text-left shadow-[0_8px_26px_rgba(26,26,26,0.07)] transition-shadow duration-300 hover:shadow-[0_20px_44px_rgba(26,26,26,0.16)]"
     >
-      <img
+      <OptimizedImage
         src={route.img}
         alt={route.route}
-        loading="lazy"
+        preset="thumbnail"
         className="h-[84px] w-[84px] flex-none rounded-[14px] object-cover"
       />
       <div className="min-w-0 flex-1">
