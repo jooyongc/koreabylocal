@@ -7,6 +7,7 @@ import PageSEO from "@/components/common/PageSEO";
 import { useEbooks } from "@/hooks/useEbooks";
 import { supabase } from "@/lib/supabase";
 import EmailCaptureModal from "@/components/ebook/EmailCaptureModal";
+import ClaimFreeEbookModal from "@/components/ebook/ClaimFreeEbookModal";
 // @ts-expect-error -- CSS module imports handled by Vite
 import "swiper/css";
 // @ts-expect-error -- CSS module imports handled by Vite
@@ -50,7 +51,9 @@ export default function EbookPage() {
   const ebook = ebooks?.[0];
   const [buying, setBuying] = useState(false);
   const [showSample, setShowSample] = useState(false);
+  const [showFreeClaim, setShowFreeClaim] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
+  const isFree = !!ebook && Number(ebook.price_usd) === 0;
 
   const buyNow = async () => {
     if (!ebook || buying) return;
@@ -152,25 +155,38 @@ export default function EbookPage() {
             )}
 
             <div className="mt-6 flex items-baseline gap-2">
-              <span className="font-display text-[36px] font-extrabold text-ink">{money(Number(ebook.price_usd))}</span>
-              <span className="text-[13px] text-muted-2">one-time</span>
+              <span className="font-display text-[36px] font-extrabold text-ink">
+                {isFree ? "Free" : money(Number(ebook.price_usd))}
+              </span>
+              {!isFree && <span className="text-[13px] text-muted-2">one-time</span>}
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                onClick={buyNow}
-                disabled={buying}
-                className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {buying && <Loader2 className="h-4 w-4 animate-spin" />}
-                Buy Now
-              </button>
-              <button
-                onClick={() => setShowSample(true)}
-                className="rounded-[13px] border border-ink/15 bg-white px-8 py-4 text-[15.5px] font-bold text-ink transition-colors hover:border-accent hover:text-accent"
-              >
-                Free Sample — 2 chapters
-              </button>
+              {isFree ? (
+                <button
+                  onClick={() => setShowFreeClaim(true)}
+                  className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90"
+                >
+                  Get it free
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={buyNow}
+                    disabled={buying}
+                    className="flex items-center gap-2 rounded-[13px] bg-accent px-8 py-4 text-[15.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                  >
+                    {buying && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Buy Now
+                  </button>
+                  <button
+                    onClick={() => setShowSample(true)}
+                    className="rounded-[13px] border border-ink/15 bg-white px-8 py-4 text-[15.5px] font-bold text-ink transition-colors hover:border-accent hover:text-accent"
+                  >
+                    Free Sample — 2 chapters
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -266,6 +282,9 @@ export default function EbookPage() {
         />
       )}
 
+      {showFreeClaim && (
+        <ClaimFreeEbookModal ebookId={ebook.id} title={ebook.title} onClose={() => setShowFreeClaim(false)} />
+      )}
     </>
   );
 }
