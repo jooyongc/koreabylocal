@@ -258,10 +258,10 @@ export default function GuideDetailPage() {
               {author.charAt(0)}
             </span>
             <div className="flex-1 basis-[200px]">
-              <div className="font-display text-[18px] font-bold">Written by {author}</div>
+              <div className="font-display text-[18px] font-bold">Written by our Korea by Local writers</div>
               <p className="mt-1.5 text-[13.5px] leading-[1.55] text-white/75">
-                Stories from people who actually live here — reviewed and fact-checked
-                before publishing.
+                We live here, and we fact-check everything before it's published — this isn't
+                scraped or AI-written.
               </p>
             </div>
             <Link

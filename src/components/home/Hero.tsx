@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useHeroPosts, type HeroPostRow } from "@/hooks/useConcepts";
 import OptimizedImage from "@/components/common/OptimizedImage";
 
-const AREAS = ["SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
+const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
 const ROTATE_MS = 6000;
 
 function formatCategory(raw: string): string {
@@ -42,7 +42,7 @@ export default function Hero() {
             </h1>
 
             <p className="mt-6 max-w-[46ch] text-[clamp(15px,1.6vw,18px)] leading-[1.6] text-muted">
-              From hidden alleys to local favorites — we help you travel deeper, city by city.
+              We help you travel deeper, city by city, with real Korea travel tips from the people who actually live here.
             </p>
           </div>
 
