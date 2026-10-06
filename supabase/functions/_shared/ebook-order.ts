@@ -50,13 +50,26 @@ export interface DeliveryEmailInput {
   downloadUrl: string;
   maxDownloads: number;
   siteUrl: string;
+  /** A $0 book claimed with an email address, not bought. */
+  free?: boolean;
 }
 
-/** The receipt-and-link email a buyer gets the moment payment goes through. */
+/**
+ * The link email a reader gets the moment payment goes through — or, for a
+ * free book, the moment they leave their email.
+ */
 export function buildDeliveryEmail(input: DeliveryEmailInput): { subject: string; html: string } {
   const firstName = (input.buyerName ?? "").trim().split(/\s+/)[0] || "there";
+  const title = `<strong>${esc(input.title)}</strong>`;
+  const opening = input.free ? `here's your free copy of ${title}.` : `thank you for buying ${title}.`;
+  const help = input.free
+    ? "If you need a fresh link, just reply to this email."
+    : "If you need a fresh link, or the guide isn't for you (full refund within 7 days), just reply to this email.";
+  const why = input.free
+    ? "You're receiving this because you asked for this guide at"
+    : "You're receiving this because you bought an e-book at";
   return {
-    subject: `Your e-book: ${input.title}`,
+    subject: input.free ? `Your free guide: ${input.title}` : `Your e-book: ${input.title}`,
     html: `
     <div style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;max-width:560px;margin:0 auto;background:#fff">
       <span style="display:none;max-height:0;overflow:hidden">Your download link is inside.</span>
@@ -67,7 +80,7 @@ export function buildDeliveryEmail(input: DeliveryEmailInput): { subject: string
       </div>
       <div style="border:1px solid #eee;border-top:none;padding:32px;border-radius:0 0 14px 14px">
         <p style="margin:0 0 14px;font-size:15px;line-height:1.65;color:#374151">
-          Hi ${esc(firstName)}, thank you for buying <strong>${esc(input.title)}</strong>.
+          Hi ${esc(firstName)}, ${opening}
         </p>
         <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#374151">
           Your copy is ready. The button below downloads the PDF.
@@ -77,13 +90,12 @@ export function buildDeliveryEmail(input: DeliveryEmailInput): { subject: string
 
         <p style="margin:24px 0 0;font-size:13.5px;line-height:1.65;color:#6b7280">
           This link works ${input.maxDownloads} times, so save the PDF somewhere you'll find it.
-          If you need a fresh link, or the guide isn't for you (full refund within 7 days),
-          just reply to this email.
+          ${help}
         </p>
 
         <p style="margin-top:32px;padding-top:20px;border-top:1px solid #eee;color:#9ca3af;font-size:12px;line-height:1.6">
-          You're receiving this because you bought an e-book at
-          <a href="${esc(input.siteUrl)}" style="color:#9ca3af">koreabylocal.com</a>. Payment was taken by PayPal.
+          ${why}
+          <a href="${esc(input.siteUrl)}" style="color:#9ca3af">koreabylocal.com</a>.${input.free ? "" : " Payment was taken by PayPal."}
           Korea by Local — authentic Korean travel, from real locals.
         </p>
       </div>

@@ -128,7 +128,7 @@ export default function EbooksPage() {
                       {p.buyer_name && <div className="text-xs text-gray-400">{p.buyer_name}</div>}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {p.amount != null ? `${money(p.amount)} ${p.currency}` : "—"}
+                      {p.payment_provider === "free" ? "Free" : p.amount != null ? `${money(p.amount)} ${p.currency}` : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${STATUS_COLORS[p.status] ?? "bg-gray-100 text-gray-500"}`}>

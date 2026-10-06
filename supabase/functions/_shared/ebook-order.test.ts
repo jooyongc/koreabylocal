@@ -70,3 +70,32 @@ Deno.test("the delivery email greets a buyer with no name", () => {
   });
   assert(html.includes("Hi there,"));
 });
+
+Deno.test("a free copy's email talks about a gift, not a purchase", () => {
+  const { subject, html } = buildDeliveryEmail({
+    title: "Free 10-Step Korea Prep Guide",
+    buyerName: null,
+    downloadUrl: "https://koreabylocal.com/ebook/download/abc",
+    maxDownloads: 3,
+    siteUrl: "https://koreabylocal.com",
+    free: true,
+  });
+  assertEquals(subject, "Your free guide: Free 10-Step Korea Prep Guide");
+  assert(html.includes("here's your free copy of"));
+  assertFalse(html.includes("PayPal"));
+  assertFalse(html.includes("refund"));
+  assertFalse(html.includes("thank you for buying"));
+});
+
+Deno.test("a bought copy's email keeps the receipt wording", () => {
+  const { html } = buildDeliveryEmail({
+    title: "Guide",
+    buyerName: "Ana",
+    downloadUrl: "https://koreabylocal.com/ebook/download/abc",
+    maxDownloads: 3,
+    siteUrl: "https://koreabylocal.com",
+  });
+  assert(html.includes("thank you for buying"));
+  assert(html.includes("Payment was taken by PayPal."));
+  assert(html.includes("full refund within 7 days"));
+});

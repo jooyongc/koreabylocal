@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import PageSEO from "@/components/common/PageSEO";
 
-const UPDATED = "3 October 2026";
+const UPDATED = "6 October 2026";
 const CONTACT = "koreabylocal@gmail.com";
 
 function Section({ id, title, children }: { id?: string; title: string; children: React.ReactNode }) {
@@ -72,6 +72,11 @@ export default function TermsPage() {
             to the address on your PayPal account. Each link works three times; if you need another,
             email us and we will send a fresh one. Major updates to the guide are free — ask and we
             will send the new edition.
+          </p>
+          <p>
+            Some guides are free. For those you give us your email address instead of paying: the
+            download starts straight away, we email you the link, and you join our newsletter,
+            which you can leave at any time with the unsubscribe link in every email.
           </p>
           <p>
             The e-book is for your own personal use. Please do not share, resell or republish it,

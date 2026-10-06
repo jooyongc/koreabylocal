@@ -52,6 +52,8 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (ebookError || !ebook) return json({ error: "E-book not found" }, 404);
+    // PayPal rejects a $0 order; free books are handed out by claim-free-ebook.
+    if (Number(ebook.price_usd) <= 0) return json({ error: "This e-book is free" }, 400);
 
     // The price is always the one in the database, never one from the browser.
     const order = await createOrder({

@@ -49,7 +49,11 @@ function useDashboardStats() {
           .select("id", { count: "exact", head: true })
           .eq("payment_status", "paid")
           .eq("status", "pending"),
-        supabase.from("ebook_purchases").select("id", { count: "exact", head: true }).eq("status", "completed"),
+        supabase
+          .from("ebook_purchases")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "completed")
+          .neq("payment_provider", "free"),
         supabase
           .from("inquiries")
           .select("id, name, subject, category, status, created_at, ai_triage")
