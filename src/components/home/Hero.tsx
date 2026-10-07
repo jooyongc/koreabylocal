@@ -5,7 +5,7 @@ import { useHeroPosts, type HeroPostRow } from "@/hooks/useConcepts";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import { firstPhoto } from "@/lib/articleImage";
 
-const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
+const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL → BUSAN → JEJU & MORE"];
 const ROTATE_MS = 6000;
 
 function formatCategory(raw: string): string {
