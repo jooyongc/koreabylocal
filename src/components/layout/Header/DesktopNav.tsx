@@ -20,10 +20,6 @@ export default function DesktopNav() {
         Things to Do
       </NavLink>
 
-      <NavLink to="/getting-there" className={linkClass}>
-        Getting There
-      </NavLink>
-
       <NavLink to="/ask-a-local" className={linkClass}>
         Ask a Local
       </NavLink>
