@@ -52,6 +52,8 @@ export default function SpotForm({ mode, spotId, defaultValues }: Props) {
       highlights: "",
       included: "",
       excluded: "",
+      rating: null,
+      reviews_count: 0,
       editor_pick: false,
       is_active: true,
       sort_order: 0,

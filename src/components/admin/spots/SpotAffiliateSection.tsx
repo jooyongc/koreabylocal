@@ -72,6 +72,31 @@ export default function SpotAffiliateSection() {
             />
           </div>
         </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelCls}>Rating (0–5)</label>
+            <input
+              type="number"
+              step={0.1}
+              min={0}
+              max={5}
+              {...register("rating", { setValueAs: (v) => (v === "" ? null : Number(v)) })}
+              className={inputCls}
+              placeholder="e.g. 4.8 — leave blank to show no rating yet"
+            />
+          </div>
+          <div>
+            <label className={labelCls}>Review count</label>
+            <input
+              type="number"
+              step={1}
+              min={0}
+              {...register("reviews_count", { valueAsNumber: true })}
+              className={inputCls}
+              placeholder="e.g. 128"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );

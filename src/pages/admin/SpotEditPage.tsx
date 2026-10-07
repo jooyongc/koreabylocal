@@ -56,6 +56,8 @@ export default function SpotEditPage() {
     highlights: (Array.isArray(spot.highlights) ? (spot.highlights as string[]) : []).join("\n"),
     included: (spot.included ?? []).join("\n"),
     excluded: (spot.excluded ?? []).join("\n"),
+    rating: spot.rating,
+    reviews_count: spot.reviews_count,
     editor_pick: spot.editor_pick,
     is_active: spot.is_active,
     sort_order: spot.sort_order,

@@ -36,6 +36,8 @@ function toRow(data: SpotFormData) {
     highlights: linesToArray(data.highlights),
     included: linesToArray(data.included),
     excluded: linesToArray(data.excluded),
+    rating: data.rating,
+    reviews_count: data.reviews_count,
     editor_pick: data.editor_pick,
     is_active: data.is_active,
     sort_order: data.sort_order,
