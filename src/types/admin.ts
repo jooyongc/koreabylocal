@@ -77,6 +77,8 @@ export interface SpotFormData {
   highlights: string;
   included: string;
   excluded: string;
+  rating: number | null;
+  reviews_count: number;
   editor_pick: boolean;
   is_active: boolean;
   sort_order: number;
