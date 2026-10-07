@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import EmbeddedProductCard from "./EmbeddedProductCard";
 
 interface BlogContentProps {
@@ -62,7 +62,12 @@ function HtmlSegment({ html }: { html: string }) {
   );
 }
 
-export default function BlogContent({ html }: BlogContentProps) {
+/**
+ * Memoised because React 19 re-applies dangerouslySetInnerHTML on every
+ * render: every time the article page re-rendered (each query settling) the
+ * whole body was rebuilt, images and all.
+ */
+export default memo(function BlogContent({ html }: BlogContentProps) {
   const segments = parseContent(html);
 
   return (
@@ -76,4 +81,4 @@ export default function BlogContent({ html }: BlogContentProps) {
       )}
     </div>
   );
-}
+});

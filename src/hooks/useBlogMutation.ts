@@ -2,6 +2,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { BlogFormData } from "@/types/admin";
 
+/**
+ * The form's datetime-local value is the editor's wall-clock time with no zone.
+ * Sent as-is, Postgres read it as UTC, so every save from Korea pushed the
+ * publish time 9 hours later; it is converted to an instant here instead.
+ */
+function publishedAt(data: BlogFormData): string | null {
+  if (data.status !== "published") return null;
+  return (data.published_at ? new Date(data.published_at) : new Date()).toISOString();
+}
+
 async function createBlogPost(data: BlogFormData) {
   const { data: post, error } = await supabase
     .from("blog_posts")
@@ -14,7 +24,7 @@ async function createBlogPost(data: BlogFormData) {
       status: data.status,
       author: data.author || null,
       thumbnail_url: data.thumbnail_url || null,
-      published_at: data.status === "published" ? (data.published_at || new Date().toISOString()) : null,
+      published_at: publishedAt(data),
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
       featured: data.featured,
@@ -37,7 +47,7 @@ async function updateBlogPost(id: number, data: BlogFormData) {
       status: data.status,
       author: data.author || null,
       thumbnail_url: data.thumbnail_url || null,
-      published_at: data.status === "published" ? (data.published_at || new Date().toISOString()) : null,
+      published_at: publishedAt(data),
       seo_title: data.seo_title || null,
       seo_description: data.seo_description || null,
       featured: data.featured,

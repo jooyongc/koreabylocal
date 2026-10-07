@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Share2, Heart, Bookmark, BadgeCheck, ChevronRight, MessageCircle, BookOpen } from "lucide-react";
@@ -14,8 +14,7 @@ import SpotCard from "@/components/home/SpotCard";
 import RelatedPicks from "@/components/guidebook/RelatedPicks";
 import { readRelated, type BlogPost } from "@/types";
 import { firstPhoto } from "@/lib/articleImage";
-
-interface TocItem { id: string; text: string; level: number }
+import { scrollToSection, withSectionIds } from "@/lib/articleToc";
 
 function readingTime(html: string | null): number {
   if (!html) return 1;
@@ -28,8 +27,10 @@ export default function GuideDetailPage() {
   const { data: post, isLoading } = useBlogPost(slug);
   // Judged when the article was published, so reading it costs nothing here.
   const picks = readRelated((post as { related?: unknown } | undefined)?.related);
-  const articleRef = useRef<HTMLDivElement>(null);
-  const [toc, setToc] = useState<TocItem[]>([]);
+  // The body with section ids already in it, and the "In this story" list.
+  const content = post?.content ?? null;
+  const body = useMemo(() => (content ? withSectionIds(content) : null), [content]);
+  const toc = body?.toc ?? [];
 
   const minutes = useMemo(() => readingTime(post?.content ?? null), [post?.content]);
 
@@ -41,22 +42,11 @@ export default function GuideDetailPage() {
       .catch(() => {});
   }, [post?.id]);
 
-  // Build a "In this story" table of contents from the rendered headings.
+  // A link to a section (#sec-…) only lands there once the body has rendered.
   useEffect(() => {
-    if (!post || !articleRef.current) return;
-    const headings = Array.from(
-      articleRef.current.querySelectorAll<HTMLHeadingElement>("h2"),
-    );
-    const items: TocItem[] = headings.map((h, i) => {
-      const text = (h.textContent ?? "").trim();
-      const id =
-        h.id ||
-        `sec-${i}-${text.toLowerCase().replace(/[^\w]+/g, "-").slice(0, 40)}`;
-      h.id = id;
-      return { id, text, level: 2 };
-    });
-    setToc(items.filter((it) => it.text));
-  }, [post]);
+    const id = window.location.hash.slice(1);
+    if (body && id) scrollToSection(id);
+  }, [body]);
 
   // Best-effort: find a region this guide is about (title/excerpt/category match),
   // then surface a few spots there. No formal region↔post linkage exists yet.
@@ -95,13 +85,10 @@ export default function GuideDetailPage() {
     },
   });
 
-  const scrollToSection = (e: React.MouseEvent, id: string) => {
+  const goToSection = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      window.history.replaceState(null, "", `#${id}`);
-    }
+    window.history.replaceState(null, "", `#${id}`);
+    scrollToSection(id);
   };
 
   if (isLoading) {
@@ -252,8 +239,8 @@ export default function GuideDetailPage() {
 
       {/* Body + sidebar */}
       <section className="mx-auto grid max-w-[1180px] grid-cols-1 gap-[clamp(24px,4vw,48px)] px-4 pb-[clamp(40px,6vw,80px)] pt-[clamp(26px,4vw,48px)] sm:px-6 lg:grid-cols-[1fr_300px] lg:px-8">
-        <article ref={articleRef} className="kbl-article mx-auto w-full max-w-[680px] min-w-0 lg:mx-0">
-          {post.content && <BlogContent html={post.content} />}
+        <article className="kbl-article mx-auto w-full max-w-[680px] min-w-0 lg:mx-0">
+          {body && <BlogContent html={body.html} />}
 
           {/* Author bio */}
           <div className="mt-9 flex flex-wrap items-center gap-4 rounded-[20px] bg-ink p-[22px] text-white">
@@ -298,7 +285,7 @@ export default function GuideDetailPage() {
                   <a
                     key={t.id}
                     href={`#${t.id}`}
-                    onClick={(e) => scrollToSection(e, t.id)}
+                    onClick={(e) => goToSection(e, t.id)}
                     className="block border-l-2 border-ink/12 py-[7px] pl-3 text-left text-[13.5px] text-muted transition-colors hover:border-accent hover:text-ink"
                   >
                     {t.text}
