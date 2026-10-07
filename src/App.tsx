@@ -10,9 +10,6 @@ import { useSiteAnalytics } from "@/hooks/useSiteAnalytics";
 
 // ── Public pages ──────────────────────────────────────────────
 const HomePage = lazy(() => import("@/pages/HomePage"));
-const TransfersPage = lazy(() => import("@/pages/transfers/TransfersPage"));
-const TransportationPage = lazy(() => import("@/pages/transfers/TransportationPage"));
-const TourPlanningPage = lazy(() => import("@/pages/transfers/TourPlanningPage"));
 const GuidebookPage = lazy(() => import("@/pages/guidebook/GuidebookPage"));
 const GuideDetailPage = lazy(() => import("@/pages/guidebook/GuideDetailPage"));
 const AdminThumbnails = lazy(() => import("@/pages/admin/AdminThumbnailsPage"));
@@ -93,9 +90,10 @@ function App() {
           <Route path="/things-to-do" element={<ThingsToDoPage />} />
           <Route path="/experiences" element={<Navigate to="/things-to-do" replace />} />
 
-          <Route path="/getting-there" element={<TransfersPage />} />
-          <Route path="/getting-there/transportation" element={<TransportationPage />} />
-          <Route path="/getting-there/tour-planning" element={<TourPlanningPage />} />
+          {/* Getting There is unpublished for now — not ready to offer. */}
+          <Route path="/getting-there" element={<Navigate to="/" replace />} />
+          <Route path="/getting-there/transportation" element={<Navigate to="/" replace />} />
+          <Route path="/getting-there/tour-planning" element={<Navigate to="/" replace />} />
 
           <Route path="/guidebook" element={<GuidebookPage />} />
           <Route path="/guidebook/:slug" element={<GuideDetailPage />} />
@@ -117,7 +115,7 @@ function App() {
           <Route path="/blog/:slug" element={<SlugRedirect to="/guidebook" />} />
           <Route path="/tours" element={<Navigate to="/" replace />} />
           <Route path="/tours/:slug" element={<SlugRedirect to="/spots" />} />
-          <Route path="/transfers" element={<Navigate to="/getting-there" replace />} />
+          <Route path="/transfers" element={<Navigate to="/" replace />} />
 
           {/* ── Retired storefront (v3 renewal — shop/cart/checkout are gone) ── */}
           <Route path="/shop" element={<Navigate to="/ebook" replace />} />

@@ -15,7 +15,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: "Travel Blog", href: "/guidebook" },
   { label: "Things to Do", href: "/things-to-do" },
-  { label: "Getting There", href: "/getting-there" },
   { label: "Ask a Local", href: "/ask-a-local" },
   { label: "E-book", href: "/ebook", badge: "NEW" },
   { label: "About", href: "/about" },

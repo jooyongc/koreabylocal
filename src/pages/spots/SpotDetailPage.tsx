@@ -22,6 +22,15 @@ import SpotCard from "@/components/home/SpotCard";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import { isRealLocation } from "@/lib/geo";
 
+// The rich-text editor (added after many spots were written) saves TipTap
+// HTML like "<p>...</p>"; older spots still hold plain text typed straight
+// into a textarea, sometimes with its own stray "<" / ">" characters that
+// would otherwise get parsed as broken tags. Only render as HTML once it
+// actually starts with a real tag.
+function isRichTextHtml(s: string): boolean {
+  return /^\s*<[a-z][a-z0-9]*[\s>]/i.test(s);
+}
+
 function money(n: number | null, currency: string | null): string | undefined {
   // price is NOT NULL DEFAULT 0 and the spot form never sets it, so 0 means "no price".
   if (n == null || Number(n) <= 0) return undefined;
@@ -134,14 +143,28 @@ export default function SpotDetailPage() {
             {spot.description && (
               <section className="mt-7">
                 <h2 className="font-display text-[19px] font-extrabold text-ink">Why we love it</h2>
-                <p className="mt-2.5 text-[15.5px] leading-[1.75] text-ink">{spot.description}</p>
+                {isRichTextHtml(spot.description) ? (
+                  <div
+                    className="prose prose-lg mt-2.5 max-w-none text-[15.5px] leading-[1.75] text-ink prose-headings:text-ink prose-a:text-accent"
+                    dangerouslySetInnerHTML={{ __html: spot.description }}
+                  />
+                ) : (
+                  <p className="mt-2.5 whitespace-pre-line text-[15.5px] leading-[1.75] text-ink">{spot.description}</p>
+                )}
               </section>
             )}
 
             {spot.tips && (
               <section className="mt-8">
                 <h2 className="font-display text-[19px] font-extrabold text-ink">Tips from a local</h2>
-                <p className="mt-2.5 text-[15.5px] leading-[1.7] text-ink">{spot.tips}</p>
+                {isRichTextHtml(spot.tips) ? (
+                  <div
+                    className="prose prose-lg mt-2.5 max-w-none text-[15.5px] leading-[1.7] text-ink prose-headings:text-ink prose-a:text-accent"
+                    dangerouslySetInnerHTML={{ __html: spot.tips }}
+                  />
+                ) : (
+                  <p className="mt-2.5 whitespace-pre-line text-[15.5px] leading-[1.7] text-ink">{spot.tips}</p>
+                )}
               </section>
             )}
 
