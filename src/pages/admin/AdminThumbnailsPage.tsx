@@ -5,6 +5,7 @@ import { ImageIcon, Loader2, Play, RefreshCw, Check, AlertTriangle } from "lucid
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { buildThumbnail, saveThumbnail } from "@/lib/generateThumbnail";
+import { firstBodyImage } from "@/lib/articleImage";
 
 /**
  * Regenerates card thumbnails in bulk.
@@ -13,9 +14,10 @@ import { buildThumbnail, saveThumbnail } from "@/lib/generateThumbnail";
  * canvas: one implementation, used both by this tool and when a post is saved,
  * so a backfilled thumbnail and a freshly published one look identical.
  *
- * Runs one article at a time on purpose. Each one costs a stock-photo search
- * and an upload, and a burst of parallel requests is the quickest way to get
- * rate-limited by Unsplash half way through a batch.
+ * Runs one article at a time on purpose. Each one costs an upload, and one
+ * without a photo in its body a stock-photo search too — a burst of parallel
+ * requests is the quickest way to get rate-limited by Unsplash half way
+ * through a batch.
  */
 
 interface Row {
@@ -24,6 +26,7 @@ interface Row {
   title: string;
   category: string;
   thumbnail_url: string | null;
+  content: string | null;
 }
 
 type State =
@@ -42,7 +45,7 @@ export default function AdminThumbnailsPage() {
     (async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, slug, title, category, thumbnail_url")
+        .select("id, slug, title, category, thumbnail_url, content")
         .order("published_at", { ascending: false });
       if (error) toast.error(error.message);
       setRows((data ?? []) as Row[]);
@@ -50,10 +53,7 @@ export default function AdminThumbnailsPage() {
     return () => { cancelled.current = true; };
   }, []);
 
-  const legacy = useMemo(
-    () => (rows ?? []).filter((r) => (r.thumbnail_url ?? "").includes("imweb")),
-    [rows],
-  );
+  const withPhoto = useMemo(() => (rows ?? []).filter((r) => firstBodyImage(r.content)), [rows]);
 
   async function generate(row: Row) {
     setStates((s) => ({ ...s, [row.id]: { kind: "working" } }));
@@ -91,21 +91,20 @@ export default function AdminThumbnailsPage() {
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-primary">Thumbnails</h1>
           <p className="mt-1 text-sm text-text-secondary">
-            Rebuilds the card image from a stock photo, the article title and its category colour.
-            The imported thumbnails have a headline burned into them, so a fresh photo is fetched
-            rather than drawing over the old artwork.
+            Rebuilds the card image from the first photo in the article body, the title and its
+            category colour. An article with no photo in its body gets a stock photo instead.
           </p>
         </div>
 
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <button
             type="button"
-            disabled={running || legacy.length === 0}
-            onClick={() => generateAll(legacy)}
+            disabled={running || withPhoto.length === 0}
+            onClick={() => generateAll(withPhoto)}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
           >
             {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-            Regenerate the {legacy.length} imported thumbnail{legacy.length === 1 ? "" : "s"}
+            Rebuild the {withPhoto.length} with a photo in the body
           </button>
           {running && (
             <button
@@ -117,7 +116,7 @@ export default function AdminThumbnailsPage() {
             </button>
           )}
           <span className="text-xs text-gray-500">
-            One at a time — each needs a photo search and an upload.
+            One at a time — each needs an upload.
           </span>
         </div>
 
@@ -168,10 +167,10 @@ export default function AdminThumbnailsPage() {
                         <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-600">
                           <Check className="h-3 w-3" /> Regenerated
                         </span>
-                      ) : (row.thumbnail_url ?? "").includes("imweb") ? (
-                        <span className="text-[11px] text-amber-600">Imported — headline burned in</span>
+                      ) : firstBodyImage(row.content) ? (
+                        <span className="text-[11px] text-gray-400">Uses the body photo</span>
                       ) : (
-                        <span className="text-[11px] text-gray-400">Generated</span>
+                        <span className="text-[11px] text-amber-600">No body photo — stock photo</span>
                       )}
 
                       <button

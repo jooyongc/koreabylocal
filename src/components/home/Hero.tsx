@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useHeroPosts, type HeroPostRow } from "@/hooks/useConcepts";
 import OptimizedImage from "@/components/common/OptimizedImage";
+import { firstPhoto } from "@/lib/articleImage";
 
 const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
 const ROTATE_MS = 6000;
@@ -74,8 +75,9 @@ export default function Hero() {
 /**
  * The right-hand panel: the pinned post and the latest ones, one at a time,
  * crossfading every few seconds. Each slide's hero photo fills the panel with
- * the text over a gradient — not the thumbnail, whose drawn-in headline read
- * twice next to the real title.
+ * the text over a gradient — never a card thumbnail, whose drawn-in headline
+ * reads twice next to the real title. One had been saved as a post's hero, so
+ * that is checked here rather than trusted.
  */
 function PostCarousel({ posts }: { posts: HeroPostRow[] }) {
   const [index, setIndex] = useState(0);
@@ -110,6 +112,7 @@ function PostCarousel({ posts }: { posts: HeroPostRow[] }) {
     >
       {posts.map((post, i) => {
         const active = i === index;
+        const photo = firstPhoto(post.hero_image_url);
         return (
           <Link
             key={post.slug}
@@ -120,11 +123,11 @@ function PostCarousel({ posts }: { posts: HeroPostRow[] }) {
               active ? "z-10 opacity-100" : "pointer-events-none opacity-0"
             }`}
           >
-            {post.hero_image_url && (
+            {photo && (
               <>
                 {/* The first slide is the homepage's largest paint: fetched first. */}
                 <OptimizedImage
-                  src={post.hero_image_url}
+                  src={photo}
                   alt=""
                   preset="detail"
                   priority={i === 0}

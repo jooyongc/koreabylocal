@@ -15,6 +15,7 @@
 // the right thing.
 
 import { responsiveImage, type ResponsiveImage } from "../src/lib/imageUrl.ts";
+import { firstPhoto } from "../src/lib/articleImage.ts";
 
 const ESCAPES: Record<string, string> = {
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -122,6 +123,7 @@ export function articleMeta(
   },
   origin: string,
 ): ArticleMeta {
+  const hero = firstPhoto(post.hero_image_url, post.thumbnail_url);
   const description =
     post.seo_description?.trim() ||
     post.excerpt?.trim() ||
@@ -137,10 +139,8 @@ export function articleMeta(
     author: post.author ?? "Korea by Local",
     section: post.category ?? null,
     kind: "article",
-    // GuideDetailPage's hero: hero_image_url, else the thumbnail, at preset "full".
-    hero: post.hero_image_url || post.thumbnail_url
-      ? responsiveImage((post.hero_image_url || post.thumbnail_url)!, "full")
-      : null,
+    // GuideDetailPage's hero (a photo, never a card thumbnail), at preset "full".
+    hero: hero ? responsiveImage(hero, "full") : null,
   };
 }
 

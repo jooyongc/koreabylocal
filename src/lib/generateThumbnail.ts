@@ -1,14 +1,16 @@
 import { supabase } from "./supabase";
+import { firstBodyImage } from "./articleImage";
 import { renderThumbnail, THUMB_HEIGHT, THUMB_WIDTH } from "./thumbnail";
 
 /**
- * Finds a photo for an article, draws the thumbnail and stores it.
+ * Draws an article's thumbnail over its photo and stores it.
  *
- * Why a photo has to be fetched rather than reused: the articles imported from
- * imweb have no image in their body, and their existing thumbnail_url points at
- * the old thumbnail — which already has a headline burned into it. Drawing over
- * one of those leaves the old text showing through the new artwork, so a fresh
- * photo is sourced per article instead.
+ * The photo is the first image in the article body, so the card shows what the
+ * reader then sees on the page — a stock search for the title had picked a
+ * Seoul street for an Olive Young guide. Only a body without an image (most of
+ * the articles imported from imweb) falls back to a stock photo. Their old
+ * thumbnails are never reused: those already have a headline burned in, which
+ * would show through the new one.
  */
 
 const BUCKET = "images";
@@ -48,8 +50,8 @@ export interface GenerateInput {
   slug: string;
   title: string;
   category: string;
-  /** Skips the stock search when the caller already has a clean photo. */
-  imageUrl?: string | null;
+  /** The article body (HTML); its first image becomes the background. */
+  content?: string | null;
 }
 
 export interface GenerateResult {
@@ -64,7 +66,7 @@ export interface GenerateResult {
  * whether to save, so a bulk tool can show a preview first.
  */
 export async function buildThumbnail(post: GenerateInput): Promise<GenerateResult> {
-  let photo = post.imageUrl ?? null;
+  let photo = firstBodyImage(post.content);
   let credit: string | null = null;
 
   if (!photo) {
@@ -82,7 +84,7 @@ export async function buildThumbnail(post: GenerateInput): Promise<GenerateResul
 
 /** Renders a preview without uploading anything. Caller revokes the object URL. */
 export async function previewThumbnail(post: GenerateInput): Promise<{ objectUrl: string; photo: string | null }> {
-  let photo = post.imageUrl ?? null;
+  let photo = firstBodyImage(post.content);
   if (!photo) photo = (await findPhoto(`${post.title} South Korea`))?.url ?? null;
   const blob = await renderThumbnail({ title: post.title, category: post.category, imageUrl: photo });
   return { objectUrl: URL.createObjectURL(blob), photo };

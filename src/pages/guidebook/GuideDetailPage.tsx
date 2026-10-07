@@ -13,6 +13,7 @@ import { useRegions, useExperiences } from "@/hooks/useConcepts";
 import SpotCard from "@/components/home/SpotCard";
 import RelatedPicks from "@/components/guidebook/RelatedPicks";
 import { readRelated, type BlogPost } from "@/types";
+import { firstPhoto } from "@/lib/articleImage";
 
 interface TocItem { id: string; text: string; level: number }
 
@@ -163,7 +164,9 @@ export default function GuideDetailPage() {
     ],
   };
 
-  const heroImage = post.hero_image_url ?? post.thumbnail_url;
+  // A photo, never a card thumbnail: that has the headline drawn in, right under
+  // the real one. functions/_meta.ts picks the same one for the first HTML.
+  const heroImage = firstPhoto(post.hero_image_url, post.thumbnail_url);
   const faqs = Array.isArray(post.faqs) ? (post.faqs as { q: string; a: string }[]) : [];
   const faqSchema = faqs.length
     ? {
@@ -183,7 +186,7 @@ export default function GuideDetailPage() {
         title={pageTitle}
         description={pageDesc}
         path={pagePath}
-        ogImage={heroImage ?? undefined}
+        ogImage={heroImage ?? post.thumbnail_url ?? undefined}
         ogType="article"
         jsonLd={[articleSchema, breadcrumbSchema, ...(faqSchema ? [faqSchema] : [])]}
       />
