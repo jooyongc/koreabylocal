@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useHeroPosts, type HeroPostRow } from "@/hooks/useConcepts";
 import OptimizedImage from "@/components/common/OptimizedImage";
 
-const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL → BUSAN → JEJU & MORE"];
+const AREAS = ["SEOUL → BUSAN → JEJU & MORE"];
 const ROTATE_MS = 6000;
 
 function formatCategory(raw: string): string {
@@ -25,7 +25,6 @@ export default function Hero() {
           {/* Left: brand message */}
           <div className="border-b-[1.5px] border-ink p-[clamp(28px,4vw,48px)] lg:border-b-0">
             <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[12px] font-bold uppercase tracking-[0.14em] text-accent">
-              <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-accent" />
               {AREAS.map((area) => (
                 <span key={area}>{area}</span>
               ))}
