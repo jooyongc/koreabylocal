@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useHeroPosts, type HeroPostRow } from "@/hooks/useConcepts";
 import OptimizedImage from "@/components/common/OptimizedImage";
 
-const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL", "BUSAN", "JEJU", "GANGNEUNG & MORE"];
+const AREAS = ["KOREA TRAVEL GUIDE", "SEOUL → BUSAN → JEJU & MORE"];
 const ROTATE_MS = 6000;
 
 function formatCategory(raw: string): string {
