@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
+import type { BlogPost } from "@/types";
 import { SPOT_CARD_COLUMNS, type SpotRow } from "./useSpots";
 import {
   AFFILIATE_EXPERIENCE_COLUMNS,
@@ -163,6 +164,25 @@ export function useRegion(key: string | undefined) {
         .maybeSingle();
       if (error) throw error;
       return data;
+    },
+  });
+}
+
+/** Newest published guides that name a region in their title or excerpt. */
+export function useRegionGuides(name: string | undefined) {
+  return useQuery({
+    queryKey: ["region-guides", name],
+    enabled: !!name,
+    queryFn: async (): Promise<BlogPost[]> => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("id, slug, title")
+        .eq("status", "published")
+        .or(`title.ilike.%${name}%,excerpt.ilike.%${name}%`)
+        .order("published_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return (data as BlogPost[]) ?? [];
     },
   });
 }
