@@ -1,10 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { ArrowRight, BookOpen, Compass, MessageCircle, Search } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import AffiliateDisclosure from "@/components/stays/AffiliateDisclosure";
 import StayCard from "@/components/stays/StayCard";
+import { useRegionGuides, useRegions, type RegionRow } from "@/hooks/useConcepts";
 import { useStays } from "@/hooks/useStays";
+
+// The rest of the site, for visitors who came for a hotel and are still planning.
+const MORE_PLANNING = [
+  {
+    to: "/guidebook",
+    icon: BookOpen,
+    title: "Travel Blog",
+    text: "City guides, food and itineraries from people who live here.",
+    cta: "Read the guides",
+  },
+  {
+    to: "/things-to-do",
+    icon: Compass,
+    title: "Things to Do",
+    text: "Food walks, cooking classes and hikes hosted by locals.",
+    cta: "See what's on",
+  },
+  {
+    to: "/ask-a-local",
+    icon: MessageCircle,
+    title: "Ask a Local",
+    text: "Stuck on a plan? Get a personal answer from someone who lives here.",
+    cta: "Ask a question",
+  },
+];
 
 /**
  * /where-to-stay — the page behind the @koreastaylist profile link.
@@ -20,6 +46,19 @@ export default function WhereToStayPage() {
   const [q, setQ] = useState("");
 
   const all = useMemo(() => data ?? [], [data]);
+
+  // A stay's city ("Busan") -> its destination page, when there is one.
+  const { data: regions } = useRegions();
+  const regionByCity = useMemo(() => {
+    const m = new Map<string, RegionRow>();
+    for (const r of regions ?? []) {
+      m.set(r.key.toLowerCase(), r);
+      m.set(r.name.toLowerCase(), r);
+    }
+    return m;
+  }, [regions]);
+  const cityRegion = city ? regionByCity.get(city.toLowerCase()) : undefined;
+  const { data: cityGuides } = useRegionGuides(cityRegion?.name);
 
   // Cities come from the live data so a chip never leads to an empty list.
   const cities = useMemo(() => {
@@ -152,7 +191,12 @@ export default function WhereToStayPage() {
         ) : stays.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {stays.map((s) => (
-              <StayCard key={s.id} stay={s} highlight={s.slug === target} />
+              <StayCard
+                key={s.id}
+                stay={s}
+                region={regionByCity.get(s.city.toLowerCase())}
+                highlight={s.slug === target}
+              />
             ))}
           </div>
         ) : (
@@ -160,6 +204,59 @@ export default function WhereToStayPage() {
             {all.length === 0 ? "Coming soon." : "No hotel matches that. Try another name or city."}
           </div>
         )}
+
+        {cityRegion && (
+          <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-[18px]">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 className="font-display text-[17px] font-extrabold text-ink">Planning {cityRegion.name}?</h2>
+              <Link
+                to={`/destinations/${cityRegion.key}`}
+                className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-accent hover:underline"
+              >
+                All of {cityRegion.name}
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+              </Link>
+            </div>
+            {cityGuides && cityGuides.length > 0 && (
+              <ul className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+                {cityGuides.slice(0, 3).map((post) => (
+                  <li key={post.id}>
+                    <Link
+                      to={`/guidebook/${post.slug}`}
+                      className="flex items-start gap-2 text-[13.5px] font-semibold leading-[1.45] text-ink hover:text-accent"
+                    >
+                      <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
+                      <span className="line-clamp-2">{post.title}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        <section className="mt-[clamp(36px,5vw,56px)]">
+          <h2 className="font-display text-[clamp(20px,2.4vw,26px)] font-extrabold tracking-[-0.01em] text-ink">
+            Planning the rest of your trip?
+          </h2>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {MORE_PLANNING.map(({ to, icon: Icon, title, text, cta }) => (
+              <Link
+                key={to}
+                to={to}
+                className="group flex flex-col rounded-2xl border border-ink/10 bg-white p-5 transition-colors hover:border-accent"
+              >
+                <Icon className="h-5 w-5 text-accent" aria-hidden />
+                <span className="mt-3 font-display text-[16px] font-extrabold text-ink">{title}</span>
+                <span className="mt-1 text-[13.5px] leading-[1.55] text-muted">{text}</span>
+                <span className="mt-auto inline-flex items-center gap-1 pt-3 text-[13px] font-semibold text-accent">
+                  {cta}
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <p className="mt-10 text-center text-[12.5px] leading-[1.7] text-muted-2">
           Ratings and review counts are the booking site’s figures on the date we checked them. Prices and availability

@@ -1,5 +1,7 @@
-import { ArrowUpRight, PlayCircle, Star } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, MapPin, PlayCircle, Star } from "lucide-react";
 import OptimizedImage from "@/components/common/OptimizedImage";
+import type { RegionRow } from "@/hooks/useConcepts";
 import type { StayRow } from "@/types/stays";
 
 /**
@@ -8,9 +10,18 @@ import type { StayRow } from "@/types/stays";
  *
  * The whole card is NOT a link on purpose: the affiliate link sits on the
  * "Check rate" button only (rel="nofollow sponsored"), and the Reel link is a
- * separate, ordinary link.
+ * separate, ordinary link. `region`, when the city has a destination page,
+ * adds a plain internal link to it.
  */
-export default function StayCard({ stay, highlight = false }: { stay: StayRow; highlight?: boolean }) {
+export default function StayCard({
+  stay,
+  region,
+  highlight = false,
+}: {
+  stay: StayRow;
+  region?: Pick<RegionRow, "key" | "name">;
+  highlight?: boolean;
+}) {
   const place = [stay.city, stay.area].filter(Boolean).join(" · ");
   const highlights = (stay.highlights ?? []).slice(0, 3);
 
@@ -52,6 +63,16 @@ export default function StayCard({ stay, highlight = false }: { stay: StayRow; h
               </li>
             ))}
           </ul>
+        )}
+
+        {region && (
+          <Link
+            to={`/destinations/${region.key}`}
+            className="mt-3 inline-flex items-center gap-1 self-start text-[12.5px] font-semibold text-muted hover:text-accent"
+          >
+            <MapPin className="h-3.5 w-3.5" aria-hidden />
+            Explore {region.name}
+          </Link>
         )}
 
         <div className="mt-auto flex items-center gap-3 pt-4">

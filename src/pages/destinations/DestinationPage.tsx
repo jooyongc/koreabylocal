@@ -1,33 +1,15 @@
 import { useParams, Link } from "react-router-dom";
 import OptimizedImage from "@/components/common/OptimizedImage";
-import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Sun, Navigation2, Loader2, MessageCircle, BookOpen } from "lucide-react";
 import PageSEO, { SITE_URL } from "@/components/common/PageSEO";
-import { useRegion } from "@/hooks/useConcepts";
-import { supabase } from "@/lib/supabase";
+import { useRegion, useRegionGuides } from "@/hooks/useConcepts";
 import TypeFilter from "@/components/home/TypeFilter";
 import SpotGrid from "@/components/home/SpotGrid";
-import type { BlogPost } from "@/types";
 
 export default function DestinationPage() {
   const { region: regionKey } = useParams<{ region: string }>();
   const { data: region, isLoading } = useRegion(regionKey);
-
-  const { data: relatedGuides } = useQuery({
-    queryKey: ["region-guides", region?.name],
-    enabled: !!region?.name,
-    queryFn: async (): Promise<BlogPost[]> => {
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("id, slug, title")
-        .eq("status", "published")
-        .or(`title.ilike.%${region!.name}%,excerpt.ilike.%${region!.name}%`)
-        .order("published_at", { ascending: false })
-        .limit(6);
-      if (error) throw error;
-      return (data as BlogPost[]) ?? [];
-    },
-  });
+  const { data: relatedGuides } = useRegionGuides(region?.name);
 
   if (isLoading) {
     return (
