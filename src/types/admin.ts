@@ -95,3 +95,22 @@ export interface EbookFormData {
   price_jpy: number | null;
   is_active: boolean;
 }
+
+export interface EventFormData {
+  slug: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  cover_image_url: string;
+  preview_images: string[];
+  event_date: string;
+  time_label: string;
+  location: string;
+  price_usd: number;
+  price_krw: number | null;
+  capacity: number;
+  /** One per line in the form; stored as a text[] column. */
+  perks: string;
+  audience_note: string;
+  is_active: boolean;
+}
