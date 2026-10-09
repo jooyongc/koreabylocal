@@ -19,6 +19,9 @@ const AskSuccessPage = lazy(() => import("@/pages/ask-a-local/AskSuccessPage"));
 const EbookPage = lazy(() => import("@/pages/ebook/EbookPage"));
 const EbookSuccessPage = lazy(() => import("@/pages/ebook/EbookSuccessPage"));
 const EbookDownloadPage = lazy(() => import("@/pages/ebook/EbookDownloadPage"));
+const EventsPage = lazy(() => import("@/pages/events/EventsPage"));
+const EventDetailPage = lazy(() => import("@/pages/events/EventDetailPage"));
+const EventSuccessPage = lazy(() => import("@/pages/events/EventSuccessPage"));
 const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
 const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
 const ThingsToDoPage = lazy(() => import("@/pages/things-to-do/ThingsToDoPage"));
@@ -46,6 +49,7 @@ const AdminSpotNew = lazy(() => import("@/pages/admin/SpotNewPage"));
 const AdminSpotEdit = lazy(() => import("@/pages/admin/SpotEditPage"));
 const AdminSubscribers = lazy(() => import("@/pages/admin/SubscribersPage"));
 const AdminEbooks = lazy(() => import("@/pages/admin/EbooksPage"));
+const AdminEvents = lazy(() => import("@/pages/admin/EventsPage"));
 const AdminProducts = lazy(() => import("@/pages/admin/ProductsPage"));
 const AdminProductNew = lazy(() => import("@/pages/admin/ProductNewPage"));
 const AdminProductEdit = lazy(() => import("@/pages/admin/ProductEditPage"));
@@ -108,6 +112,10 @@ function App() {
           <Route path="/ebook/success" element={<EbookSuccessPage />} />
           <Route path="/ebook/download/:token" element={<EbookDownloadPage />} />
 
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/events/success" element={<EventSuccessPage />} />
+          <Route path="/events/:slug" element={<EventDetailPage />} />
+
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
@@ -156,6 +164,7 @@ function App() {
             <Route path="/admin/spots/:id/edit" element={<AdminSpotEdit />} />
             <Route path="/admin/subscribers" element={<AdminSubscribers />} />
             <Route path="/admin/ebooks" element={<AdminEbooks />} />
+            <Route path="/admin/events" element={<AdminEvents />} />
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/products/new" element={<AdminProductNew />} />
             <Route path="/admin/products/:id/edit" element={<AdminProductEdit />} />

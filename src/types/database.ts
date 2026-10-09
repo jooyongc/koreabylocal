@@ -1148,6 +1148,125 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          id: number
+          slug: string
+          title: string
+          subtitle: string | null
+          description: string | null
+          cover_image_url: string | null
+          preview_images: string[]
+          event_date: string
+          time_label: string | null
+          location: string | null
+          price_usd: number
+          price_krw: number | null
+          capacity: number
+          sold_count: number
+          perks: string[] | null
+          audience_note: string | null
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          slug: string
+          title: string
+          subtitle?: string | null
+          description?: string | null
+          cover_image_url?: string | null
+          preview_images?: string[]
+          event_date: string
+          time_label?: string | null
+          location?: string | null
+          price_usd?: number
+          price_krw?: number | null
+          capacity?: number
+          sold_count?: number
+          perks?: string[] | null
+          audience_note?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          slug?: string
+          title?: string
+          subtitle?: string | null
+          description?: string | null
+          cover_image_url?: string | null
+          preview_images?: string[]
+          event_date?: string
+          time_label?: string | null
+          location?: string | null
+          price_usd?: number
+          price_krw?: number | null
+          capacity?: number
+          sold_count?: number
+          perks?: string[] | null
+          audience_note?: string | null
+          is_active?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      event_tickets: {
+        Row: {
+          id: number
+          event_id: number | null
+          buyer_email: string
+          buyer_name: string | null
+          payment_provider: string | null
+          payment_key: string | null
+          amount: number | null
+          currency: string
+          status: string
+          confirmation_code: string | null
+          checked_in: boolean
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: never
+          event_id?: number | null
+          buyer_email: string
+          buyer_name?: string | null
+          payment_provider?: string | null
+          payment_key?: string | null
+          amount?: number | null
+          currency?: string
+          status?: string
+          confirmation_code?: string | null
+          checked_in?: boolean
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: never
+          event_id?: number | null
+          buyer_email?: string
+          buyer_name?: string | null
+          payment_provider?: string | null
+          payment_key?: string | null
+          amount?: number | null
+          currency?: string
+          status?: string
+          confirmation_code?: string | null
+          checked_in?: boolean
+          paid_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_jobs: {
         Row: {
           id: number
