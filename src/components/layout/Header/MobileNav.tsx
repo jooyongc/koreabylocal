@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { Menu, X, ChevronDown, BookOpen } from "lucide-react";
 
@@ -41,83 +42,90 @@ export default function MobileNav() {
         <Menu className="h-6 w-6" />
       </button>
 
-      {isOpen && (
-        <div className="fixed inset-0 z-40 bg-ink/30 backdrop-blur-sm" onClick={close} aria-hidden />
-      )}
+      {/* Portalled to <body>: the header's backdrop-blur makes it the containing
+          block for fixed children, which squashed the drawer to the header's height. */}
+      {createPortal(
+        <>
+          {isOpen && (
+            <div className="fixed inset-0 z-40 bg-ink/30 backdrop-blur-sm lg:hidden" onClick={close} aria-hidden />
+          )}
 
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-[82%] max-w-xs bg-paper shadow-2xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
-          <span className="font-display text-lg font-extrabold text-ink">Menu</span>
-          <button
-            onClick={close}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-ink/5"
-            aria-label="Close menu"
+          <div
+            className={`fixed inset-y-0 left-0 z-50 w-[82%] max-w-xs bg-paper shadow-2xl transition-transform duration-300 ${
+              isOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
           >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+            <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+              <span className="font-display text-lg font-extrabold text-ink">Menu</span>
+              <button
+                onClick={close}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-ink transition-colors hover:bg-ink/5"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-        <nav className="overflow-y-auto px-3 py-3" style={{ maxHeight: "calc(100vh - 65px)" }}>
-          {NAV_ITEMS.map((item) => (
-            <div key={item.label}>
-              {item.children ? (
-                <>
-                  <div className="flex items-center rounded-xl hover:bg-ink/5">
+            <nav className="overflow-y-auto px-3 py-3" style={{ maxHeight: "calc(100vh - 65px)" }}>
+              {NAV_ITEMS.map((item) => (
+                <div key={item.label}>
+                  {item.children ? (
+                    <>
+                      <div className="flex items-center rounded-xl hover:bg-ink/5">
+                        <Link
+                          to={item.href}
+                          onClick={close}
+                          className="flex-1 px-4 py-3 text-[15px] font-semibold text-ink"
+                        >
+                          {item.label}
+                        </Link>
+                        <button
+                          onClick={() => setExpanded((p) => (p === item.label ? null : item.label))}
+                          aria-label={`Toggle ${item.label} submenu`}
+                          className="px-4 py-3"
+                        >
+                          <ChevronDown
+                            className={`h-4 w-4 text-ink transition-transform ${expanded === item.label ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      </div>
+                      {expanded === item.label && (
+                        <div className="ml-3 border-l-2 border-ink/10 pl-3 pb-1">
+                          {item.children.map((sub) => (
+                            <Link
+                              key={sub.href}
+                              to={sub.href}
+                              onClick={close}
+                              className="block rounded-lg px-4 py-2.5 text-sm text-muted transition-colors hover:bg-ink/5 hover:text-ink"
+                            >
+                              {sub.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
                     <Link
                       to={item.href}
                       onClick={close}
-                      className="flex-1 px-4 py-3 text-[15px] font-semibold text-ink"
+                      className="flex items-center gap-2 rounded-xl px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-ink/5"
                     >
+                      {item.label === "E-book" && <BookOpen className="h-4 w-4" />}
                       {item.label}
+                      {item.badge && (
+                        <span className="rounded-full bg-accent px-1.5 py-[1px] text-[9px] font-extrabold uppercase tracking-wide text-white">
+                          {item.badge}
+                        </span>
+                      )}
                     </Link>
-                    <button
-                      onClick={() => setExpanded((p) => (p === item.label ? null : item.label))}
-                      aria-label={`Toggle ${item.label} submenu`}
-                      className="px-4 py-3"
-                    >
-                      <ChevronDown
-                        className={`h-4 w-4 text-ink transition-transform ${expanded === item.label ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                  </div>
-                  {expanded === item.label && (
-                    <div className="ml-3 border-l-2 border-ink/10 pl-3 pb-1">
-                      {item.children.map((sub) => (
-                        <Link
-                          key={sub.href}
-                          to={sub.href}
-                          onClick={close}
-                          className="block rounded-lg px-4 py-2.5 text-sm text-muted transition-colors hover:bg-ink/5 hover:text-ink"
-                        >
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
                   )}
-                </>
-              ) : (
-                <Link
-                  to={item.href}
-                  onClick={close}
-                  className="flex items-center gap-2 rounded-xl px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-ink/5"
-                >
-                  {item.label === "E-book" && <BookOpen className="h-4 w-4" />}
-                  {item.label}
-                  {item.badge && (
-                    <span className="rounded-full bg-accent px-1.5 py-[1px] text-[9px] font-extrabold uppercase tracking-wide text-white">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              )}
-            </div>
-          ))}
-        </nav>
-      </div>
+                </div>
+              ))}
+            </nav>
+          </div>
+        </>,
+        document.body,
+      )}
     </div>
   );
 }
