@@ -22,6 +22,7 @@ const EbookDownloadPage = lazy(() => import("@/pages/ebook/EbookDownloadPage"));
 const DestinationPage = lazy(() => import("@/pages/destinations/DestinationPage"));
 const SpotDetailPage = lazy(() => import("@/pages/spots/SpotDetailPage"));
 const ThingsToDoPage = lazy(() => import("@/pages/things-to-do/ThingsToDoPage"));
+const WhereToStayPage = lazy(() => import("@/pages/where-to-stay/WhereToStayPage"));
 const AboutPage = lazy(() => import("@/pages/about/AboutPage"));
 const PrivacyPage = lazy(() => import("@/pages/legal/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/legal/TermsPage"));
@@ -53,6 +54,7 @@ const AdminBlogNew = lazy(() => import("@/pages/admin/BlogNewPage"));
 const AdminBlogEdit = lazy(() => import("@/pages/admin/BlogEditPage"));
 const AdminOrders = lazy(() => import("@/pages/admin/AdminOrdersPage"));
 const AdminOrderDetail = lazy(() => import("@/pages/admin/AdminOrderDetailPage"));
+const AdminStays = lazy(() => import("@/pages/admin/StaysPage"));
 const AdminInquiries = lazy(() => import("@/pages/admin/AdminInquiriesPage"));
 const AdminInquiryDetail = lazy(() => import("@/pages/admin/AdminInquiryDetailPage"));
 const AdminMagazines = lazy(() => import("@/pages/admin/AdminMagazinesPage"));
@@ -89,6 +91,7 @@ function App() {
           <Route path="/destinations/:region" element={<DestinationPage />} />
           <Route path="/things-to-do" element={<ThingsToDoPage />} />
           <Route path="/experiences" element={<Navigate to="/things-to-do" replace />} />
+          <Route path="/where-to-stay" element={<WhereToStayPage />} />
 
           {/* Getting There is unpublished for now — not ready to offer. */}
           <Route path="/getting-there" element={<Navigate to="/" replace />} />
@@ -163,6 +166,7 @@ function App() {
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/orders/:id" element={<AdminOrderDetail />} />
+            <Route path="/admin/stays" element={<AdminStays />} />
             <Route path="/admin/inquiries" element={<AdminInquiries />} />
             <Route path="/admin/inquiries/:id" element={<AdminInquiryDetail />} />
             <Route path="/admin/magazines" element={<AdminMagazines />} />

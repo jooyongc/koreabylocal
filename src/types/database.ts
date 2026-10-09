@@ -864,6 +864,69 @@ export type Database = {
         }
         Relationships: []
       }
+      stays: {
+        Row: {
+          id: number
+          slug: string
+          label: string
+          name: string
+          city: string
+          area: string | null
+          ota: string
+          affiliate_url: string
+          rating: number | null
+          review_count: number | null
+          facts_checked_on: string
+          highlights: string[]
+          thumb_url: string | null
+          reel_url: string | null
+          is_active: boolean
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: never
+          slug: string
+          label: string
+          name: string
+          city: string
+          area?: string | null
+          ota?: string
+          affiliate_url: string
+          rating?: number | null
+          review_count?: number | null
+          facts_checked_on?: string
+          highlights?: string[]
+          thumb_url?: string | null
+          reel_url?: string | null
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: never
+          slug?: string
+          label?: string
+          name?: string
+          city?: string
+          area?: string | null
+          ota?: string
+          affiliate_url?: string
+          rating?: number | null
+          review_count?: number | null
+          facts_checked_on?: string
+          highlights?: string[]
+          thumb_url?: string | null
+          reel_url?: string | null
+          is_active?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       subscribers: {
         Row: {
           id: number
