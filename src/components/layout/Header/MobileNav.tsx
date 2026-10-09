@@ -9,12 +9,14 @@ interface NavItem {
   children?: { label: string; href: string }[];
 }
 
-// IA: Travel Blog (articles), Things to Do (local spots), Getting There
-// (transport — its own menu, headed for partner bookings), Ask a Local (paid
-// concierge Q&A) — kept separate from E-book so the two products are never confused.
+// IA: Travel Blog (articles), Things to Do (local spots), Where to Stay (hotel
+// cards behind the @koreastaylist profile link, affiliate — it took Getting
+// There's slot), Ask a Local (paid concierge Q&A) — kept separate from E-book so
+// the two products are never confused.
 const NAV_ITEMS: NavItem[] = [
   { label: "Travel Blog", href: "/guidebook" },
   { label: "Things to Do", href: "/things-to-do" },
+  { label: "Where to Stay", href: "/where-to-stay" },
   { label: "Ask a Local", href: "/ask-a-local" },
   { label: "E-book", href: "/ebook", badge: "NEW" },
   { label: "About", href: "/about" },

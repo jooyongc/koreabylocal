@@ -11,6 +11,7 @@ const RESOURCE_LINKS = [
   { label: "Travel Blog", href: "/guidebook" },
   { label: "Things to Do", href: "/things-to-do" },
   { label: "Ask a Local", href: "/ask-a-local" },
+  { label: "Where to Stay", href: "/where-to-stay" },
   { label: "E-book", href: "/ebook" },
   { label: "About", href: "/about" },
 ];

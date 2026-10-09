@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
 
-// IA: Travel Blog (articles), Things to Do (local spots), Getting There
-// (transport — its own menu, headed for partner bookings), Ask a Local (paid
-// concierge Q&A) — kept separate from E-book so the two products are never confused.
+// IA: Travel Blog (articles), Things to Do (local spots), Where to Stay (hotel
+// cards behind the @koreastaylist profile link, affiliate — it took Getting
+// There's slot), Ask a Local (paid concierge Q&A) — kept separate from E-book so
+// the two products are never confused.
 
 export default function DesktopNav() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -18,6 +19,10 @@ export default function DesktopNav() {
 
       <NavLink to="/things-to-do" className={linkClass}>
         Things to Do
+      </NavLink>
+
+      <NavLink to="/where-to-stay" className={linkClass}>
+        Where to Stay
       </NavLink>
 
       <NavLink to="/ask-a-local" className={linkClass}>
