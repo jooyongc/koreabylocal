@@ -6,7 +6,7 @@ import AffiliateDisclosure from "@/components/stays/AffiliateDisclosure";
 import StayCard from "@/components/stays/StayCard";
 import { useRegionGuides, useRegions, type RegionRow } from "@/hooks/useConcepts";
 import { useStays } from "@/hooks/useStays";
-import { readPreferredOta, visibleOffers } from "@/lib/stayOffers";
+import { readPreferredOta } from "@/lib/stayOffers";
 
 // The rest of the site, for visitors who came for a hotel and are still planning.
 const MORE_PLANNING = [
@@ -89,9 +89,6 @@ export default function WhereToStayPage() {
     document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [target, isLoading]);
 
-  // Disclose every OTA that has a booking button on screen, not just the main one.
-  const programs = useMemo(() => stays.flatMap((s) => visibleOffers(s).map((o) => o.ota)), [stays]);
-
   const jsonLd = useMemo(
     () => ({
       "@context": "https://schema.org",
@@ -170,14 +167,13 @@ export default function WhereToStayPage() {
       </section>
 
       <section className="mx-auto max-w-[1180px] px-4 pb-[clamp(48px,7vw,90px)] pt-[clamp(20px,3vw,32px)] sm:px-6 lg:px-8">
-        <div className="mb-5">
-          <AffiliateDisclosure programs={programs} />
+        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <p className="text-[14.5px] text-muted">
+            <strong className="font-display text-ink">{stays.length}</strong> {stays.length === 1 ? "hotel" : "hotels"}
+            {city ? ` in ${city}` : ""}
+          </p>
+          <AffiliateDisclosure />
         </div>
-
-        <p className="mb-4 text-[14.5px] text-muted">
-          <strong className="font-display text-ink">{stays.length}</strong> {stays.length === 1 ? "hotel" : "hotels"}
-          {city ? ` in ${city}` : ""}
-        </p>
 
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
