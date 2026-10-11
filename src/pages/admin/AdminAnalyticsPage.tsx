@@ -1,313 +1,310 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, RefreshCw, AlertTriangle, Circle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  Activity, AlertTriangle, BarChart3, CalendarRange, Download, FileText, Globe2, HeartPulse, Loader2,
+  MousePointerClick, RefreshCw, Repeat, ShieldAlert, Users,
+} from "lucide-react";
+import { AnalyticsMotionStyles } from "@/components/admin/analytics/motion";
+import { DrillContext, TabContext } from "@/components/admin/analytics/context";
+import { DrillDrawer } from "@/components/admin/analytics/DrillDrawer";
+import { Segmented, Switch } from "@/components/admin/analytics/ui";
+import { derive } from "@/components/admin/analytics/derive";
+import { buildInsights, type TabKey } from "@/components/admin/analytics/insights";
+import { buildHealth } from "@/components/admin/analytics/health";
+import { download, fmtNum, fmtPct, fmtRange, ratio } from "@/components/admin/analytics/format";
+import { refreshReport, reportKey, useAnalyticsReport, useRealtime } from "@/components/admin/analytics/useAnalytics";
+import type { CompareMode, DrillTarget, RangeParams } from "@/components/admin/analytics/types";
+import { OverviewTab } from "@/components/admin/analytics/tabs/OverviewTab";
+import { AcquisitionTab } from "@/components/admin/analytics/tabs/AcquisitionTab";
+import { ContentTab } from "@/components/admin/analytics/tabs/ContentTab";
+import { AudienceTab } from "@/components/admin/analytics/tabs/AudienceTab";
+import { EngagementTab } from "@/components/admin/analytics/tabs/EngagementTab";
+import { RetentionTab } from "@/components/admin/analytics/tabs/RetentionTab";
+import { RealtimeTab } from "@/components/admin/analytics/tabs/RealtimeTab";
+import { HealthTab } from "@/components/admin/analytics/tabs/HealthTab";
 
 /**
- * GA4 for the admin.
+ * GA4 for the admin: what happened, where it came from, what people read and
+ * clicked, who they are, whether they come back — plus a plain-language read
+ * of it and a list of what skews the numbers.
  *
- * Everything is read through the ga4-report edge function: the Data API needs
- * a service account, and a service-account key in front-end code is a key
- * given away. The browser never sees it.
+ * Everything comes through the ga4-report edge function (the Data API needs a
+ * credential the browser must never see). Filters live in the URL, so a view
+ * can be bookmarked or shared.
  */
 
-const RANGES = [
-  { days: 7, label: "7 days" },
-  { days: 28, label: "28 days" },
-  { days: 90, label: "90 days" },
-  { days: 365, label: "1 year" },
+const TABS: Array<{ key: TabKey; label: string; icon: typeof Activity }> = [
+  { key: "overview", label: "Overview", icon: BarChart3 },
+  { key: "acquisition", label: "Acquisition", icon: Globe2 },
+  { key: "content", label: "Content", icon: FileText },
+  { key: "audience", label: "Audience", icon: Users },
+  { key: "engagement", label: "Engagement", icon: MousePointerClick },
+  { key: "retention", label: "Retention", icon: Repeat },
+  { key: "realtime", label: "Realtime", icon: Activity },
+  { key: "health", label: "Data health", icon: HeartPulse },
 ];
 
-interface Metric { value: number; previous: number }
-
-interface Report {
-  success: true;
-  days: number;
-  generated_at: string;
-  cached?: boolean;
-  summary: Record<string, Metric>;
-  daily: Array<{ date: string; activeUsers: number; sessions: number; screenPageViews: number }>;
-  pages: Array<{ pagePath: string; pageTitle: string; screenPageViews: number; activeUsers: number }>;
-  channels: Array<{ channel: string; sessions: number; activeUsers: number; engagementRate: number }>;
-  sources: Array<{ source: string; medium: string; sessions: number; activeUsers: number }>;
-  countries: Array<{ country: string; activeUsers: number; sessions: number }>;
-  devices: Array<{ device: string; activeUsers: number; sessions: number }>;
-  landing: Array<{ landingPage: string; sessions: number; bounceRate: number }>;
-  events: Array<{ eventName: string; eventCount: number; activeUsers: number }>;
-  realtime: { activeUsers: number; screens: Array<{ screen: string; activeUsers: number }> };
-}
-
-const nf = new Intl.NumberFormat("en-US");
-
-const duration = (seconds: number) => {
-  const m = Math.floor(seconds / 60);
-  const s = Math.round(seconds % 60);
-  return m > 0 ? `${m}m ${s}s` : `${s}s`;
-};
-
-const SUMMARY_CARDS: Array<{ key: string; label: string; format: (n: number) => string; lowerIsBetter?: boolean }> = [
-  { key: "activeUsers", label: "Users", format: (n) => nf.format(n) },
-  { key: "newUsers", label: "New users", format: (n) => nf.format(n) },
-  { key: "sessions", label: "Sessions", format: (n) => nf.format(n) },
-  { key: "screenPageViews", label: "Page views", format: (n) => nf.format(n) },
-  { key: "averageSessionDuration", label: "Avg. session", format: duration },
-  { key: "engagementRate", label: "Engaged", format: (n) => `${(n * 100).toFixed(1)}%` },
-  { key: "bounceRate", label: "Bounce", format: (n) => `${(n * 100).toFixed(1)}%`, lowerIsBetter: true },
-  { key: "eventCount", label: "Events", format: (n) => nf.format(n) },
+const PRESETS = [
+  { value: "7", label: "7D" },
+  { value: "14", label: "14D" },
+  { value: "28", label: "28D" },
+  { value: "90", label: "90D" },
+  { value: "180", label: "6M" },
+  { value: "365", label: "1Y" },
+  { value: "custom", label: "Custom" },
 ];
 
-function Delta({ metric, lowerIsBetter }: { metric: Metric; lowerIsBetter?: boolean }) {
-  if (!metric.previous) return <span className="text-[11px] text-gray-400">no prior data</span>;
-  const change = ((metric.value - metric.previous) / metric.previous) * 100;
-  const good = lowerIsBetter ? change < 0 : change > 0;
-  const flat = Math.abs(change) < 0.05;
-  return (
-    <span className={`text-[11px] font-medium ${flat ? "text-gray-400" : good ? "text-emerald-600" : "text-red-500"}`}>
-      {flat ? "—" : `${change > 0 ? "+" : ""}${change.toFixed(1)}%`}
-    </span>
-  );
-}
-
-/** A plain bar list. Reads faster than a chart for ranked values. */
-function Ranked({
-  title, rows, labelOf, valueOf, hint,
-}: {
-  title: string;
-  rows: Array<Record<string, string | number>>;
-  labelOf: (r: Record<string, string | number>) => string;
-  valueOf: (r: Record<string, string | number>) => number;
-  hint?: (r: Record<string, string | number>) => string;
-}) {
-  const max = Math.max(1, ...rows.map(valueOf));
-  return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-3 text-sm font-semibold text-primary">{title}</h2>
-      {rows.length === 0 ? (
-        <p className="text-xs text-gray-400">No data in this period.</p>
-      ) : (
-        <ul className="space-y-2">
-          {rows.map((r, i) => (
-            <li key={i}>
-              <div className="flex items-baseline justify-between gap-3 text-[12.5px]">
-                <span className="truncate text-gray-700" title={labelOf(r)}>{labelOf(r)}</span>
-                <span className="shrink-0 font-medium text-gray-800">
-                  {nf.format(valueOf(r))}
-                  {hint && <span className="ml-1.5 text-[11px] font-normal text-gray-400">{hint(r)}</span>}
-                </span>
-              </div>
-              <div className="mt-1 h-1 rounded bg-gray-100">
-                <div className="h-1 rounded bg-primary/60" style={{ width: `${(valueOf(r) / max) * 100}%` }} />
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-/** Daily trend as an inline sparkline — no chart library for three series. */
-function Trend({ daily }: { daily: Report["daily"] }) {
-  const { path, max } = useMemo(() => {
-    if (daily.length < 2) return { path: "", max: 0 };
-    const top = Math.max(1, ...daily.map((d) => d.activeUsers));
-    const pts = daily.map((d, i) => {
-      const x = (i / (daily.length - 1)) * 100;
-      const y = 100 - (d.activeUsers / top) * 100;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    });
-    return { path: `M${pts.join(" L")}`, max: top };
-  }, [daily]);
-
-  if (!path) return null;
-  return (
-    <section className="rounded-xl border border-gray-200 bg-white p-5">
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold text-primary">Users per day</h2>
-        <span className="text-[11px] text-gray-400">peak {nf.format(max)}</span>
-      </div>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-28 w-full">
-        <path d={path} fill="none" stroke="#12184a" strokeWidth="1.2" vectorEffect="non-scaling-stroke" />
-      </svg>
-      <div className="mt-1 flex justify-between text-[10.5px] text-gray-400">
-        <span>{daily[0]?.date}</span>
-        <span>{daily[daily.length - 1]?.date}</span>
-      </div>
-    </section>
-  );
-}
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 export default function AdminAnalyticsPage() {
-  const [days, setDays] = useState(28);
+  const [sp, setSp] = useSearchParams();
+  const qc = useQueryClient();
 
-  const { data, error, isLoading, isFetching, refetch } = useQuery<Report>({
-    queryKey: ["ga4", days],
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-    queryFn: async () => {
-      const { data, error } = await supabase.functions.invoke("ga4-report", { body: { days } });
-      if (error) {
-        let detail = error.message;
-        try {
-          const ctx = (error as { context?: Response }).context;
-          if (ctx) {
-            const body = await ctx.json();
-            detail = body?.detail ?? body?.error ?? detail;
-          }
-        } catch { /* keep the original message */ }
-        throw new Error(detail);
+  const tab = (TABS.some((t) => t.key === sp.get("tab")) ? sp.get("tab") : "overview") as TabKey;
+  const rangeKey = PRESETS.some((p) => p.value === sp.get("range")) ? sp.get("range")! : "28";
+  const start = sp.get("start") ?? "";
+  const end = sp.get("end") ?? "";
+  const compare = (["previous", "year", "none"].includes(sp.get("compare") ?? "") ? sp.get("compare") : "previous") as CompareMode;
+  const excludeBots = sp.get("bots") !== "all";
+
+  const customReady = rangeKey === "custom" && ISO.test(start) && ISO.test(end) && start <= end;
+  const params: RangeParams = customReady
+    ? { start, end, compare, excludeBots }
+    : { days: rangeKey === "custom" ? 28 : Number(rangeKey), compare, excludeBots };
+
+  const set = useCallback((patch: Record<string, string | null>) => {
+    setSp((prev) => {
+      const next = new URLSearchParams(prev);
+      for (const [k, v] of Object.entries(patch)) {
+        if (v == null) next.delete(k);
+        else next.set(k, v);
       }
-      return data as Report;
-    },
-  });
+      return next;
+    }, { replace: true });
+  }, [setSp]);
+
+  const { data: r, error, isLoading, isFetching } = useAnalyticsReport(params);
+  const live = useRealtime(true, tab === "realtime" ? 30_000 : 60_000);
+
+  const [drill, setDrill] = useState<DrillTarget | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [draft, setDraft] = useState({ start, end });
+
+  const derived = useMemo(() => (r ? derive(r) : null), [r]);
+  const insights = useMemo(() => (r && derived ? buildInsights(r, derived) : []), [r, derived]);
+  const health = useMemo(() => (r && derived ? buildHealth(r, derived) : []), [r, derived]);
+  const healthIssues = health.filter((h) => h.severity === "critical" || h.severity === "warning").length;
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      const fresh = await refreshReport(params);
+      qc.setQueryData(reportKey(params), fresh);
+      await live.refetch();
+    } catch {
+      /* the query's own error state shows failures */
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const onExport = () => {
+    if (!r) return;
+    download(`koreabylocal-ga4-${r.range.startDate}_${r.range.endDate}.json`, JSON.stringify(r, null, 2), "application/json");
+  };
+
+  const suspects = r?.quality.suspects ?? [];
+  const botSessions = suspects.reduce((n, s) => n + s.sessions, 0);
 
   return (
-    <>
-      <Helmet><title>Analytics | Korea By Local Admin</title></Helmet>
+    <DrillContext.Provider value={setDrill}>
+      <TabContext.Provider value={(t) => { set({ tab: t }); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+        <Helmet><title>Analytics | Korea By Local Admin</title></Helmet>
+        <AnalyticsMotionStyles />
 
-      <div className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">Analytics</h1>
-            <p className="mt-1 text-sm text-text-secondary">
-              Live GA4 numbers for koreabylocal.com, compared with the period before.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {data && (
-              <span className="mr-1 flex items-center gap-1.5 text-[12px] text-gray-500">
-                <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
-                {nf.format(data.realtime.activeUsers)} on the site now
-              </span>
-            )}
-            <div className="flex rounded-lg border border-gray-300 p-0.5">
-              {RANGES.map((r) => (
-                <button
-                  key={r.days}
-                  type="button"
-                  onClick={() => setDays(r.days)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-medium ${
-                    days === r.days ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  {r.label}
-                </button>
-              ))}
+        <div className="mx-auto max-w-[1400px] px-4 py-6 lg:px-6 lg:py-8">
+          {/* Title */}
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-primary">Analytics</h1>
+              <p className="mt-1 text-sm text-text-secondary">
+                GA4 for koreabylocal.com
+                {r && <> · {fmtRange(r.range.startDate, r.range.endDate)}{r.compare && <span className="text-gray-400"> vs {fmtRange(r.compare.startDate, r.compare.endDate)}</span>}</>}
+              </p>
             </div>
             <button
               type="button"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="rounded-lg border border-gray-300 p-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
-              title="Refresh"
+              onClick={() => set({ tab: "realtime" })}
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[12px] font-medium text-emerald-800 hover:bg-emerald-100"
             >
-              <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+              <span className="relative flex h-2 w-2">
+                <span className="ga-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-500" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              {live.data ? `${fmtNum(live.data.activeUsers)} on the site now` : "Live"}
             </button>
           </div>
-        </div>
 
-        {isLoading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        ) : error ? (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-            <div className="flex items-start gap-2.5">
-              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
-              <div>
-                <p className="text-sm font-semibold text-amber-900">Analytics is not available yet</p>
-                <p className="mt-1 text-sm text-amber-800">{(error as Error).message}</p>
-                <p className="mt-3 text-xs leading-relaxed text-amber-700">
-                  It needs <code className="font-mono">GA4_PROPERTY_ID</code> (the numeric property id, not
-                  the G-… measurement id) plus either <code className="font-mono">GA4_REFRESH_TOKEN</code>,
-                  issued by <code className="font-mono">scripts/get-ga4-token.mjs</code>, or a service
-                  account in <code className="font-mono">GA4_SERVICE_ACCOUNT</code> — stored as Supabase
-                  secrets. A service account also has to be a Viewer on the GA4 property; a refresh token
-                  does not, since it carries its owner's access.
-                </p>
-              </div>
+          {/* One filter row — it scopes everything below */}
+          <div className="mb-4 flex flex-wrap items-center gap-2.5 rounded-2xl border border-gray-200/80 bg-white p-2.5">
+            <Segmented
+              value={rangeKey}
+              onChange={(v) => set({ range: v === "28" ? null : v, ...(v !== "custom" ? { start: null, end: null } : {}) })}
+              options={PRESETS}
+            />
+            {rangeKey === "custom" && (
+              <form
+                className="flex items-center gap-1.5"
+                onSubmit={(e) => { e.preventDefault(); if (draft.start && draft.end && draft.start <= draft.end) set({ start: draft.start, end: draft.end }); }}
+              >
+                <CalendarRange className="h-4 w-4 text-gray-400" aria-hidden />
+                <input type="date" value={draft.start} max={draft.end || undefined} onChange={(e) => setDraft((d) => ({ ...d, start: e.target.value }))} className="rounded-lg border border-gray-200 px-2 py-1 text-[12px]" aria-label="Start date" />
+                <span className="text-gray-400">–</span>
+                <input type="date" value={draft.end} min={draft.start || undefined} onChange={(e) => setDraft((d) => ({ ...d, end: e.target.value }))} className="rounded-lg border border-gray-200 px-2 py-1 text-[12px]" aria-label="End date" />
+                <button type="submit" className="rounded-lg bg-primary px-2.5 py-1 text-[12px] font-medium text-white hover:bg-primary/90">Apply</button>
+              </form>
+            )}
+            <label className="flex items-center gap-1.5 text-[12px] text-gray-600">
+              <span className="sr-only sm:not-sr-only">Compare</span>
+              <select
+                value={compare}
+                onChange={(e) => set({ compare: e.target.value === "previous" ? null : e.target.value })}
+                className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-[12px] font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/10"
+              >
+                <option value="previous">vs previous period</option>
+                <option value="year">vs same weeks last year</option>
+                <option value="none">no comparison</option>
+              </select>
+            </label>
+            <Switch
+              checked={excludeBots}
+              onChange={(v) => set({ bots: v ? null : "all" })}
+              label={<>Exclude suspected bots{suspects.length > 0 && <span className="ml-1 rounded-full bg-gray-100 px-1.5 text-[10.5px] text-gray-500">{suspects.length}</span>}</>}
+              hint="Leaves out countries with many sessions and almost no engagement (crawlers and click farms)."
+            />
+            <div className="ml-auto flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={onExport}
+                disabled={!r}
+                className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2.5 py-1.5 text-[12px] font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+                title="Download the whole report as JSON"
+              >
+                <Download className="h-3.5 w-3.5" /> Export
+              </button>
+              <button
+                type="button"
+                onClick={onRefresh}
+                disabled={refreshing || isFetching}
+                className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                title="Refresh (skips the five-minute cache)"
+                aria-label="Refresh"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${refreshing || isFetching ? "animate-spin" : ""}`} />
+              </button>
             </div>
           </div>
-        ) : data ? (
-          <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {SUMMARY_CARDS.map((card) => {
-                const m = data.summary[card.key];
-                if (!m) return null;
+
+          {/* What the numbers include */}
+          {r && suspects.length > 0 && (
+            <div className={`ga-fade mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl px-4 py-2.5 text-[12px] ${excludeBots ? "bg-indigo-50/70 text-indigo-900" : "bg-red-50 text-[#8f1d1d]"}`}>
+              <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden />
+              {excludeBots ? (
+                <span>
+                  <strong>Suspected bot traffic excluded:</strong> {suspects.map((s) => s.country).join(", ")} — {fmtNum(botSessions)} sessions,{" "}
+                  {fmtPct(ratio(botSessions, botSessions + r.totals.current.sessions), 0)} of all traffic, with almost no engagement.
+                </span>
+              ) : (
+                <span>
+                  <strong>Including suspected bots:</strong> {fmtNum(botSessions)} sessions from {suspects.map((s) => s.country).join(", ")} ({fmtPct(ratio(botSessions, r.totals.current.sessions), 0)}) drag every rate down.
+                </span>
+              )}
+              <button type="button" onClick={() => set({ bots: excludeBots ? "all" : null })} className="ml-auto font-semibold underline-offset-2 hover:underline">
+                {excludeBots ? "Show all traffic" : "Exclude them"}
+              </button>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <nav className="sticky top-0 z-30 -mx-4 mb-5 border-b border-gray-200 bg-[#fafaf8]/90 px-4 backdrop-blur lg:-mx-6 lg:px-6" aria-label="Analytics sections">
+            <div className="scrollbar-hide flex gap-1 overflow-x-auto">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                const active = tab === t.key;
                 return (
-                  <div key={card.key} className="rounded-xl border border-gray-200 bg-white p-4">
-                    <div className="text-[11px] font-medium uppercase tracking-wide text-gray-500">{card.label}</div>
-                    <div className="mt-1 text-xl font-bold text-primary">{card.format(m.value)}</div>
-                    <Delta metric={m} lowerIsBetter={card.lowerIsBetter} />
-                  </div>
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => set({ tab: t.key === "overview" ? null : t.key })}
+                    aria-current={active ? "page" : undefined}
+                    className={`relative flex shrink-0 items-center gap-1.5 px-3 py-3 text-[12.5px] font-medium transition-colors ${active ? "text-primary" : "text-gray-500 hover:text-gray-800"}`}
+                  >
+                    <Icon className="h-4 w-4" aria-hidden />
+                    {t.label}
+                    {t.key === "health" && healthIssues > 0 && (
+                      <span className="rounded-full bg-amber-100 px-1.5 text-[10px] font-bold text-amber-800">{healthIssues}</span>
+                    )}
+                    {t.key === "realtime" && live.data && (
+                      <span className="rounded-full bg-emerald-100 px-1.5 text-[10px] font-bold text-emerald-800">{live.data.activeUsers}</span>
+                    )}
+                    {active && <span className="absolute inset-x-2 -bottom-px h-[2px] rounded-full bg-accent" aria-hidden />}
+                  </button>
                 );
               })}
             </div>
+          </nav>
 
-            <Trend daily={data.daily} />
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <Ranked
-                title="Most read"
-                rows={data.pages}
-                labelOf={(r) => String(r.pageTitle || r.pagePath)}
-                valueOf={(r) => Number(r.screenPageViews)}
-              />
-              <Ranked
-                title="How they arrive"
-                rows={data.channels}
-                labelOf={(r) => String(r.channel)}
-                valueOf={(r) => Number(r.sessions)}
-                hint={(r) => `${(Number(r.engagementRate) * 100).toFixed(0)}% engaged`}
-              />
-              <Ranked
-                title="Sources"
-                rows={data.sources}
-                labelOf={(r) => `${r.source} / ${r.medium}`}
-                valueOf={(r) => Number(r.sessions)}
-              />
-              <Ranked
-                title="Landing pages"
-                rows={data.landing}
-                labelOf={(r) => String(r.landingPage)}
-                valueOf={(r) => Number(r.sessions)}
-                hint={(r) => `${(Number(r.bounceRate) * 100).toFixed(0)}% bounce`}
-              />
-              <Ranked
-                title="Countries"
-                rows={data.countries}
-                labelOf={(r) => String(r.country)}
-                valueOf={(r) => Number(r.activeUsers)}
-              />
-              <Ranked
-                title="Devices"
-                rows={data.devices}
-                labelOf={(r) => String(r.device)}
-                valueOf={(r) => Number(r.activeUsers)}
-              />
-              <Ranked
-                title="Events"
-                rows={data.events}
-                labelOf={(r) => String(r.eventName)}
-                valueOf={(r) => Number(r.eventCount)}
-              />
-              <Ranked
-                title="On the site now"
-                rows={data.realtime.screens}
-                labelOf={(r) => String(r.screen)}
-                valueOf={(r) => Number(r.activeUsers)}
-              />
+          {tab === "realtime" ? (
+            <RealtimeTab data={live.data} error={live.error as Error | null} isFetching={live.isFetching} updatedAt={live.dataUpdatedAt} />
+          ) : isLoading ? (
+            <div className="space-y-5" aria-busy="true">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {Array.from({ length: 8 }, (_, i) => <div key={i} className="ga-shimmer h-[132px] rounded-2xl" />)}
+              </div>
+              <div className="ga-shimmer h-[330px] rounded-2xl" />
+              <p className="flex items-center justify-center gap-2 text-[12px] text-gray-400">
+                <Loader2 className="h-4 w-4 animate-spin" /> Reading GA4 — about 30 reports…
+              </p>
             </div>
+          ) : error && !r ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-900">Analytics is not available</p>
+                  <p className="mt-1 text-sm text-amber-800">{(error as Error).message}</p>
+                  <p className="mt-3 text-xs leading-relaxed text-amber-700">
+                    It needs <code className="font-mono">GA4_PROPERTY_ID</code> (the numeric property id, not the G-… measurement id) plus
+                    either <code className="font-mono">GA4_REFRESH_TOKEN</code>, issued by <code className="font-mono">scripts/get-ga4-token.mjs</code>,
+                    or a service account in <code className="font-mono">GA4_SERVICE_ACCOUNT</code> — stored as Supabase secrets.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : r && derived ? (
+            <div key={`${tab}-${r.range.startDate}-${r.range.endDate}-${excludeBots}`} className={`transition-opacity duration-300 ${isFetching ? "opacity-55" : ""}`}>
+              {tab === "overview" && <OverviewTab r={r} d={derived} insights={insights} />}
+              {tab === "acquisition" && <AcquisitionTab r={r} d={derived} />}
+              {tab === "content" && <ContentTab r={r} d={derived} />}
+              {tab === "audience" && <AudienceTab r={r} />}
+              {tab === "engagement" && <EngagementTab r={r} d={derived} />}
+              {tab === "retention" && <RetentionTab r={r} />}
+              {tab === "health" && <HealthTab checks={health} />}
 
-            <p className="text-[11px] text-gray-400">
-              Reports are cached for five minutes to stay inside the GA4 quota
-              {data.cached ? " — showing a cached copy" : ""}. The live visitor count is not cached.
-            </p>
-          </div>
-        ) : null}
-      </div>
-    </>
+              <p className="mt-8 text-[11px] leading-relaxed text-gray-400">
+                Generated {new Date(r.generated_at).toLocaleString("en-GB")}{r.cached ? " (cached — reports are kept five minutes to stay inside the GA4 quota)" : ""}.
+                {" "}GA4 property time zone: {r.timeZone}; the weekday × hour grid can switch to Korea time.
+                {r.quota?.hourRemaining != null && ` GA4 quota left this hour: ${fmtNum(r.quota.hourRemaining)} tokens.`}
+                {r.errors.length > 0 && ` ${r.errors.length} report(s) failed — see Data health.`}
+              </p>
+            </div>
+          ) : null}
+        </div>
+
+        {drill && <DrillDrawer target={drill} params={params} onClose={() => setDrill(null)} onDrill={setDrill} />}
+      </TabContext.Provider>
+    </DrillContext.Provider>
   );
 }
