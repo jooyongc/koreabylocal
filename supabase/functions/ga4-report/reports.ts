@@ -237,7 +237,7 @@ export function cohortWeeks(today: string, count = 8): DateRange[] {
 
 /** The country breakdown used to spot bot traffic before the real reports run. */
 export function qualitySpec(r: Ranges): ReportSpec {
-  return spec("quality", [r.current], ["country"], ["sessions", "engagedSessions", "activeUsers", "userEngagementDuration"],
+  return spec("quality", [r.current], ["country", "countryId"], ["sessions", "engagedSessions", "activeUsers", "userEngagementDuration"],
     { excludeCountries: [], hosts: LIVE_HOSTS }, { limit: 300 });
 }
 
@@ -409,7 +409,7 @@ export function cohortsOf(report: GaReport | undefined, weeks: DateRange[]) {
  * enough to matter and its engagement is far below any real audience.
  */
 export function suspectCountries(report: GaReport | undefined) {
-  const rows = flat(report, ["country"], ["sessions", "engagedSessions", "activeUsers", "userEngagementDuration"]);
+  const rows = flat(report, ["country", "countryId"], ["sessions", "engagedSessions", "activeUsers", "userEngagementDuration"]);
   const total = rows.reduce((n, r) => n + Number(r.sessions), 0);
   const floor = Math.max(30, total * 0.02);
   return rows
@@ -418,7 +418,7 @@ export function suspectCountries(report: GaReport | undefined) {
       const sessions = Number(r.sessions);
       const engagementRate = sessions ? Number(r.engagedSessions) / sessions : 0;
       const secondsPerUser = Number(r.activeUsers) ? Number(r.userEngagementDuration) / Number(r.activeUsers) : 0;
-      return { country: String(r.country), sessions, users: Number(r.activeUsers), engagementRate, secondsPerUser };
+      return { country: String(r.country), countryId: String(r.countryId), sessions, users: Number(r.activeUsers), engagementRate, secondsPerUser };
     })
     .filter((c) => c.sessions >= floor && c.engagementRate < 0.08 && c.secondsPerUser < 10)
     .sort((a, b) => b.sessions - a.sessions);

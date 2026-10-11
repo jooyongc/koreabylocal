@@ -65,7 +65,7 @@ export function BarList({ rows, limit = 8, empty, max }: { rows: BarRow[]; limit
       </ul>
       {rows.length > limit && (
         <button type="button" onClick={() => setAll((v) => !v)} className="mt-3 text-[11.5px] font-medium text-primary/70 hover:text-primary">
-          {all ? "Show fewer" : `Show all ${rows.length}`}
+          {all ? "접기" : `전체 ${rows.length}개 보기`}
         </button>
       )}
     </div>

@@ -35,7 +35,7 @@ export function Heatmap({ matrix, unit, zoneLabel }: { matrix: number[][]; unit:
                   <button
                     key={h}
                     type="button"
-                    title={`${WEEKDAYS[d]} ${hourLabel(h)} · ${v} ${unit}`}
+                    title={`${WEEKDAYS[d]}요일 ${hourLabel(h)} · ${unit} ${v}회`}
                     onPointerEnter={() => setHover({ d, h })}
                     onFocus={() => setHover({ d, h })}
                     className={`ga-fade h-5 rounded-[4px] text-[8.5px] font-bold outline-none transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-accent ${isPeak ? "ring-2 ring-accent ring-offset-1" : ""}`}
@@ -53,18 +53,18 @@ export function Heatmap({ matrix, unit, zoneLabel }: { matrix: number[][]; unit:
         <p className="text-gray-600">
           {focus ? (
             <>
-              <strong className="text-gray-900">{WEEKDAYS[focus.d]} {hourLabel(focus.h)}–{hourLabel((focus.h + 1) % 24)}</strong>
-              {" · "}{matrix[focus.d][focus.h]} {unit}
-              {total > 0 && <span className="text-gray-400"> ({((matrix[focus.d][focus.h] / total) * 100).toFixed(1)}% of the week)</span>}
-              {!hover && <span className="text-gray-400"> — busiest hour</span>}
+              <strong className="text-gray-900">{WEEKDAYS[focus.d]}요일 {hourLabel(focus.h)}~{hourLabel((focus.h + 1) % 24)}</strong>
+              {" · "}{unit} {matrix[focus.d][focus.h]}회
+              {total > 0 && <span className="text-gray-400"> (한 주의 {((matrix[focus.d][focus.h] / total) * 100).toFixed(1)}%)</span>}
+              {!hover && <span className="text-gray-400"> — 가장 붐비는 시간 ★</span>}
             </>
-          ) : "No data"}
+          ) : "데이터 없음"}
           <span className="text-gray-400"> · {zoneLabel}</span>
         </p>
         <div className="flex items-center gap-1 text-[10.5px] text-gray-400">
-          fewer
+          적음
           {[RAMP_ZERO, ...RAMP].map((c) => <span key={c} className="h-2.5 w-3 rounded-[2px]" style={{ background: c }} />)}
-          more
+          많음
         </div>
       </div>
     </div>
