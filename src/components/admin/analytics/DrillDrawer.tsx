@@ -33,7 +33,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 /** Everything about one page / channel / source / campaign / country / device / event. */
-export function DrillDrawer({ target, params, onClose, onDrill, compareOk, gaps }: {
+export function DrillDrawer({ target, params, onClose, onDrill, compareOk, gaps, endsToday }: {
   target: DrillTarget;
   params: RangeParams;
   onClose: () => void;
@@ -41,6 +41,7 @@ export function DrillDrawer({ target, params, onClose, onDrill, compareOk, gaps 
   /** False when the page decided the comparison would mislead. */
   compareOk: boolean;
   gaps: Array<{ from: number; to: number }>;
+  endsToday: boolean;
 }) {
   const { data, error, isLoading } = useDrill(target, params);
 
@@ -120,6 +121,7 @@ export function DrillDrawer({ target, params, onClose, onDrill, compareOk, gaps 
                   format={fmtNum}
                   height={220}
                   gaps={siteGaps}
+                  partialLast={endsToday}
                   series={[
                     { key: "cur", label: "이번 기간", color: SERIES[0], area: true, values: daily.map((d) => (isPage ? d.screenPageViews : d.activeUsers)) },
                     ...(compareOk && prevDaily.length ? [{ key: "prev", label: "비교 기간", color: COMPARE, muted: true, dates: prevDaily.map((d) => d.date), values: prevDaily.map((d) => (isPage ? d.screenPageViews : d.activeUsers)) }] : []),

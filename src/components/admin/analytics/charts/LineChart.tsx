@@ -35,20 +35,24 @@ function runs(values: number[], n: number) {
  * the nearest day and lists every series there. Arrow keys do the same.
  * Days GA4 did not collect are shaded and labelled, not drawn as zero.
  */
-export function LineChart({ series, dates, height = 240, format, ariaLabel, gaps = [] }: {
+export function LineChart({ series, dates, height = 240, format, ariaLabel, gaps = [], partialLast = true }: {
   series: LineSeries[];
   dates: string[];
   height?: number;
   format: (n: number) => string;
   ariaLabel: string;
   gaps?: Array<{ from: number; to: number }>;
+  /** The last day is today and still counting (GA4 property time). */
+  partialLast?: boolean;
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const n = dates.length;
 
   const top = niceMax(Math.max(0, ...series.flatMap((s) => s.values.filter(Number.isFinite))));
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * top);
+  // Whole-number steps where the top allows it: 0·10·20·30·40·50, not 0·13·25·38·50.
+  const count = [4, 5, 2].find((c) => Number.isInteger(top / c)) ?? 4;
+  const ticks = Array.from({ length: count + 1 }, (_, i) => (i / count) * top);
   const left = Math.max(28, Math.max(...ticks.map((t) => fmtCompact(t).length)) * 6.6 + 10);
   const m = { top: 10, right: 14, bottom: 26, left };
   const w = Math.max(0, width - m.left - m.right);
@@ -72,7 +76,7 @@ export function LineChart({ series, dates, height = 240, format, ariaLabel, gaps
   // ~6 date labels, always including the last day.
   const every = Math.max(1, Math.ceil(n / 6));
   const xTicks = Array.from({ length: n }, (_, i) => i).filter((i) => i % every === 0 || i === n - 1)
-    .filter((i, k, arr) => i === n - 1 || arr[k + 1] === undefined || x(arr[k + 1]) - x(i) > 48);
+    .filter((i, k, arr) => i === n - 1 || arr[k + 1] === undefined || x(arr[k + 1]) - x(i) > 66);
 
   const onMove = (e: PointerEvent<SVGRectElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -155,7 +159,10 @@ export function LineChart({ series, dates, height = 240, format, ariaLabel, gaps
       )}
       {hover != null && width > 0 && (
         <ChartTooltip x={x(hover)} y={m.top} width={width}>
-          <TipTitle>{fmtDay(dates[hover], true)} ({weekday(dates[hover])}){inGap(hover) && " · 수집 공백"}</TipTitle>
+          <TipTitle>
+            {fmtDay(dates[hover], true)} ({weekday(dates[hover])}){inGap(hover) && " · 수집 공백"}
+            {partialLast && hover === n - 1 && " · 오늘, 아직 집계 중"}
+          </TipTitle>
           {series.map((s) => (
             <TipRow
               key={s.key}

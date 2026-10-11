@@ -39,6 +39,15 @@ export function fmtRange(start: string, end: string) {
 
 export const toIsoDate = (d: string) => (d.includes("-") ? d : `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`);
 
+/** Today's date (YYYY-MM-DD) in a time zone — GA4's "today" is the property's. */
+export function todayIn(tz: string) {
+  try {
+    return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
+
 export function addDaysIso(date: string, n: number) {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);

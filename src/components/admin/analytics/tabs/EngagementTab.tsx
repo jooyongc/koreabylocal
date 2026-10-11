@@ -4,7 +4,7 @@ import { BarList } from "../charts/BarList";
 import { ShareBar } from "../charts/misc";
 import { DataTable, type Column } from "../DataTable";
 import { useOpenDrill } from "../context";
-import { eventKo, fmtDuration, fmtNum, fmtPct, partnerColor, partnerRank, ratio } from "../format";
+import { eventKo, fmtDuration, fmtNum, fmtPct, isBrokenTitle, partnerColor, partnerRank, ratio } from "../format";
 import { hint } from "../glossary";
 import { short } from "../insights";
 import type { Derived } from "../derive";
@@ -56,7 +56,7 @@ export function EngagementTab({ r, d }: { r: Report; d: Derived }) {
   ];
 
   const scrollRows = r.pages
-    .filter((p) => p.screenPageViews >= 10)
+    .filter((p) => p.screenPageViews >= 10 && !isBrokenTitle(p.pageTitle))
     .map((p) => ({ p, rate: Math.min(1, ratio(p.scrolls, p.screenPageViews)) }))
     .sort((a, b) => b.rate - a.rate);
 

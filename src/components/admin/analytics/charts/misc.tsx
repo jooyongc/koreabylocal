@@ -47,12 +47,12 @@ export function ShareBar({ parts, format }: { parts: Array<{ label: string; valu
           />
         ))}
       </div>
-      <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3">
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5">
         {shown.map((p) => (
-          <li key={p.label} className="flex items-center gap-1.5 text-[11.5px]">
+          <li key={p.label} className="flex items-center gap-1.5 text-[11.5px]" title={format(p.value)}>
             <Key color={p.color} shape="box" />
-            <span className="truncate text-gray-600">{p.label}</span>
-            <span className="ga-tabular ml-auto font-semibold text-gray-900">{fmtPct(p.value / total, 0)}</span>
+            <span className="text-gray-600">{p.label}</span>
+            <span className="ga-tabular font-semibold text-gray-900">{fmtPct(p.value / total, 0)}</span>
           </li>
         ))}
       </ul>
