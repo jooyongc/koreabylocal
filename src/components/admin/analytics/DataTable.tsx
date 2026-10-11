@@ -17,7 +17,7 @@ export interface Column<T> {
  * Every chart's table twin: sortable columns, a search box, CSV export, and a
  * row click that opens the drill-down.
  */
-export function DataTable<T>({ rows, columns, defaultSort, search, filename, onRowClick, pageSize = 12, empty = "No data in this period.", toolbar }: {
+export function DataTable<T>({ rows, columns, defaultSort, search, filename, onRowClick, pageSize = 12, empty = "이 기간에는 데이터가 없습니다.", toolbar }: {
   rows: T[];
   columns: Array<Column<T>>;
   defaultSort: { key: string; desc: boolean };
@@ -59,19 +59,19 @@ export function DataTable<T>({ rows, columns, defaultSort, search, filename, onR
             <input
               value={q}
               onChange={(e) => { setQ(e.target.value); setLimit(pageSize); }}
-              placeholder="Filter…"
-              aria-label="Filter rows"
+              placeholder="검색…"
+              aria-label="표 안에서 검색"
               className="w-full rounded-lg border border-gray-200 bg-white py-1.5 pl-8 pr-2 text-[12px] focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/10"
             />
           </label>
         )}
         {toolbar}
-        <span className="ml-auto text-[11px] text-gray-400">{filtered.length.toLocaleString("en-US")} rows</span>
+        <span className="ml-auto text-[11px] text-gray-400">{filtered.length.toLocaleString("ko-KR")}행</span>
         <button
           type="button"
           onClick={exportCsv}
           className="inline-flex items-center gap-1 rounded-lg border border-gray-200 px-2 py-1 text-[11px] font-medium text-gray-600 hover:bg-gray-50"
-          title="Download these rows as CSV"
+          title="이 표를 CSV(엑셀)로 내려받기"
         >
           <Download className="h-3 w-3" aria-hidden /> CSV
         </button>
@@ -130,7 +130,7 @@ export function DataTable<T>({ rows, columns, defaultSort, search, filename, onR
 
       {filtered.length > limit && (
         <button type="button" onClick={() => setLimit((l) => l + 25)} className="mt-2 text-[11.5px] font-medium text-primary/70 hover:text-primary">
-          Show {Math.min(25, filtered.length - limit)} more of {filtered.length - limit}
+          {Math.min(25, filtered.length - limit)}개 더 보기 (남은 {filtered.length - limit}개)
         </button>
       )}
     </div>

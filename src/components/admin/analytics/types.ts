@@ -46,6 +46,7 @@ export interface Heat { sessions: number[][]; engaged: number[][] }
 
 export interface Suspect {
   country: string;
+  countryId?: string;
   sessions: number;
   users: number;
   engagementRate: number;

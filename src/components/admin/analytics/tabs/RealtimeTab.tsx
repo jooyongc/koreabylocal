@@ -3,7 +3,7 @@ import { Card } from "../ui";
 import { CountUp } from "../motion";
 import { BarList } from "../charts/BarList";
 import { MinuteBars, ShareBar } from "../charts/misc";
-import { deviceColor, fmtNum } from "../format";
+import { countryKo, deviceColor, deviceKo, eventKo, fmtNum } from "../format";
 import { short } from "../insights";
 import type { Realtime } from "../types";
 
@@ -29,44 +29,44 @@ export function RealtimeTab({ data, error, isFetching, updatedAt }: { data?: Rea
               <span className="ga-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
             </span>
-            Active users · last 30 minutes
+            지금 사이트에 있는 사람 · 최근 30분
           </div>
           <p className="mt-3 text-[64px] font-bold leading-none tracking-tight">
             <CountUp value={data.activeUsers} format={fmtNum} />
           </p>
-          <p className="mt-3 text-[12px] text-white/70">{fmtNum(lastFive)} active in the last 5 minutes</p>
+          <p className="mt-3 text-[12px] text-white/70">최근 5분 안에 {fmtNum(lastFive)}명 활동</p>
           <p className="mt-6 flex items-center gap-1.5 text-[11px] text-white/50">
             {isFetching && <Loader2 className="h-3 w-3 animate-spin" />}
-            Updated {new Date(updatedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} · refreshes every 30s
+            {new Date(updatedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} 기준 · 30초마다 새로고침
           </p>
         </section>
-        <Card className="ga-rise lg:col-span-2" title="Active users per minute">
+        <Card className="ga-rise lg:col-span-2" title="분당 접속자" subtitle="왼쪽이 30분 전, 오른쪽 분홍이 지금입니다. 릴스를 올린 직후 오른쪽이 솟으면 반응이 온 것입니다.">
           <MinuteBars minutes={data.minutes} height={190} />
         </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <Card className="ga-rise" title="Pages being read" subtitle="Admin screens left out">
+        <Card className="ga-rise" title="지금 읽고 있는 페이지" subtitle="관리자 화면은 뺐습니다">
           <BarList
-            empty="Nobody on a public page right now."
+            empty="지금 사이트를 보는 사람이 없습니다."
             rows={data.pages.map((p) => ({
               key: p.unifiedScreenName,
               label: short(p.unifiedScreenName),
               text: p.unifiedScreenName,
               value: p.activeUsers,
-              display: fmtNum(p.activeUsers),
-              sub: `${fmtNum(p.screenPageViews)} views`,
+              display: `${fmtNum(p.activeUsers)}명`,
+              sub: `조회 ${fmtNum(p.screenPageViews)}`,
             }))}
           />
         </Card>
-        <Card className="ga-rise" title="Where they are">
-          <BarList empty="No one right now." rows={data.countries.map((c) => ({ key: c.country, label: c.country, value: c.activeUsers, display: fmtNum(c.activeUsers) }))} />
+        <Card className="ga-rise" title="어디에서 보나">
+          <BarList empty="지금은 아무도 없습니다." rows={data.countries.map((c) => ({ key: c.country, label: countryKo("", c.country), value: c.activeUsers, display: `${fmtNum(c.activeUsers)}명` }))} />
           <div className="mt-5">
-            <ShareBar format={fmtNum} parts={data.devices.map((x) => ({ label: x.deviceCategory, value: x.activeUsers, color: deviceColor(x.deviceCategory) }))} />
+            <ShareBar format={fmtNum} parts={data.devices.map((x) => ({ label: deviceKo(x.deviceCategory), value: x.activeUsers, color: deviceColor(x.deviceCategory) }))} />
           </div>
         </Card>
-        <Card className="ga-rise" title="What they are doing" subtitle="Events in the last 30 minutes">
-          <BarList empty="No events right now." rows={data.events.map((e) => ({ key: e.eventName, label: e.eventName, value: e.eventCount, display: fmtNum(e.eventCount), color: e.eventName === "click" || e.eventName === "affiliate_click" ? "#ff2e97" : undefined }))} />
+        <Card className="ga-rise" title="무엇을 하고 있나" subtitle="최근 30분의 행동">
+          <BarList empty="지금은 행동 기록이 없습니다." rows={data.events.map((e) => ({ key: e.eventName, label: eventKo(e.eventName) ?? e.eventName, text: e.eventName, value: e.eventCount, display: `${fmtNum(e.eventCount)}회`, color: e.eventName === "click" || e.eventName === "affiliate_click" ? "#ff2e97" : undefined }))} />
         </Card>
       </div>
     </div>

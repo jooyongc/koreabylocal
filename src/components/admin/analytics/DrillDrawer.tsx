@@ -6,21 +6,21 @@ import { LineChart } from "./charts/LineChart";
 import { BarList } from "./charts/BarList";
 import { KpiTile } from "./cards";
 import {
-  COMPARE, SERIES, deviceColor, flag, fmtDuration, fmtNum, fmtPct, fmtRange, partnerOf, ratio,
+  COMPARE, SERIES, countryKo, deviceColor, deviceKo, eventKo, flag, fmtDuration, fmtNum, fmtPct, fmtRange, partnerOf, ratio,
 } from "./format";
 import { short } from "./insights";
 import type { DrillDimension, DrillTarget, RangeParams } from "./types";
 
 const KIND: Record<DrillDimension, string> = {
-  pagePath: "Page",
-  landingPage: "Landing page",
-  sessionDefaultChannelGroup: "Channel",
-  sessionSourceMedium: "Source / medium",
-  sessionCampaignName: "Campaign",
-  country: "Country",
-  deviceCategory: "Device",
-  eventName: "Event",
-  newVsReturning: "Visitor type",
+  pagePath: "페이지",
+  landingPage: "첫 페이지 (랜딩)",
+  sessionDefaultChannelGroup: "유입 경로",
+  sessionSourceMedium: "소스 / 매체",
+  sessionCampaignName: "캠페인",
+  country: "나라",
+  deviceCategory: "기기",
+  eventName: "행동 (이벤트)",
+  newVsReturning: "방문자 유형",
 };
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -33,11 +33,14 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 /** Everything about one page / channel / source / campaign / country / device / event. */
-export function DrillDrawer({ target, params, onClose, onDrill }: {
+export function DrillDrawer({ target, params, onClose, onDrill, compareOk, gaps }: {
   target: DrillTarget;
   params: RangeParams;
   onClose: () => void;
   onDrill: (t: DrillTarget) => void;
+  /** False when the page decided the comparison would mislead. */
+  compareOk: boolean;
+  gaps: Array<{ from: number; to: number }>;
 }) {
   const { data, error, isLoading } = useDrill(target, params);
 
@@ -56,10 +59,12 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
   const prev = data?.totals.previous ?? null;
   const daily = data?.daily.current ?? [];
   const prevDaily = data?.daily.previous ?? [];
+  // The page-level decision (gaps, a thin comparison period) holds here too.
+  const siteGaps = gaps;
 
   return createPortal(
-    <div className="fixed inset-0 z-[70] flex justify-end" role="dialog" aria-modal="true" aria-label={`${KIND[target.dimension]} details`}>
-      <button type="button" aria-label="Close" onClick={onClose} className="ga-fade absolute inset-0 bg-primary/30 backdrop-blur-[2px]" />
+    <div className="fixed inset-0 z-[70] flex justify-end" role="dialog" aria-modal="true" aria-label={`${KIND[target.dimension]} 상세`}>
+      <button type="button" aria-label="닫기" onClick={onClose} className="ga-fade absolute inset-0 bg-primary/30 backdrop-blur-[2px]" />
       <div className="ga-slide-in relative flex h-full w-full max-w-[760px] flex-col overflow-hidden bg-[#f7f7f5] shadow-2xl">
         <header className="flex items-start justify-between gap-3 border-b border-gray-200 bg-white px-5 py-4">
           <div className="min-w-0">
@@ -72,12 +77,12 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
               {data && <span>{fmtRange(data.range.startDate, data.range.endDate)}</span>}
               {isPage && (
                 <a href={`https://koreabylocal.com${target.value}`} target="_blank" rel="noopener" className="inline-flex items-center gap-0.5 font-medium text-primary hover:text-accent">
-                  Open page <ExternalLink className="h-3 w-3" />
+                  페이지 열기 <ExternalLink className="h-3 w-3" />
                 </a>
               )}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100" aria-label="Close details">
+          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100" aria-label="상세 닫기">
             <X className="h-5 w-5" />
           </button>
         </header>
@@ -100,30 +105,31 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
           {data && cur && (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <KpiTile i={0} label="Users" value={cur.activeUsers} format={fmtNum} prev={prev?.activeUsers ?? null} spark={daily.map((d) => d.activeUsers)} />
-                <KpiTile i={1} label="Sessions" value={cur.sessions} format={fmtNum} prev={prev?.sessions ?? null} spark={daily.map((d) => d.sessions)} />
-                <KpiTile i={2} label="Engagement rate" value={ratio(cur.engagedSessions, cur.sessions)} format={(n) => fmtPct(n)} prev={prev ? ratio(prev.engagedSessions, prev.sessions) : null} sub={`${fmtNum(cur.engagedSessions)} engaged sessions`} />
-                <KpiTile i={3} label="Views" value={cur.screenPageViews} format={fmtNum} prev={prev?.screenPageViews ?? null} spark={daily.map((d) => d.screenPageViews)} />
-                <KpiTile i={4} label="Engagement / user" value={ratio(cur.userEngagementDuration, cur.activeUsers)} format={fmtDuration} prev={prev ? ratio(prev.userEngagementDuration, prev.activeUsers) : null} />
-                <KpiTile i={5} label="New users" value={cur.newUsers} format={fmtNum} prev={prev?.newUsers ?? null} sub={`${fmtPct(ratio(cur.newUsers, cur.activeUsers), 0)} of users`} />
+                <KpiTile i={0} label="사용자" value={cur.activeUsers} format={fmtNum} prev={compareOk ? prev?.activeUsers ?? null : undefined} spark={daily.map((d) => d.activeUsers)} />
+                <KpiTile i={1} label="방문" value={cur.sessions} format={fmtNum} prev={compareOk ? prev?.sessions ?? null : undefined} spark={daily.map((d) => d.sessions)} />
+                <KpiTile i={2} label="참여율" value={ratio(cur.engagedSessions, cur.sessions)} format={(n) => fmtPct(n)} prev={compareOk && prev ? ratio(prev.engagedSessions, prev.sessions) : undefined} sub={`참여 방문 ${fmtNum(cur.engagedSessions)}회`} />
+                <KpiTile i={3} label="조회" value={cur.screenPageViews} format={fmtNum} prev={compareOk ? prev?.screenPageViews ?? null : undefined} spark={daily.map((d) => d.screenPageViews)} />
+                <KpiTile i={4} label="1인당 참여 시간" value={ratio(cur.userEngagementDuration, cur.activeUsers)} format={fmtDuration} prev={compareOk && prev ? ratio(prev.userEngagementDuration, prev.activeUsers) : undefined} />
+                <KpiTile i={5} label="신규 사용자" value={cur.newUsers} format={fmtNum} prev={compareOk ? prev?.newUsers ?? null : undefined} sub={`사용자의 ${fmtPct(Math.min(1, ratio(cur.newUsers, cur.activeUsers)), 0)}`} />
               </div>
 
-              <Section title={isPage ? "Views per day" : "Users per day"}>
+              <Section title={isPage ? "날짜별 조회" : "날짜별 사용자"}>
                 <LineChart
-                  ariaLabel="Daily trend"
+                  ariaLabel="날짜별 추이"
                   dates={daily.map((d) => d.date)}
                   format={fmtNum}
                   height={220}
+                  gaps={siteGaps}
                   series={[
-                    { key: "cur", label: "This period", color: SERIES[0], area: true, values: daily.map((d) => (isPage ? d.screenPageViews : d.activeUsers)) },
-                    ...(prevDaily.length ? [{ key: "prev", label: "Comparison", color: COMPARE, muted: true, dates: prevDaily.map((d) => d.date), values: prevDaily.map((d) => (isPage ? d.screenPageViews : d.activeUsers)) }] : []),
+                    { key: "cur", label: "이번 기간", color: SERIES[0], area: true, values: daily.map((d) => (isPage ? d.screenPageViews : d.activeUsers)) },
+                    ...(compareOk && prevDaily.length ? [{ key: "prev", label: "비교 기간", color: COMPARE, muted: true, dates: prevDaily.map((d) => d.date), values: prevDaily.map((d) => (isPage ? d.screenPageViews : d.activeUsers)) }] : []),
                   ]}
                 />
               </Section>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {target.dimension !== "sessionSourceMedium" && (
-                  <Section title="Where they come from">
+                  <Section title="어디서 왔나">
                     <BarList
                       limit={6}
                       rows={data.sources.map((s) => ({
@@ -132,14 +138,14 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
                         text: `${s.sessionSource} / ${s.sessionMedium}`,
                         value: s.sessions,
                         display: fmtNum(s.sessions),
-                        sub: `${fmtPct(ratio(s.engagedSessions, s.sessions), 0)} eng.`,
+                        sub: `참여 ${fmtPct(ratio(s.engagedSessions, s.sessions), 0)}`,
                         onClick: () => onDrill({ dimension: "sessionSourceMedium", value: `${s.sessionSource} / ${s.sessionMedium}` }),
                       }))}
                     />
                   </Section>
                 )}
                 {!isPage && (
-                  <Section title="Pages they read">
+                  <Section title="본 페이지">
                     <BarList
                       limit={6}
                       rows={data.pages.map((p) => ({
@@ -155,7 +161,7 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
                   </Section>
                 )}
                 {target.dimension !== "landingPage" && (
-                  <Section title="Where they land">
+                  <Section title="처음 들어온 페이지">
                     <BarList
                       limit={6}
                       rows={data.landing.map((l) => ({
@@ -163,49 +169,49 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
                         label: l.landingPage,
                         value: l.sessions,
                         display: fmtNum(l.sessions),
-                        sub: `${fmtPct(ratio(l.engagedSessions, l.sessions), 0)} eng.`,
+                        sub: `참여 ${fmtPct(ratio(l.engagedSessions, l.sessions), 0)}`,
                         onClick: l.landingPage !== "(not set)" ? () => onDrill({ dimension: "landingPage", value: l.landingPage }) : undefined,
                       }))}
                     />
                   </Section>
                 )}
                 {target.dimension !== "country" && (
-                  <Section title="Countries">
+                  <Section title="나라">
                     <BarList
                       limit={6}
                       rows={data.countries.map((c) => ({
                         key: c.country,
-                        label: <><span className="mr-1">{flag(c.countryId)}</span>{c.country}</>,
+                        label: <><span className="mr-1">{flag(c.countryId)}</span>{countryKo(c.countryId, c.country)}</>,
                         text: c.country,
                         value: c.activeUsers,
-                        display: fmtNum(c.activeUsers),
-                        sub: `${fmtPct(ratio(c.engagedSessions, c.sessions), 0)} eng.`,
-                        onClick: () => onDrill({ dimension: "country", value: c.country }),
+                        display: `${fmtNum(c.activeUsers)}명`,
+                        sub: `참여 ${fmtPct(ratio(c.engagedSessions, c.sessions), 0)}`,
+                        onClick: () => onDrill({ dimension: "country", value: c.country, label: countryKo(c.countryId, c.country) }),
                       }))}
                     />
                   </Section>
                 )}
                 {target.dimension !== "deviceCategory" && (
-                  <Section title="Devices">
+                  <Section title="기기">
                     <BarList
                       rows={data.devices.map((dv) => ({
                         key: dv.deviceCategory,
-                        label: dv.deviceCategory,
+                        label: deviceKo(dv.deviceCategory),
                         value: dv.activeUsers,
-                        display: fmtNum(dv.activeUsers),
+                        display: `${fmtNum(dv.activeUsers)}명`,
                         color: deviceColor(dv.deviceCategory),
-                        sub: `${fmtPct(ratio(dv.engagedSessions, dv.sessions), 0)} eng.`,
+                        sub: `참여 ${fmtPct(ratio(dv.engagedSessions, dv.sessions), 0)}`,
                       }))}
                     />
                   </Section>
                 )}
-                <Section title="Outbound clicks">
+                <Section title="외부 사이트로 나간 클릭">
                   <BarList
                     limit={6}
-                    empty="No outbound clicks."
+                    empty="외부 클릭이 없습니다."
                     rows={data.outbound.map((o) => ({
                       key: o.linkDomain,
-                      label: <>{o.linkDomain}{partnerOf(o.linkDomain) && <span className="ml-1.5 rounded bg-pink-50 px-1 text-[10px] font-semibold text-pink-800">partner</span>}</>,
+                      label: <>{o.linkDomain}{partnerOf(o.linkDomain) && <span className="ml-1.5 rounded bg-pink-50 px-1 text-[10px] font-semibold text-pink-800">제휴</span>}</>,
                       text: o.linkDomain,
                       value: o.eventCount,
                       display: fmtNum(o.eventCount),
@@ -214,15 +220,16 @@ export function DrillDrawer({ target, params, onClose, onDrill }: {
                   />
                 </Section>
                 {target.dimension !== "eventName" && (
-                  <Section title="Events">
+                  <Section title="행동 (이벤트)">
                     <BarList
                       limit={8}
                       rows={data.events.map((e) => ({
                         key: e.eventName,
-                        label: e.eventName,
+                        label: eventKo(e.eventName) ?? e.eventName,
+                        text: e.eventName,
                         value: e.eventCount,
-                        display: fmtNum(e.eventCount),
-                        sub: `${fmtNum(e.totalUsers)} users`,
+                        display: `${fmtNum(e.eventCount)}회`,
+                        sub: `${fmtNum(e.totalUsers)}명`,
                         color: SERIES[2],
                       }))}
                     />

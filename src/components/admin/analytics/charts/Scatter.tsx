@@ -58,7 +58,7 @@ export function Scatter({ points, xLabel, yLabel, xFormat, yFormat, quadrants, h
           width={width}
           height={height}
           role="img"
-          aria-label={`${yLabel} against ${xLabel}`}
+          aria-label={`${xLabel} 대비 ${yLabel}`}
           onPointerMove={(e) => {
             const r = e.currentTarget.getBoundingClientRect();
             setHover(nearest(e.clientX - r.left, e.clientY - r.top));
@@ -108,7 +108,7 @@ export function Scatter({ points, xLabel, yLabel, xFormat, yFormat, quadrants, h
           <TipTitle>{hover.label}</TipTitle>
           <TipRow value={xFormat(hover.x)} label={xLabel} />
           <TipRow value={yFormat(hover.y)} label={yLabel} />
-          {hover.onClick && <div className="mt-1 text-[10.5px] text-gray-400">Click for details</div>}
+          {hover.onClick && <div className="mt-1 text-[10.5px] text-gray-400">누르면 상세 보기</div>}
         </ChartTooltip>
       )}
     </div>
