@@ -1,8 +1,8 @@
-// Reads the site's GA4 metrics for the admin dashboard. Admin-only.
+// Reads the site's GA4 data for the admin analytics page. Admin-only.
 //
-// The measurement ID the site ships with (G-…) cannot read reports — the Data
-// API needs a service account, and a service-account key cannot go in
-// front-end code. So the browser asks this function, which holds the key.
+// The measurement ID the site ships with (G-…) cannot read reports, and a
+// credential that can must not reach the browser, so the browser asks this
+// function, which holds it.
 //
 // REQUIRED secret: GA4_PROPERTY_ID (the NUMERIC property id, not G-…).
 //
@@ -15,12 +15,21 @@
 //     be added to the property as a Viewer (Admin → Property access
 //     management); forgetting that is the usual cause of a 403, so it is
 //     reported in those words rather than as a raw status.
+//
+// Three modes (body.mode):
+//   "report"   (default) every report the dashboard renders, for one range
+//   "drill"    one page / channel / source / campaign / country / device / event
+//   "realtime" the last 30 minutes; polled by the page, cached only briefly
+//
+// Report requests and their shaping live in reports.ts.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getAccessToken, getAccessTokenFromRefreshToken, readServiceAccount } from "../_shared/google-auth.ts";
+import * as R from "./reports.ts";
 
 const SCOPE = "https://www.googleapis.com/auth/analytics.readonly";
 const API = "https://analyticsdata.googleapis.com/v1beta";
+const ADMIN_API = "https://analyticsadmin.googleapis.com/v1beta";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -30,127 +39,106 @@ const cors = {
 const json = (b: unknown, s = 200) =>
   new Response(JSON.stringify(b), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 
-const dim = (name: string) => ({ name });
-const met = (name: string) => ({ name });
-const byMetric = (name: string) => [{ metric: { metricName: name }, desc: true }];
-
-interface GaRow {
-  dimensionValues?: Array<{ value?: string }>;
-  metricValues?: Array<{ value?: string }>;
-}
-interface GaReport {
-  rows?: GaRow[];
+class GaError extends Error {
+  constructor(message: string, readonly status: number) { super(message); }
 }
 
-/** Flattens GA4's parallel dimension/metric arrays into plain objects. */
-function flatten(report: GaReport | undefined, dims: string[], mets: string[]) {
-  return (report?.rows ?? []).map((r) => {
-    const out: Record<string, string | number> = {};
-    dims.forEach((d, i) => { out[d] = r.dimensionValues?.[i]?.value ?? ""; });
-    mets.forEach((m, i) => { out[m] = Number(r.metricValues?.[i]?.value ?? 0); });
-    return out;
-  });
-}
-
-const SUMMARY_METRICS = [
-  "activeUsers", "newUsers", "sessions", "screenPageViews",
-  "bounceRate", "averageSessionDuration", "engagementRate",
-  "engagedSessions", "screenPageViewsPerSession", "eventCount",
-];
-
-function buildRequests(days: number) {
-  // `${days}daysAgo`–today spans days+1 days, which would make the current
-  // period one day longer than the one it is compared against.
-  const range = { startDate: `${days - 1}daysAgo`, endDate: "today" };
-  const previous = { startDate: `${days * 2 - 1}daysAgo`, endDate: `${days}daysAgo` };
-
-  return [
-    // Both ranges in one request, so the comparison needs no second round trip.
-    // GA4 allows ten metrics per request, which is exactly what this uses.
-    { dateRanges: [range, previous], metrics: SUMMARY_METRICS.map(met) },
-    {
-      dateRanges: [range],
-      dimensions: [dim("date")],
-      metrics: [met("activeUsers"), met("sessions"), met("screenPageViews")],
-      orderBys: [{ dimension: { dimensionName: "date" } }],
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("pagePath"), dim("pageTitle")],
-      metrics: [met("screenPageViews"), met("activeUsers")],
-      orderBys: byMetric("screenPageViews"),
-      limit: 15,
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("sessionDefaultChannelGroup")],
-      metrics: [met("sessions"), met("activeUsers"), met("engagementRate")],
-      orderBys: byMetric("sessions"),
-      limit: 12,
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("sessionSource"), dim("sessionMedium")],
-      metrics: [met("sessions"), met("activeUsers")],
-      orderBys: byMetric("sessions"),
-      limit: 15,
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("country")],
-      metrics: [met("activeUsers"), met("sessions")],
-      orderBys: byMetric("activeUsers"),
-      limit: 15,
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("deviceCategory")],
-      metrics: [met("activeUsers"), met("sessions")],
-      orderBys: byMetric("activeUsers"),
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("landingPage")],
-      metrics: [met("sessions"), met("bounceRate")],
-      orderBys: byMetric("sessions"),
-      limit: 12,
-    },
-    {
-      dateRanges: [range],
-      dimensions: [dim("eventName")],
-      metrics: [met("eventCount"), met("activeUsers")],
-      orderBys: byMetric("eventCount"),
-      limit: 12,
-    },
-  ];
-}
-
-async function call(url: string, token: string, body: unknown) {
+async function call(url: string, token: string, body?: unknown) {
   const res = await fetch(url, {
-    method: "POST",
+    method: body === undefined ? "GET" : "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(20_000),
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(25_000),
   });
   if (res.ok) return await res.json();
 
   const detail = (await res.text().catch(() => "")).slice(0, 300);
   // These two have one cause each and a clear fix, so say the fix.
   if (res.status === 403) {
-    throw new Error(
+    throw new GaError(
       "GA4 refused access. Add the service account's email to the GA4 property as a Viewer (Admin → Property access management).",
+      403,
     );
   }
   if (res.status === 404) {
-    throw new Error("GA4 property not found. GA4_PROPERTY_ID must be the numeric property id, not the G-… measurement id.");
+    throw new GaError("GA4 property not found. GA4_PROPERTY_ID must be the numeric property id, not the G-… measurement id.", 404);
   }
-  throw new Error(`GA4 error ${res.status}: ${detail}`);
+  throw new GaError(`GA4 error ${res.status}: ${detail}`, res.status);
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Quota and concurrency errors clear up within seconds; try once more. */
+async function callRetrying(url: string, token: string, body?: unknown) {
+  try {
+    return await call(url, token, body);
+  } catch (e) {
+    const status = (e as GaError).status ?? 0;
+    if (status !== 429 && status < 500) throw e;
+    await sleep(1500);
+    return await call(url, token, body);
+  }
+}
+
+/**
+ * Runs report specs as batchRunReports calls (at most five reports each),
+ * three calls at a time — GA4 allows ten concurrent requests per property and
+ * the page may be polling realtime alongside. If a batch fails, its reports
+ * are retried one by one so one bad report costs one panel, not the page.
+ */
+async function runSpecs(propertyId: string, token: string, specs: R.ReportSpec[]) {
+  const reports: Record<string, R.GaReport | undefined> = {};
+  const errors: Array<{ report: string; message: string }> = [];
+  const batches: R.ReportSpec[][] = [];
+  for (let i = 0; i < specs.length; i += 5) batches.push(specs.slice(i, i + 5));
+
+  const runBatch = async (batch: R.ReportSpec[]) => {
+    try {
+      const res = await callRetrying(`${API}/properties/${propertyId}:batchRunReports`, token, {
+        requests: batch.map((s) => s.body),
+      });
+      batch.forEach((s, i) => { reports[s.key] = res.reports?.[i]; });
+    } catch (e) {
+      if ((e as GaError).status === 403 || (e as GaError).status === 404) throw e;
+      for (const s of batch) {
+        try {
+          reports[s.key] = await callRetrying(`${API}/properties/${propertyId}:runReport`, token, s.body);
+        } catch (one) {
+          errors.push({ report: s.key, message: (one as Error).message });
+        }
+      }
+    }
+  };
+
+  for (let i = 0; i < batches.length; i += 3) await Promise.all(batches.slice(i, i + 3).map(runBatch));
+  return { reports, errors };
+}
+
+// The property's time zone decides what "today" and "hour" mean in every
+// report. It practically never changes, so it is read once per instance.
+let zone: { tz: string; at: number } | null = null;
+async function propertyTimeZone(propertyId: string, token: string) {
+  if (zone && Date.now() - zone.at < 6 * 3600e3) return zone.tz;
+  try {
+    const p = await call(`${ADMIN_API}/properties/${propertyId}`, token);
+    zone = { tz: p.timeZone || "UTC", at: Date.now() };
+  } catch {
+    zone = { tz: "UTC", at: Date.now() };
+  }
+  return zone.tz;
 }
 
 // GA4 quota is per property, and the dashboard is re-opened far more often than
 // the numbers change. A short cache keeps a browsing admin off the quota.
-const CACHE_MS = 5 * 60 * 1000;
+// Realtime is the exception — "who is on the site now" has to be now.
+const REPORT_CACHE_MS = 5 * 60 * 1000;
+const REALTIME_CACHE_MS = 30 * 1000;
 const cache = new Map<string, { at: number; payload: unknown }>();
+
+function remember(key: string, payload: unknown) {
+  cache.set(key, { at: Date.now(), payload });
+  if (cache.size > 60) cache.delete(cache.keys().next().value!);
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -185,15 +173,21 @@ Deno.serve(async (req: Request) => {
     }, 503);
   }
 
-  let body: { days?: number; refresh?: boolean } = {};
+  let body: {
+    mode?: string; days?: number; start?: string; end?: string; compare?: string;
+    excludeBots?: boolean; refresh?: boolean; drill?: { dimension?: string; value?: string };
+  } = {};
   try { body = await req.json(); } catch { /* defaults */ }
-  const allowed = [7, 28, 90, 365];
-  const days = allowed.includes(Number(body.days)) ? Number(body.days) : 28;
+  const mode = body.mode === "realtime" || body.mode === "drill" ? body.mode : "report";
 
-  const key = `${propertyId}:${days}`;
-  const hit = cache.get(key);
-  if (hit && !body.refresh && Date.now() - hit.at < CACHE_MS) {
-    return json({ ...(hit.payload as object), cached: true });
+  let drill: { dimension: string; value: string } | undefined;
+  if (mode === "drill") {
+    const dimension = String(body.drill?.dimension ?? "");
+    const value = String(body.drill?.value ?? "");
+    if (!R.DRILL_DIMENSIONS.includes(dimension) || !value || value.length > 500) {
+      return json({ error: "bad_request", detail: `drill.dimension must be one of ${R.DRILL_DIMENSIONS.join(", ")}` }, 400);
+    }
+    drill = { dimension, value };
   }
 
   try {
@@ -203,60 +197,52 @@ Deno.serve(async (req: Request) => {
       ? await getAccessTokenFromRefreshToken(clientId!, clientSecret!, refreshToken!)
       : await getAccessToken(account!, SCOPE);
 
-    // batchRunReports takes at most five reports per call, so the nine are sent
-    // as two batches. They go out together and the replies are stitched back in
-    // order, because everything downstream indexes reports by position.
-    const requests = buildRequests(days);
-    const batches: Array<typeof requests> = [];
-    for (let i = 0; i < requests.length; i += 5) batches.push(requests.slice(i, i + 5));
+    if (mode === "realtime") {
+      const key = `rt:${propertyId}`;
+      const hit = cache.get(key);
+      if (hit && Date.now() - hit.at < REALTIME_CACHE_MS) return json({ ...(hit.payload as object), cached: true });
+      const reports: Record<string, R.GaReport | undefined> = {};
+      await Promise.all(R.REALTIME_SPECS.map(async (s) => {
+        reports[s.key] = await callRetrying(`${API}/properties/${propertyId}:runRealtimeReport`, token, s.body).catch(() => undefined);
+      }));
+      const payload = { success: true, mode, generated_at: new Date().toISOString(), ...R.shapeRealtime(reports) };
+      remember(key, payload);
+      return json(payload);
+    }
 
-    const [reports, realtime] = await Promise.all([
-      Promise.all(
-        batches.map((requests) =>
-          call(`${API}/properties/${propertyId}:batchRunReports`, token, { requests })
-        ),
-      ).then((results) => results.flatMap((b) => (b.reports ?? []) as GaReport[])),
-      // Realtime is a separate endpoint and deliberately not cached with the
-      // rest — "who is on the site now" is the one number that must be now.
-      call(`${API}/properties/${propertyId}:runRealtimeReport`, token, {
-        dimensions: [dim("unifiedScreenName")],
-        metrics: [met("activeUsers")],
-        orderBys: byMetric("activeUsers"),
-        limit: 10,
-      }).catch(() => null),
-    ]);
+    const tz = await propertyTimeZone(propertyId, token);
+    const today = R.todayIn(tz);
+    const ranges = R.resolveRanges(body, today);
+    if ("error" in ranges) return json({ error: "bad_request", detail: ranges.error }, 400);
 
-    const r = reports;
-    const totals = (r[0]?.rows?.[0]?.metricValues ?? []).map((v) => Number(v.value ?? 0));
-    const prevTotals = (r[0]?.rows?.[1]?.metricValues ?? []).map((v) => Number(v.value ?? 0));
+    // Bots are left out by default; the page can ask for all traffic.
+    const excludeBots = body.excludeBots !== false;
+    const key = JSON.stringify([propertyId, mode, ranges.current, ranges.compare, excludeBots, drill ?? null]);
+    const hit = cache.get(key);
+    if (hit && !body.refresh && Date.now() - hit.at < REPORT_CACHE_MS) {
+      return json({ ...(hit.payload as object), cached: true });
+    }
 
-    const summary: Record<string, { value: number; previous: number }> = {};
-    SUMMARY_METRICS.forEach((name, i) => {
-      summary[name] = { value: totals[i] ?? 0, previous: prevTotals[i] ?? 0 };
-    });
+    // Which countries look like bots is decided from this range's own data,
+    // before the real reports run, so every report leaves out the same set.
+    const q = await runSpecs(propertyId, token, [R.qualitySpec(ranges)]);
+    const suspects = R.suspectCountries(q.reports.quality);
+    const scope: R.Scope = { excludeCountries: excludeBots ? suspects.map((s) => s.country) : [], drill };
+
+    const weeks = R.cohortWeeks(today);
+    const specs = mode === "drill" ? R.drillReports(ranges, scope) : R.mainReports(ranges, scope, weeks);
+    const { reports, errors } = await runSpecs(propertyId, token, specs);
 
     const payload = {
       success: true,
-      days,
+      mode,
       generated_at: new Date().toISOString(),
-      summary,
-      daily: flatten(r[1], ["date"], ["activeUsers", "sessions", "screenPageViews"]),
-      pages: flatten(r[2], ["pagePath", "pageTitle"], ["screenPageViews", "activeUsers"]),
-      channels: flatten(r[3], ["channel"], ["sessions", "activeUsers", "engagementRate"]),
-      sources: flatten(r[4], ["source", "medium"], ["sessions", "activeUsers"]),
-      countries: flatten(r[5], ["country"], ["activeUsers", "sessions"]),
-      devices: flatten(r[6], ["device"], ["activeUsers", "sessions"]),
-      landing: flatten(r[7], ["landingPage"], ["sessions", "bounceRate"]),
-      events: flatten(r[8], ["eventName"], ["eventCount", "activeUsers"]),
-      realtime: {
-        activeUsers: (realtime?.rows ?? []).reduce(
-          (n: number, row: GaRow) => n + Number(row.metricValues?.[0]?.value ?? 0), 0,
-        ),
-        screens: flatten(realtime ?? undefined, ["screen"], ["activeUsers"]),
-      },
+      drill: drill ?? null,
+      quality: { excluded: excludeBots, suspects },
+      errors: [...q.errors, ...errors],
+      ...(mode === "drill" ? R.shapeDrill(reports, ranges) : R.shapeMain(reports, ranges, tz, weeks)),
     };
-
-    cache.set(key, { at: Date.now(), payload });
+    remember(key, payload);
     return json(payload);
   } catch (e) {
     const message = (e as Error).message;
