@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, MapPin, PlayCircle, Star } from "lucide-react";
+import { MapPin, PlayCircle, Star } from "lucide-react";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import type { RegionRow } from "@/hooks/useConcepts";
 import { trackEvent } from "@/hooks/useSiteAnalytics";
@@ -12,10 +12,10 @@ import type { StayOffer, StayOta, StayRow } from "@/types/stays";
  *
  * The whole card is NOT a link on purpose: affiliate links sit on the booking
  * buttons only (rel="nofollow sponsored"), and the Reel link is a separate,
- * ordinary link. The main "Check rate" button is always the OTA the photos and
- * rating came from (Expedia Group — the photo licence requires it); the other
- * OTAs we have links for follow as small chips, the visitor's usual one first.
- * `region`, when the city has a destination page, adds an internal link to it.
+ * ordinary link. Every OTA we have a link for gets the same button, so the
+ * visitor picks the site they already use; their usual one goes first and is
+ * marked. `region`, when the city has a destination page, adds an internal
+ * link to it.
  */
 export default function StayCard({
   stay,
@@ -31,10 +31,12 @@ export default function StayCard({
   const place = [stay.city, stay.area].filter(Boolean).join(" · ");
   const highlights = (stay.highlights ?? []).slice(0, 3);
 
-  const [primary, ...others] = visibleOffers(stay);
-  const chips = [...others.filter((o) => o.ota === preferredOta), ...others.filter((o) => o.ota !== preferredOta)];
+  const offers = visibleOffers(stay);
+  const buttons = [...offers.filter((o) => o.ota === preferredOta), ...offers.filter((o) => o.ota !== preferredOta)];
+  // 3 fit side by side on a phone-width card; 4 wrap to 2×2 so "Hotels.com" still fits.
+  const cols = buttons.length === 3 ? "grid-cols-3" : buttons.length === 1 ? "grid-cols-1" : "grid-cols-2";
 
-  const onBook = (o: StayOffer, position: "primary" | "chip") => {
+  const onBook = (o: StayOffer, position: number) => {
     rememberPreferredOta(o.ota);
     trackEvent("affiliate_click", { ota: o.ota, stay: stay.slug, position, page: "/where-to-stay" });
   };
@@ -89,60 +91,48 @@ export default function StayCard({
           </Link>
         )}
 
-        <div className="mt-auto flex items-center gap-3 pt-4">
-          {primary && (
-            <a
-              href={primary.url}
-              target="_blank"
-              rel="nofollow sponsored noopener"
-              data-stay={stay.slug}
-              data-ota={primary.ota}
-              onClick={() => onBook(primary, "primary")}
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-accent px-4 py-2.5 text-[14px] font-bold text-white transition-opacity hover:opacity-90"
-            >
-              Check rate on {primary.ota}
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </a>
-          )}
-          {stay.reel_url && (
-            <a
-              href={stay.reel_url}
-              target="_blank"
-              rel="noopener"
-              className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-muted hover:text-ink"
-            >
-              <PlayCircle className="h-4 w-4" aria-hidden />
-              Reel
-            </a>
+        <div className="mt-auto pt-4">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[12px] font-semibold text-muted">Check rates on</p>
+            {stay.reel_url && (
+              <a
+                href={stay.reel_url}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-muted hover:text-ink"
+              >
+                <PlayCircle className="h-4 w-4" aria-hidden />
+                Reel
+              </a>
+            )}
+          </div>
+
+          {buttons.length > 0 && (
+            <div className={`mt-2 grid gap-2 ${cols}`}>
+              {buttons.map((o, i) => {
+                const usual = o.ota === preferredOta;
+                return (
+                  <a
+                    key={o.ota}
+                    href={o.url}
+                    target="_blank"
+                    rel="nofollow sponsored noopener"
+                    data-stay={stay.slug}
+                    data-ota={o.ota}
+                    aria-label={`Check rate on ${o.ota}${usual ? " (your usual site)" : ""}`}
+                    onClick={() => onBook(o, i + 1)}
+                    className={`flex min-h-[44px] flex-col items-center justify-center rounded-[12px] border-[1.5px] px-1.5 py-2 text-center transition-colors hover:border-accent hover:bg-accent hover:text-white ${
+                      usual ? "border-accent bg-accent/[0.06] text-accent" : "border-ink/15 bg-white text-ink"
+                    }`}
+                  >
+                    <span className="whitespace-nowrap text-[13px] font-bold leading-tight">{o.ota}</span>
+                    {usual && <span className="mt-0.5 text-[9.5px] font-bold uppercase tracking-[0.04em]">Your usual</span>}
+                  </a>
+                );
+              })}
+            </div>
           )}
         </div>
-
-        {chips.length > 0 && (
-          <div className="mt-2.5">
-            <p className="text-[11.5px] text-muted-2">Or book on your favourite site:</p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {chips.map((o) => (
-                <a
-                  key={o.ota}
-                  href={o.url}
-                  target="_blank"
-                  rel="nofollow sponsored noopener"
-                  data-stay={stay.slug}
-                  data-ota={o.ota}
-                  onClick={() => onBook(o, "chip")}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-white px-2.5 py-1 text-[12px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
-                >
-                  {o.ota}
-                  {o.ota === preferredOta && (
-                    <span className="rounded-full bg-accent/10 px-1.5 py-px text-[9.5px] font-bold uppercase tracking-[0.04em] text-accent">
-                      Your usual
-                    </span>
-                  )}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </article>
   );

@@ -45,7 +45,7 @@ export default function WhereToStayPage() {
   const { hash } = useLocation();
   const [city, setCity] = useState<string | null>(null);
   const [q, setQ] = useState("");
-  // Read once per visit, so chips don't reshuffle while the visitor is clicking.
+  // Read once per visit, so booking buttons don't reshuffle while the visitor is clicking.
   const [preferredOta] = useState(readPreferredOta);
 
   const all = useMemo(() => data ?? [], [data]);
