@@ -97,12 +97,23 @@ function all(...exprs: Array<Expr | null | undefined>): Expr | undefined {
 export interface Scope {
   /** Countries left out as suspected bot traffic. */
   excludeCountries: string[];
+  /**
+   * Hostnames that count. The old imweb site and localhost report into the
+   * same stream; only the live domain is the audience.
+   */
+  hosts?: string[];
   /** A drill-down: only rows where this dimension has this value. */
   drill?: { dimension: string; value: string };
 }
 
+export const LIVE_HOSTS = ["koreabylocal.com", "www.koreabylocal.com"];
+
+const inList = (fieldName: string, values: string[]): Expr =>
+  ({ filter: { fieldName, inListFilter: { values } } });
+
 const scopeFilter = (s: Scope) =>
   all(
+    s.hosts?.length ? inList("hostName", s.hosts) : null,
     s.excludeCountries.length ? notIn("country", s.excludeCountries) : null,
     s.drill ? exact(s.drill.dimension, s.drill.value) : null,
   );
@@ -187,7 +198,8 @@ export function mainReports(r: Ranges, scope: Scope, cohortWeeks: DateRange[]): 
     spec("events", CP, ["eventName"], ["eventCount", "totalUsers", "keyEvents"], s, { limit: 400 }),
     spec("outbound", CP, ["linkDomain"], ["eventCount", "totalUsers"], s, { filter: event("click"), limit: 300 }),
     spec("outboundPages", C, ["pagePath", "linkDomain"], ["eventCount", "totalUsers"], s, { filter: all(event("click"), NOT_ADMIN), limit: 500 }),
-    spec("hosts", C, ["hostName"], ["sessions", "activeUsers", "engagedSessions"], s, { limit: 30 }),
+    // Every hostname, unfiltered — this is the report that shows what the host filter leaves out.
+    spec("hosts", C, ["hostName"], ["sessions", "activeUsers", "engagedSessions"], { ...s, hosts: undefined }, { limit: 30 }),
   ];
   if (r.previous) {
     specs.splice(2, 0, spec("dailyPrev", [r.previous], ["date"], DAILY_METRICS, s, { orderByDim: "date", limit: 1000 }));
@@ -226,7 +238,7 @@ export function cohortWeeks(today: string, count = 8): DateRange[] {
 /** The country breakdown used to spot bot traffic before the real reports run. */
 export function qualitySpec(r: Ranges): ReportSpec {
   return spec("quality", [r.current], ["country"], ["sessions", "engagedSessions", "activeUsers", "userEngagementDuration"],
-    { excludeCountries: [] }, { limit: 300 });
+    { excludeCountries: [], hosts: LIVE_HOSTS }, { limit: 300 });
 }
 
 export const DRILL_DIMENSIONS = [

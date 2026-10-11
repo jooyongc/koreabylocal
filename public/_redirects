@@ -6,13 +6,13 @@
 /shop  /ebook  301
 /shop/*  /ebook  301
 /product/*  /ebook  301
-/transfers  /getting-there  301
-/transfers/*  /getting-there/:splat  301
+/transfers  /  301
+/transfers/*  /  301
 /experiences  /things-to-do  301
 
 # imweb 기존 URL (v2 계획에서 유지)
-/TRANSFERS  /getting-there  301
-/all  /getting-there  301
+/TRANSFERS  /  301
+/all  /things-to-do  301
 /190  /ask-a-local  301
 /aboutus  /about  301
 /199  /guidebook  301
