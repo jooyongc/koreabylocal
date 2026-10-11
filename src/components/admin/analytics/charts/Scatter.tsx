@@ -21,7 +21,7 @@ export function Scatter({ points, xLabel, yLabel, xFormat, yFormat, quadrants, h
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<Point | null>(null);
-  const m = { top: 12, right: 16, bottom: 36, left: 48 };
+  const m = { top: 26, right: 16, bottom: 36, left: 48 };
   const w = Math.max(0, width - m.left - m.right);
   const h = height - m.top - m.bottom;
 
@@ -77,7 +77,7 @@ export function Scatter({ points, xLabel, yLabel, xFormat, yFormat, quadrants, h
             <text key={t} x={x(t)} y={m.top + h + 16} textAnchor="middle" className="ga-tabular fill-gray-400 text-[10.5px]">{xFormat(t)}</text>
           ))}
           <text x={m.left + w} y={height - 4} textAnchor="end" className="fill-gray-500 text-[10.5px]">{xLabel} →</text>
-          <text x={m.left} y={m.top - 2} className="fill-gray-500 text-[10.5px]" dy="-0.2em">↑ {yLabel}</text>
+          <text x={m.left - 40} y={12} className="fill-gray-500 text-[10.5px]">↑ {yLabel}</text>
 
           {/* Quadrants at the medians */}
           <line x1={x(mx)} x2={x(mx)} y1={m.top} y2={m.top + h} stroke="#d6d4cc" />

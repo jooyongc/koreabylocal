@@ -96,13 +96,16 @@ export function ContentTab({ r, d }: { r: Report; d: Derived }) {
               label: s.label,
               value: s.views,
               display: `${fmtNum(s.views)}회`,
-              sub: `조회당 ${fmtDuration(ratio(s.engagement, s.views))}`,
+              sub: `${fmtNum(s.pages)}개 · 비중 ${fmtPct(ratio(s.views, totalViews), 0)} · 조회당 ${fmtDuration(ratio(s.engagement, s.views))}`,
               prev: compare ? s.prevViews : undefined,
             }))}
           />
-          <div className="mt-5 border-t border-gray-100 pt-4">
-            <DataTable rows={d.sections} columns={sectionCols} defaultSort={{ key: "views", desc: true }} filename="sections" pageSize={10} />
-          </div>
+          <details className="mt-4 border-t border-gray-100 pt-3">
+            <summary className="cursor-pointer text-[11.5px] font-medium text-primary/70 hover:text-primary">표로 보기 · CSV 내려받기</summary>
+            <div className="mt-3">
+              <DataTable rows={d.sections} columns={sectionCols} defaultSort={{ key: "views", desc: true }} filename="sections" pageSize={10} />
+            </div>
+          </details>
         </Card>
         <Card
           className="ga-rise xl:col-span-3"
@@ -116,7 +119,7 @@ export function ContentTab({ r, d }: { r: Report; d: Derived }) {
             yLabel="1인당 읽은 시간"
             xFormat={fmtCompact}
             yFormat={fmtDuration}
-            height={360}
+            height={430}
             quadrants={{ topLeft: "숨은 보석 — 홍보하기", topRight: "인기 글 — 최신으로 유지", bottomLeft: "우선순위 낮음", bottomRight: "새는 글 — 고치기" }}
           />
         </Card>

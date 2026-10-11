@@ -124,7 +124,7 @@ export function Hint({ text, focusable = true, align = "center" }: { text: strin
       </span>
       <span
         role="tooltip"
-        className={`pointer-events-none invisible absolute top-5 z-40 w-[260px] rounded-lg bg-primary px-3 py-2 text-left text-[11.5px] font-normal normal-case leading-relaxed tracking-normal text-white opacity-0 shadow-xl transition-opacity duration-150 group-hover/hint:visible group-hover/hint:opacity-100 group-focus-within/hint:visible group-focus-within/hint:opacity-100 ${pos}`}
+        className={`ga-fade pointer-events-none absolute top-5 z-40 hidden w-[min(260px,calc(100vw-48px))] rounded-lg bg-primary px-3 py-2 text-left text-[11.5px] font-normal normal-case leading-relaxed tracking-normal text-white shadow-xl group-hover/hint:block group-focus-within/hint:block ${pos}`}
       >
         {text}
       </span>

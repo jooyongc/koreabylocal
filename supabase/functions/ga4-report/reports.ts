@@ -121,6 +121,7 @@ const scopeFilter = (s: Scope) =>
 // The admin's own visits are page views too. They are left out of the
 // page-level reports so "most read" means readers, not editors.
 const NOT_ADMIN = notBeginning("pagePath", "/admin");
+const NOT_ADMIN_LANDING = notBeginning("landingPage", "/admin");
 
 // ── report specs ─────────────────────────────────────────────────────────
 
@@ -184,7 +185,7 @@ export function mainReports(r: Ranges, scope: Scope, cohortWeeks: DateRange[]): 
     spec("pages", C, ["pagePath", "pageTitle"],
       ["screenPageViews", "activeUsers", "newUsers", "userEngagementDuration", "engagedSessions", "sessions", "eventCount", "keyEvents"],
       s, { filter: NOT_ADMIN, limit: 1000 }),
-    spec("landing", CP, ["landingPage"], TRAFFIC_METRICS, s, { limit: 500 }),
+    spec("landing", CP, ["landingPage"], TRAFFIC_METRICS, s, { filter: NOT_ADMIN_LANDING, limit: 500 }),
     spec("scroll", C, ["pagePath"], ["eventCount"], s, { filter: all(event("scroll"), NOT_ADMIN), limit: 1000 }),
     spec("search", C, ["searchTerm"], ["eventCount", "totalUsers"], s, { filter: event("view_search_results"), limit: 200 }),
     spec("countries", CP, ["country", "countryId"], AUDIENCE_METRICS, s, { limit: 500 }),
@@ -255,7 +256,7 @@ export function drillReports(r: Ranges, scope: Scope): ReportSpec[] {
     spec("totals", CP, [], TOTAL_METRICS, s),
     spec("dailyCur", C, ["date"], DAILY_METRICS, s, { orderByDim: "date", limit: 1000 }),
     spec("pages", C, ["pagePath", "pageTitle"], ["screenPageViews", "activeUsers", "userEngagementDuration"], s, { filter: NOT_ADMIN, limit: 50 }),
-    spec("landing", C, ["landingPage"], ["sessions", "engagedSessions"], s, { limit: 25 }),
+    spec("landing", C, ["landingPage"], ["sessions", "engagedSessions"], s, { filter: NOT_ADMIN_LANDING, limit: 25 }),
     spec("sources", C, ["sessionSource", "sessionMedium"], ["sessions", "engagedSessions", "activeUsers"], s, { limit: 25 }),
     spec("countries", C, ["country", "countryId"], ["activeUsers", "sessions", "engagedSessions"], s, { limit: 25 }),
     spec("devices", C, ["deviceCategory"], ["activeUsers", "sessions", "engagedSessions"], s),

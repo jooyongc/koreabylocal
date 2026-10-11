@@ -92,6 +92,7 @@ export function AcquisitionTab({ r, d }: { r: Report; d: Derived }) {
     { key: "key", label: "핵심 이벤트", align: "right", value: (c) => c.keyEvents, render: (c) => fmtNum(c.keyEvents) },
   ];
 
+  const campaigns = r.campaigns.filter((c) => !/^\(.*\)$/.test(c.sessionCampaignName));
   const social = r.sources.filter((s) => /social|referral/i.test(s.sessionMedium) || /instagram|facebook|youtube|tiktok|pinterest|reddit|x\.com|t\.co|threads|naver|blog/i.test(s.sessionSource));
 
   return (
@@ -175,7 +176,7 @@ export function AcquisitionTab({ r, d }: { r: Report; d: Derived }) {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <Card className="ga-rise" title="캠페인 (UTM 꼬리표)" help={hint("campaign")} subtitle="링크에 utm_campaign을 붙여 둔 방문 — 인스타 프로필 링크, 뉴스레터 등">
           <DataTable
-            rows={r.campaigns}
+            rows={campaigns}
             columns={campaignCols}
             defaultSort={{ key: "sessions", desc: true }}
             filename="campaigns"

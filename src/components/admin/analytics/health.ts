@@ -100,7 +100,7 @@ export function buildHealth(r: Report, d: Derived, gaps: Gap[]): HealthCheck[] {
   }
 
   // UTM hygiene: campaign names that are cut-off or case variants of each other
-  const names = [...new Set(r.campaigns.map((c) => c.sessionCampaignName))];
+  const names = [...new Set(r.campaigns.map((c) => c.sessionCampaignName).filter((n) => !/^\(.*\)$/.test(n)))];
   const clashes: Array<{ a: string; b: string }> = [];
   for (const a of names) for (const b of names) {
     if (a !== b && a.length < b.length && b.toLowerCase().startsWith(a.toLowerCase())) clashes.push({ a, b });
@@ -112,7 +112,7 @@ export function buildHealth(r: Report, d: Derived, gaps: Gap[]): HealthCheck[] {
       severity: "warning",
       title: "같은 캠페인이 다른 이름으로 나뉘어 집계됩니다",
       detail: `GA4는 이름이 한 글자만 달라도 다른 캠페인으로 셉니다: ${clashes.map((c) => `「${c.a}」/「${c.b}」`).join(", ")}. 어딘가의 링크에 잘린 이름이 붙어 있습니다.`,
-      action: "캠페인마다 정확히 한 가지 이름(소문자)만 쓰세요. 인스타그램 프로필 링크와 링크 모음 도구에 짧은 이름이 남아 있는지 확인하세요. 프로필 링크는 …utm_campaign=koreastaylist 여야 합니다.",
+      action: "캠페인마다 정확히 한 가지 이름(소문자)만 쓰세요. 인스타 프로필 링크는 2026년 10월 11일 확인 결과 …utm_campaign=koreastaylist로 정상이라, 잘린 이름은 그 전에 걸려 있던 링크에서 온 기록입니다. 기간이 지나면 이 경고는 사라집니다.",
       rows: r.campaigns
         .filter((c) => clashes.some((x) => x.a === c.sessionCampaignName || x.b === c.sessionCampaignName))
         .map((c) => ({ label: c.sessionCampaignName, value: `${fmtNum(c.sessions)}회`, note: `${c.sessionSource} / ${c.sessionMedium}` })),
@@ -135,10 +135,9 @@ export function buildHealth(r: Report, d: Derived, gaps: Gap[]): HealthCheck[] {
   if (t.keyEvents === 0) {
     out.push({
       id: "key-events",
-      severity: "warning",
-      title: "핵심 이벤트가 설정돼 있지 않습니다",
-      detail: "핵심 이벤트가 없으면 GA4가 '어느 경로·어느 글이 성과를 냈는지' 계산하지 못해 모든 '핵심 이벤트' 칸이 0입니다. 그동안은 이 페이지가 외부 링크 클릭으로 제휴사 클릭을 따로 셉니다.",
-      action: "GA4 관리 → 데이터 표시 → 이벤트에서 affiliate_click(예약 버튼)과 form_submit(문의 제출) 옆 '핵심 이벤트로 표시'를 켭니다.",
+      severity: "info",
+      title: "이 기간에는 핵심 이벤트 기록이 아직 없습니다",
+      detail: "2026년 10월 11일에 affiliate_click(예약 버튼)과 form_submit(문의 제출)을 GA4 핵심 이벤트로 지정했습니다. 핵심 이벤트는 지정한 뒤에 일어난 것부터 세고, 지난 기록에는 거슬러 적용되지 않습니다. 그래서 그 전 기간의 '핵심 이벤트' 칸은 0입니다. 그동안은 이 페이지가 외부 링크 클릭으로 제휴사 클릭을 따로 셉니다.",
     });
   }
 

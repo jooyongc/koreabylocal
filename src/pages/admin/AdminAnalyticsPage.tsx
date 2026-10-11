@@ -15,7 +15,7 @@ import { cleanStart, compareState, derive, findGaps, gapCause, withoutCompare } 
 import { buildInsights, type TabKey } from "@/components/admin/analytics/insights";
 import { buildHealth } from "@/components/admin/analytics/health";
 import { buildSummary } from "@/components/admin/analytics/summary";
-import { countryKo, download, fmtDay, fmtNum, fmtPct, fmtRange, ratio } from "@/components/admin/analytics/format";
+import { countryKo, download, fmtDay, fmtNum, fmtPct, fmtRange, ratio, todayIn } from "@/components/admin/analytics/format";
 import { refreshReport, reportKey, useAnalyticsReport, useRealtime } from "@/components/admin/analytics/useAnalytics";
 import type { CompareMode, DrillTarget, RangeParams } from "@/components/admin/analytics/types";
 import { OverviewTab } from "@/components/admin/analytics/tabs/OverviewTab";
@@ -364,6 +364,7 @@ export default function AdminAnalyticsPage() {
             onDrill={setDrill}
             compareOk={cmp.ok}
             gaps={gaps.map((g) => ({ from: g.from, to: g.to }))}
+            endsToday={Boolean(raw && raw.range.endDate === todayIn(raw.timeZone))}
           />
         )}
         {glossary && <GlossaryDrawer onClose={() => setGlossary(false)} />}

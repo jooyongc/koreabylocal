@@ -9,7 +9,7 @@ import { Heatmap } from "../charts/Heatmap";
 import { ShareBar } from "../charts/misc";
 import { useOpenDrill } from "../context";
 import {
-  COMPARE, SERIES, channelColor, channelKo, countryKo, deviceColor, deviceKo, flag, fmtDuration, fmtNum, fmtPct, fmtRange, ratio, userTypeKo,
+  COMPARE, SERIES, channelColor, channelKo, countryKo, deviceColor, deviceKo, flag, fmtDuration, fmtNum, fmtPct, fmtRange, ratio, todayIn, userTypeKo,
 } from "../format";
 import { hint } from "../glossary";
 import { short, type Insight } from "../insights";
@@ -120,6 +120,7 @@ export function OverviewTab({ r, d, insights, summary, gaps }: { r: Report; d: D
             format={spec.format}
             height={270}
             gaps={gaps.map((g) => ({ from: g.from, to: g.to }))}
+            partialLast={r.range.endDate === todayIn(r.timeZone)}
             series={[
               { key: "cur", label: "이번 기간", color: SERIES[0], area: true, values: daily.map(spec.value) },
               ...(prevDaily.length ? [{ key: "prev", label: compareLabel, color: COMPARE, muted: true, dates: prevDaily.map((x) => x.date), values: prevDaily.map(spec.value) }] : []),
