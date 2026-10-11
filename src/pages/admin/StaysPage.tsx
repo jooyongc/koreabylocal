@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { Skeleton } from "@/components/common/Skeleton";
 import { useAdminStays, useDeleteStay, useUpdateStay, useUpsertStays } from "@/hooks/useAdminStays";
 import { parseStayImport } from "@/lib/stayImport";
+import { isOtaEnabled, stayOffers } from "@/lib/stayOffers";
 import { uploadImage } from "@/lib/uploadImage";
 import type { StayRow } from "@/types/stays";
 
@@ -14,8 +15,9 @@ import type { StayRow } from "@/types/stays";
  *
  * The Reels routine writes a stay.json next to every Reel. Paste it here and
  * save: it is validated (docs/03_RULES.md) and upserted on slug, so pasting the
- * same file again updates the card instead of duplicating it. Order of work
- * per Reel: card live here FIRST, then publish the Reel, then add reel_url.
+ * same file again updates the card instead of duplicating it (empty thumb_url,
+ * reel_url or a missing offers list leave the saved values alone). Order of
+ * work per Reel: card live here FIRST, then publish the Reel, then add reel_url.
  */
 
 const EXAMPLE = `{
@@ -26,6 +28,9 @@ const EXAMPLE = `{
   "area": "Myeongdong",
   "ota": "Expedia",
   "affiliate_url": "https://expedia.com/affiliates/seoul-hotels-l7-myeongdong-by-lotte.ZHRjmM1",
+  "offers": [
+    { "ota": "Expedia", "url": "https://expedia.com/affiliates/seoul-hotels-l7-myeongdong-by-lotte.ZHRjmM1" }
+  ],
   "rating": 9.2,
   "review_count": 1375,
   "facts_checked_on": "2026-10-09",
@@ -66,6 +71,13 @@ function ImportBox() {
         placeholder="Paste one stay.json object (or an array of them)"
         className="w-full rounded-lg border border-gray-300 p-3 font-mono text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       />
+      <p className="mt-1.5 text-xs leading-relaxed text-gray-500">
+        <code className="font-mono">offers</code> lists every OTA you have an affiliate link for, one each — e.g.{" "}
+        <code className="font-mono">{'{ "ota": "Hotels.com", "url": "https://hotels.com/affiliate/…" }'}</code>,{" "}
+        <code className="font-mono">{'{ "ota": "Trip.com", "url": "https://www.trip.com/t/…" }'}</code>. The photo OTA (
+        <code className="font-mono">ota</code> / <code className="font-mono">affiliate_url</code>) is added first if missing
+        and stays the main button. Agoda links are left out until koreabylocal.com is approved.
+      </p>
       {result && result.errors.length > 0 && (
         <ul className="mt-2 space-y-0.5 text-xs text-red-600">
           {result.errors.map((e) => (
@@ -73,9 +85,22 @@ function ImportBox() {
           ))}
         </ul>
       )}
+      {result && result.warnings.length > 0 && (
+        <ul className="mt-2 space-y-0.5 text-xs text-amber-700">
+          {result.warnings.map((w) => (
+            <li key={w}>• {w}</li>
+          ))}
+        </ul>
+      )}
       {result && result.errors.length === 0 && (
         <p className="mt-2 text-xs text-emerald-700">
-          Ready: {result.rows.map((r) => `“${r.label}” (${r.city}, ${r.ota})`).join(", ")}
+          Ready:{" "}
+          {result.rows
+            .map((r) => {
+              const otas = Array.isArray(r.offers) ? r.offers.length : null;
+              return `“${r.label}” (${r.city}, ${r.ota}${otas && otas > 1 ? ` +${otas - 1} OTA${otas > 2 ? "s" : ""}` : ""})`;
+            })
+            .join(", ")}
         </p>
       )}
       <div className="mt-3 flex justify-end">
@@ -98,6 +123,8 @@ function StayRowItem({ stay }: { stay: StayRow }) {
   const del = useDeleteStay();
   const [reel, setReel] = useState(stay.reel_url ?? "");
   const [uploading, setUploading] = useState(false);
+  const offers = stayOffers(stay);
+  const off = offers.filter((o) => !isOtaEnabled(o.ota)).map((o) => o.ota);
 
   const patch = (p: Parameters<typeof update.mutate>[0]["patch"], ok?: string) =>
     update.mutate(
@@ -149,6 +176,10 @@ function StayRowItem({ stay }: { stay: StayRow }) {
         </a>
         <div className="text-xs text-gray-400">
           {stay.rating ?? "—"}/10 · {stay.review_count?.toLocaleString("en-US") ?? "—"} · {stay.facts_checked_on}
+        </div>
+        <div className="text-xs text-gray-500" title={offers.map((o) => o.ota).join(", ")}>
+          {offers.length} OTA{offers.length === 1 ? "" : "s"}
+          {off.length > 0 && <span className="text-amber-600"> ({off.join(", ")} off)</span>}
         </div>
       </td>
       <td className="px-4 py-3">

@@ -878,6 +878,7 @@ export type Database = {
           review_count: number | null
           facts_checked_on: string
           highlights: string[]
+          offers: Json
           thumb_url: string | null
           reel_url: string | null
           is_active: boolean
@@ -898,6 +899,7 @@ export type Database = {
           review_count?: number | null
           facts_checked_on?: string
           highlights?: string[]
+          offers?: Json
           thumb_url?: string | null
           reel_url?: string | null
           is_active?: boolean
@@ -918,6 +920,7 @@ export type Database = {
           review_count?: number | null
           facts_checked_on?: string
           highlights?: string[]
+          offers?: Json
           thumb_url?: string | null
           reel_url?: string | null
           is_active?: boolean
