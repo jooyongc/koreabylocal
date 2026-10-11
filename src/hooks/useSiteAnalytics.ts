@@ -19,6 +19,18 @@ export function useGa4Setting() {
   });
 }
 
+/**
+ * Sends a GA4 event. A no-op when GA isn't configured or is blocked; calls
+ * made before gtag.js loads are queued in dataLayer by the inline snippet.
+ */
+export function trackEvent(name: string, params: Record<string, string | number>) {
+  try {
+    window.gtag?.("event", name, params);
+  } catch {
+    // analytics must never break a click
+  }
+}
+
 /** Loads Google Analytics (gtag.js) when a GA4 id is configured. Mount once at root. */
 export function useSiteAnalytics() {
   const { data: gaId } = useGa4Setting();

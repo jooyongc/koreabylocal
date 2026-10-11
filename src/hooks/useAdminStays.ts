@@ -26,14 +26,27 @@ function useInvalidate() {
   };
 }
 
-/** Upsert on slug: pasting the same stay.json twice updates instead of duplicating. */
+/**
+ * Upsert on slug: pasting the same stay.json twice updates instead of duplicating.
+ * Rows are sent in groups with the same keys: in one bulk upsert a key that some
+ * rows leave out (thumb_url, reel_url, offers) would be written as null for them.
+ */
 export function useUpsertStays() {
   const invalidate = useInvalidate();
   return useMutation({
     mutationFn: async (rows: StayInsert[]) => {
-      const { data, error } = await supabase.from("stays").upsert(rows, { onConflict: "slug" }).select("slug");
-      if (error) throw error;
-      return data?.length ?? 0;
+      const groups = new Map<string, StayInsert[]>();
+      for (const row of rows) {
+        const shape = Object.keys(row).sort().join(",");
+        groups.set(shape, [...(groups.get(shape) ?? []), row]);
+      }
+      let saved = 0;
+      for (const group of groups.values()) {
+        const { data, error } = await supabase.from("stays").upsert(group, { onConflict: "slug" }).select("slug");
+        if (error) throw error;
+        saved += data?.length ?? 0;
+      }
+      return saved;
     },
     onSuccess: invalidate,
   });

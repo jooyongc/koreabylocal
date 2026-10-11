@@ -6,6 +6,7 @@ import AffiliateDisclosure from "@/components/stays/AffiliateDisclosure";
 import StayCard from "@/components/stays/StayCard";
 import { useRegionGuides, useRegions, type RegionRow } from "@/hooks/useConcepts";
 import { useStays } from "@/hooks/useStays";
+import { readPreferredOta, visibleOffers } from "@/lib/stayOffers";
 
 // The rest of the site, for visitors who came for a hotel and are still planning.
 const MORE_PLANNING = [
@@ -44,6 +45,8 @@ export default function WhereToStayPage() {
   const { hash } = useLocation();
   const [city, setCity] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  // Read once per visit, so chips don't reshuffle while the visitor is clicking.
+  const [preferredOta] = useState(readPreferredOta);
 
   const all = useMemo(() => data ?? [], [data]);
 
@@ -86,7 +89,8 @@ export default function WhereToStayPage() {
     document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [target, isLoading]);
 
-  const programs = useMemo(() => all.map((s) => s.ota), [all]);
+  // Disclose every OTA that has a booking button on screen, not just the main one.
+  const programs = useMemo(() => stays.flatMap((s) => visibleOffers(s).map((o) => o.ota)), [stays]);
 
   const jsonLd = useMemo(
     () => ({
@@ -135,8 +139,7 @@ export default function WhereToStayPage() {
             Where to Stay in Korea
           </h1>
           <p className="mt-3.5 max-w-[56ch] text-[clamp(14px,1.5vw,17px)] text-white/70">
-            Saw a hotel in our Reels? Find it below and tap <strong className="text-white">Check rate</strong> to see
-            today’s price.
+            Saw a hotel in our Reels? Find it below and book on the site you already use.
           </p>
 
           <label className="relative mt-5 block max-w-[520px]">
@@ -195,6 +198,7 @@ export default function WhereToStayPage() {
                 key={s.id}
                 stay={s}
                 region={regionByCity.get(s.city.toLowerCase())}
+                preferredOta={preferredOta}
                 highlight={s.slug === target}
               />
             ))}
