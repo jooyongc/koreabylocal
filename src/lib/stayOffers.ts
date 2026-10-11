@@ -69,7 +69,7 @@ export function visibleOffers(stay: Pick<StayRow, "ota" | "affiliate_url" | "off
   return stayOffers(stay).filter((o) => isOtaEnabled(o.ota));
 }
 
-// The OTA a visitor last clicked, so their usual site is the first chip next
+// The OTA a visitor last clicked, so their usual site is the first button next
 // visit. A per-browser convenience only — storage may be unavailable.
 const PREF_KEY = "kbl_pref_ota";
 
