@@ -31,6 +31,8 @@ export function offerUrlProblem(url: unknown, ota: StayOta): string | null {
     const u = new URL(url);
     if (u.protocol !== "https:") return "url must be https";
     if (!OTA_HOSTS[ota].test(u.hostname)) return `url host ${u.hostname} does not belong to ${ota}`;
+    // The blog's Agoda CID must never be used on this domain.
+    if (ota === "Agoda" && u.searchParams.get("cid") !== AGODA_SITE_CID) return `Agoda url must use cid=${AGODA_SITE_CID}`;
     return null;
   } catch {
     return "url is not a valid URL";
@@ -42,6 +44,9 @@ export function offerUrlProblem(url: unknown, ota: StayOta): string | null {
  * CID we have is approved for the blog only, and using it here risks the
  * partner account. Set VITE_AFFILIATE_AGODA_ENABLED=true once approved.
  */
+/** The Agoda site id approved for koreabylocal.com/where-to-stay (2026-10-11). */
+export const AGODA_SITE_CID = "1977183";
+
 export function isOtaEnabled(ota: StayOta, agodaEnabled = import.meta.env?.VITE_AFFILIATE_AGODA_ENABLED === "true"): boolean {
   return ota !== "Agoda" || agodaEnabled;
 }
