@@ -227,7 +227,7 @@ Deno.serve(async (req: Request) => {
     // before the real reports run, so every report leaves out the same set.
     const q = await runSpecs(propertyId, token, [R.qualitySpec(ranges)]);
     const suspects = R.suspectCountries(q.reports.quality);
-    const scope: R.Scope = { excludeCountries: excludeBots ? suspects.map((s) => s.country) : [], drill };
+    const scope: R.Scope = { excludeCountries: excludeBots ? suspects.map((s) => s.country) : [], hosts: R.LIVE_HOSTS, drill };
 
     const weeks = R.cohortWeeks(today);
     const specs = mode === "drill" ? R.drillReports(ranges, scope) : R.mainReports(ranges, scope, weeks);

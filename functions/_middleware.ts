@@ -55,6 +55,25 @@ const MAP: Record<string, string> = {
 const SUPABASE_URL = "https://agkkvtfwqmzgbrqhvohs.supabase.co";
 const ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFna2t2dGZ3cW16Z2JycWh2b2hzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MTU5MDIsImV4cCI6MjA4NjE5MTkwMn0.nZZ8Qrt0dU_v4CSeiVy4DM1IQLAEGBmKldtiotb6Oh8";
 
+// Old imweb paths → their closest page today. Checked against GA4's 404
+// list (2026-10-11): /travel, /83, /143 were the article boards, /190 the
+// Ask-a-local board, /all, /theme, /thema the experience listings,
+// /shop_view and /koreagoods the shop, /transportation the airport transfer.
+const LEGACY: Array<[RegExp, string]> = [
+  [/^\/(travel|83|143|199)(\/.*)?$/i, "/guidebook"],
+  [/^\/190(\/.*)?$/, "/ask-a-local"],
+  [/^\/(all|theme|thema|xperiences)(\/.*)?$/i, "/things-to-do"],
+  [/^\/(shop_view|koreagoods)(\/.*)?$/i, "/ebook"],
+  [/^\/downloads\/korea-ebook-sample\.pdf$/i, "/ebook"],
+  [/^\/(main|transportation|logout\.cm|login\.cm|125|128|67)\/?$/i, "/"],
+  [/^\/(privacy-policy|(legal|policy|terms|home|member)\/privacy(\.html)?)\/?$/i, "/privacy"],
+  [/^\/(contact-?us|what-we-do|aboutus)\/?$/i, "/about"],
+];
+
+function legacyTarget(path: string) {
+  return LEGACY.find(([re]) => re.test(path))?.[1] ?? null;
+}
+
 export const onRequest = async (context: { request: Request; next: () => Promise<Response> }) => {
   const url = new URL(context.request.url);
 
@@ -85,6 +104,23 @@ export const onRequest = async (context: { request: Request; next: () => Promise
       // redirected again cost every legacy link a second hop.
       return new Response(null, { status: 301, headers: { Location: `${url.origin}/guidebook/${slug}` } });
     }
+  }
+
+  // 301: the old imweb site's other addresses — boards, shop and experience
+  // pages, and the privacy pages bots probe for. GA4 showed them all landing
+  // on the 404 page, with and without a trailing slash. Their query strings
+  // (?idx=, ?q=…) mean nothing here, so they are dropped.
+  const legacy = legacyTarget(url.pathname);
+  if (legacy) {
+    return new Response(null, { status: 301, headers: { Location: `${url.origin}${legacy}` } });
+  }
+
+  // Old imweb links also carry ?q=<base64 PHP blob> on pages that still
+  // exist, and GA4 logs each one as a site search. Keep the page, drop the blob.
+  const q = url.searchParams.get("q");
+  if (q && /^yto/i.test(q) && q.length >= 20) {
+    url.searchParams.delete("q");
+    return new Response(null, { status: 301, headers: { Location: url.toString() } });
   }
 
   // sitemap.xml -> proxy the edge function (kept same-origin for SEO)

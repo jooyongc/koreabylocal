@@ -62,8 +62,8 @@ export function buildHealth(r: Report, d: Derived): HealthCheck[] {
       id: "hosts",
       severity: "warning",
       title: "Traffic recorded on other hostnames",
-      detail: "The same GA4 stream is collecting from addresses that are not the live site.",
-      action: "localhost is development traffic (add a GA4 data filter for it). koreabylocal.imweb.me is the old site: redirect it to koreabylocal.com or take the tag off it. translate.goog is Google Translate's proxy and is fine.",
+      detail: "The same GA4 stream also collects from addresses that are not the live site. This page counts koreabylocal.com only, so these are left out of every number above.",
+      action: "The site no longer sends hits from localhost or preview hosts. koreabylocal.imweb.me is the old imweb site still carrying the tag: remove the GA4 code in imweb's settings or close that site.",
       rows: strayHosts.map((h) => ({ label: h.hostName, value: `${fmtNum(h.sessions)} sessions`, note: `${fmtNum(h.engagedSessions)} engaged` })),
     });
   }
@@ -71,10 +71,9 @@ export function buildHealth(r: Report, d: Derived): HealthCheck[] {
   // Internal (admin) traffic
   out.push({
     id: "internal",
-    severity: "info",
-    title: "Your own admin visits are counted",
-    detail: "GA4 loads on /admin too, so editing posts adds users, sessions and engagement time. This page leaves /admin out of the page reports, but site totals still include it.",
-    action: "Define internal traffic in GA4 (Admin → Data streams → Define internal traffic, your office IP) and activate the Internal traffic data filter — or stop loading GA4 on /admin.",
+    severity: "good",
+    title: "Admin visits are no longer tracked",
+    detail: "Since 2026-10-11 GA4 stays silent on /admin and for signed-in admin accounts on any page. Earlier periods still include the admin's own visits; /admin pages are left out of the page reports here.",
   });
 
   // (not set) landing pages
