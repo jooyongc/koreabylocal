@@ -89,7 +89,10 @@ export default function AdminAnalyticsPage() {
   }, [setSp]);
 
   const { data: raw, error, isLoading, isFetching } = useAnalyticsReport(params);
-  const live = useRealtime(true, tab === "realtime" ? 30_000 : 60_000);
+  // GA4 allows ten concurrent requests per property. The report runs three
+  // batches at a time and realtime six requests, so the header's live count
+  // waits for the report unless the realtime tab itself is open.
+  const live = useRealtime(tab === "realtime" || !isFetching, tab === "realtime" ? 30_000 : 60_000);
 
   const [drill, setDrill] = useState<DrillTarget | null>(null);
   const [glossary, setGlossary] = useState(false);
@@ -144,6 +147,7 @@ export default function AdminAnalyticsPage() {
               <p className="mt-1 text-sm text-text-secondary">
                 koreabylocal.com
                 {raw && <> · {fmtRange(raw.range.startDate, raw.range.endDate)}{r?.compare && <span className="text-gray-400"> · 비교: {fmtRange(r.compare.startDate, r.compare.endDate)}</span>}</>}
+                {raw && isFetching && <span className="text-gray-400"> · 지난 결과를 보여 주며 최신 데이터를 읽는 중…</span>}
               </p>
             </div>
             <div className="flex items-center gap-2">
