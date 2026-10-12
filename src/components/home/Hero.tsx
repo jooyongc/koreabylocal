@@ -41,9 +41,11 @@ export default function Hero() {
               worth it.
             </h1>
 
-            <p className="mt-6 max-w-[46ch] text-[clamp(15px,1.6vw,18px)] leading-[1.6] text-muted">
-              We help you travel deeper, city by city, with real Korea travel tips from the people who actually live here.
-            </p>
+            <div className="mt-6 max-w-[46ch] rounded-2xl bg-gray-50 px-5 py-4">
+              <p className="text-[clamp(15px,1.6vw,18px)] leading-[1.6] text-muted">
+                We help you travel deeper, city by city, with real Korea travel tips from the people who actually live here.
+              </p>
+            </div>
           </div>
 
           {/* Right: Featured Read (a blog post an admin has pinned here) */}

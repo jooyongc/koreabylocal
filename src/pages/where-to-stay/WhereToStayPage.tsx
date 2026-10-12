@@ -136,7 +136,8 @@ export default function WhereToStayPage() {
             Where to Stay in Korea
           </h1>
           <p className="mt-3.5 max-w-[56ch] text-[clamp(14px,1.5vw,17px)] text-white/70">
-            Saw a hotel in our Reels? Find it below and book on the site you already use.
+            Hand-picked by locals, each one checked for what it's actually good at. Saw a hotel in our Reels? Find it
+            below and book on the site you already use.
           </p>
 
           <label className="relative mt-5 block max-w-[520px]">
