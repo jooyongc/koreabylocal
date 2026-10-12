@@ -75,10 +75,16 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
       }
     });
 
-    // Listen for auth changes
+    // Listen for auth changes. Supabase waits for this callback while it holds
+    // its auth lock, and a query made inside the callback waits for that same
+    // lock — so it must never await one. When the page opened with an expired
+    // token, the refresh fired TOKEN_REFRESHED before the profile was loaded,
+    // the profile query waited on the refresh, the refresh waited on the
+    // query, and /admin sat on the spinner until a reload. The profile is
+    // loaded after the callback returns instead.
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (
         event === "SIGNED_IN" ||
         event === "TOKEN_REFRESHED" ||
@@ -88,8 +94,11 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
           // The hourly token refresh, or a repeat SIGNED_IN for whoever is
           // already loaded, doesn't change the profile — skip the round trip.
           if (event !== "USER_UPDATED" && get().user?.id === session.user.id) return;
-          const profile = await fetchProfile(session.user.id);
-          set({ user: profile, isLoading: false });
+          const userId = session.user.id;
+          setTimeout(async () => {
+            const profile = await fetchProfile(userId);
+            set({ user: profile, isLoading: false });
+          }, 0);
         }
       } else if (event === "SIGNED_OUT") {
         set({ user: null, isLoading: false });
