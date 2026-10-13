@@ -177,11 +177,9 @@ function EbookListPage({ ebooks, navigate }: { ebooks: PublicEbook[]; navigate: 
 
       <div className="mx-auto max-w-[1080px] px-4 py-[clamp(32px,5vw,64px)] sm:px-6 lg:px-8">
         <h1 className="font-display text-[clamp(28px,4vw,40px)] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink">
-          E-books & Guides
+          Korean Guide E-book
         </h1>
-        <p className="mt-2 max-w-[60ch] text-[15px] text-muted">
-          Written and checked by people who actually live here — not scraped or AI-written.
-        </p>
+        <p className="mt-2 text-[15px] text-muted">Written and checked by real locals — not scraped or AI-written.</p>
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {ebooks.map((ebook) => {
