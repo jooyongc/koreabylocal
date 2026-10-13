@@ -1,6 +1,7 @@
 import { useState } from "react";
 import OptimizedImage from "@/components/common/OptimizedImage";
 import { Link, useNavigate } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { useEbooks } from "@/hooks/useEbooks";
 import { supabase } from "@/lib/supabase";
@@ -11,13 +12,17 @@ const money = (n: number) =>
 
 export default function EbookBanner() {
   const { data: ebooks } = useEbooks();
-  const ebook = ebooks?.[0];
+  const [index, setIndex] = useState(0);
   const navigate = useNavigate();
   const [showSample, setShowSample] = useState(false);
   const [showFree, setShowFree] = useState(false);
 
+  const ebook = ebooks?.[index % (ebooks?.length || 1)];
   if (!ebook) return null;
   const isFree = Number(ebook.price_usd) === 0;
+  const showArrows = ebooks.length > 1;
+  const goPrev = () => setIndex((i) => (i - 1 + ebooks.length) % ebooks.length);
+  const goNext = () => setIndex((i) => (i + 1) % ebooks.length);
 
   // Mirrors EbookPage's claim-free-ebook call — kept in sync with it.
   const claimFree = async (email: string) => {
@@ -35,7 +40,25 @@ export default function EbookBanner() {
 
   return (
     <section className="mx-auto max-w-[1180px] px-4 pb-[clamp(24px,4vw,40px)] sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 items-center gap-[clamp(24px,4vw,44px)] overflow-hidden rounded-[20px] border-[1.5px] border-ink bg-accent-light p-[clamp(26px,4vw,48px)] lg:grid-cols-[1fr_1.4fr]">
+      <div className="relative grid grid-cols-1 items-center gap-[clamp(24px,4vw,44px)] overflow-hidden rounded-[20px] border-[1.5px] border-ink bg-accent-light p-[clamp(26px,4vw,48px)] lg:grid-cols-[1fr_1.4fr]">
+        {showArrows && (
+          <div className="absolute right-4 top-4 z-10 flex gap-2 sm:right-6 sm:top-6">
+            <button
+              onClick={goPrev}
+              aria-label="Previous e-book"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-accent hover:text-accent"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={goNext}
+              aria-label="Next e-book"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-accent hover:text-accent"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
         <div className="flex justify-center">
           {ebook.cover_image_url ? (
             <OptimizedImage src={ebook.cover_image_url} alt={ebook.title} preset="thumbnail" className="w-full max-w-[240px] rounded-xl shadow-[0_20px_44px_rgba(255,46,151,0.2)]" />
