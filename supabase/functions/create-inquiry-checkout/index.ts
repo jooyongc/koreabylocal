@@ -5,13 +5,14 @@
 //
 // REQUIRED secrets: PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET.
 // Optional: PAYPAL_ENV=live|sandbox (default live), INQUIRY_PRICE_USD
-// (default 1.00).
+// (default 1.00 — only sets the "General" service's price; the other
+// services' prices live in _shared/inquiry-pricing.ts).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createOrder, isPayPalConfigured } from "../_shared/paypal.ts";
+import { priceForCategory } from "../_shared/inquiry-pricing.ts";
 
 const SITE_URL = Deno.env.get("SITE_URL") || "https://koreabylocal.com";
-const PRICE_USD = Deno.env.get("INQUIRY_PRICE_USD") || "1.00";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,7 +62,7 @@ Deno.serve(async (req: Request) => {
         attachment_url: typeof attachment_url === "string" && attachment_url ? attachment_url : null,
         payment_status: "unpaid",
       })
-      .select("id")
+      .select("id, category")
       .single();
 
     if (insertError || !inquiry) {
@@ -69,12 +70,14 @@ Deno.serve(async (req: Request) => {
       return json({ error: "Could not save your question" }, 500);
     }
 
-    // reference_id carries our inquiry id through PayPal and back, so the
-    // capture step never has to trust anything the browser tells it.
+    // The price is always looked up server-side from the category we just
+    // saved — never trusted from the browser. reference_id carries our
+    // inquiry id through PayPal and back, so the capture step never has to
+    // trust anything the browser tells it either.
     const order = await createOrder({
-      amount: PRICE_USD,
+      amount: priceForCategory(inquiry.category),
       currency: "USD",
-      description: `Ask a Local question ${inquiry.id}`,
+      description: `${inquiry.category} — Ask a Local #${inquiry.id}`,
       referenceId: String(inquiry.id),
       returnUrl: `${SITE_URL}/ask-a-local/success`,
       cancelUrl: `${SITE_URL}/ask-a-local?cancelled=1`,

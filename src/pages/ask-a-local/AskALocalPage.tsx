@@ -1,23 +1,72 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Send, Upload, X, Loader2, Plus, Lock, Paperclip, Users } from "lucide-react";
+import { Send, Upload, X, Loader2, Plus, Lock, Paperclip, MessageCircle, UtensilsCrossed, CalendarCheck, Package } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
 import { uploadImage } from "@/lib/uploadImage";
 import RecentlyAnswered from "@/components/ask/RecentlyAnswered";
 
-const CATEGORIES = [
-  "General",
-  "Tour Inquiry",
-  "Transportation",
-  "Custom Request",
-  "Other",
-] as const;
+type ServiceKey = "general" | "restaurant" | "schedule" | "shipping";
+
+interface Service {
+  label: string;
+  /** Stored as inquiries.category — also the key the price is looked up by server-side. */
+  category: string;
+  price: number;
+  verb: string;
+  tagline: string;
+  placeholder: string;
+  attachLabel: string;
+  icon: typeof MessageCircle;
+}
+
+const SERVICES: Record<ServiceKey, Service> = {
+  general: {
+    label: "Ask Anything",
+    category: "General",
+    price: 1,
+    verb: "Ask a local",
+    tagline: "$1 per question, no account needed. A verified Korean host replies — usually within a few hours — with honest, specific advice for your trip.",
+    placeholder: "e.g. “4 days in Korea with kids — Seoul + one more city. What would you do?”",
+    attachLabel: "Attach a file",
+    icon: MessageCircle,
+  },
+  restaurant: {
+    label: "Restaurant Reservation",
+    category: "Restaurant Reservation",
+    price: 1,
+    verb: "Reserve my table",
+    tagline: "$1 per booking. Tell us the restaurant (or type of food), date, time and party size — a local calls and books it for you.",
+    placeholder: "e.g. “A good samgyeopsal place near Hongdae, tonight at 7pm, for 4 people.”",
+    attachLabel: "Attach a screenshot",
+    icon: UtensilsCrossed,
+  },
+  schedule: {
+    label: "Trip Schedule Check",
+    category: "Schedule Check",
+    price: 5,
+    verb: "Check my schedule",
+    tagline: "$5 per check. Paste your itinerary and a local reviews it — flags anything too tight, too far apart, or closed that day.",
+    placeholder: "Paste your day-by-day itinerary here, or attach it below...",
+    attachLabel: "Attach your itinerary",
+    icon: CalendarCheck,
+  },
+  shipping: {
+    label: "K-Beauty Shipping Request",
+    category: "Cosmetics Shipping",
+    price: 5,
+    verb: "Request shipping",
+    tagline: "$5 per request. List the products (brand + name, or a link) and your shipping address — a local buys and ships them to you.",
+    placeholder: "e.g. “Beauty of Joseon Relief Sun SPF50+ x2, COSRX Snail Mucin x1 — ship to: ...”",
+    attachLabel: "Attach product links/photos",
+    icon: Package,
+  },
+};
 
 // Kept in sync with the trust row below — FAQPage structured data must match visible content.
 const FAQS = [
-  { q: "How much does it cost?", a: "$1 per question — it goes to the local who answers you. No account needed." },
+  { q: "How much does it cost?", a: "$1 for a question or a restaurant reservation, $5 for a schedule check or a shipping request — it goes to the local who helps you. No account needed." },
   { q: "How fast will I get a reply?", a: "Usually within a few hours. Our average reply time is about 3 hours." },
   { q: "Who actually answers my question?", a: "A verified local host in Korea — never a bot or an algorithm." },
 ];
@@ -35,11 +84,12 @@ const FAQ_SCHEMA = {
 interface InquiryForm {
   name: string;
   email: string;
-  category: string;
   message: string;
 }
 
 export default function AskALocalPage() {
+  const [serviceKey, setServiceKey] = useState<ServiceKey>("general");
+  const service = SERVICES[serviceKey];
   const [attachmentUrl, setAttachmentUrl] = useState("");
   const [attachmentName, setAttachmentName] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -48,9 +98,7 @@ export default function AskALocalPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<InquiryForm>({
-    defaultValues: { category: "General" },
-  });
+  } = useForm<InquiryForm>();
 
   const handleFileUpload = async (files: FileList | null) => {
     const file = files?.[0];
@@ -86,7 +134,7 @@ export default function AskALocalPage() {
       body: {
         name: data.name,
         email: data.email,
-        category: data.category,
+        category: service.category,
         message: data.message,
         attachment_url: attachmentUrl || null,
       },
@@ -118,7 +166,7 @@ export default function AskALocalPage() {
       {/* ── Hero + form card ───────────────────────────────────────── */}
       <section className="mx-auto max-w-[880px] px-4 pt-[clamp(34px,5vw,72px)] text-center sm:px-6 lg:px-8">
         <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-accent">
-          Ask a local $1 per question
+          Real locals, from $1
         </p>
         <h1 className="mt-3 font-display text-[clamp(32px,5.5vw,60px)] font-extrabold leading-[1.02] tracking-[-0.02em] text-ink">
           Stuck planning?{" "}
@@ -126,10 +174,34 @@ export default function AskALocalPage() {
             Ask a real local.
           </span>
         </h1>
-        <p className="mx-auto mt-4 max-w-[50ch] text-[clamp(15px,1.7vw,18px)] text-muted">
-          $1 per question, no account needed. A verified Korean host replies —
-          usually within a few hours — with honest, specific advice for your trip.
+        <p className="mx-auto mt-4 max-w-[52ch] text-[clamp(15px,1.7vw,18px)] text-muted">
+          {service.tagline}
         </p>
+
+        {/* Service picker */}
+        <div className="mx-auto mt-6 flex max-w-[700px] flex-wrap justify-center gap-2">
+          {(Object.keys(SERVICES) as ServiceKey[]).map((key) => {
+            const s = SERVICES[key];
+            const Icon = s.icon;
+            const active = key === serviceKey;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setServiceKey(key)}
+                className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[13px] font-bold transition-colors ${
+                  active
+                    ? "border-accent bg-accent text-white"
+                    : "border-ink/15 bg-white text-ink hover:border-accent hover:text-accent"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                {s.label}
+                <span className={active ? "text-white/75" : "text-muted-2"}>${s.price}</span>
+              </button>
+            );
+          })}
+        </div>
 
         {/* Question form card */}
         <form
@@ -143,10 +215,10 @@ export default function AskALocalPage() {
             </label>
             <textarea
               id="ask-message"
-              {...register("message", { required: "Please write your question" })}
+              {...register("message", { required: "Please share the details" })}
               rows={3}
               className="min-h-[90px] w-full resize-y rounded-[14px] border border-ink/12 bg-white p-4 text-[15px] leading-[1.5] text-ink placeholder:text-muted-3 outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20"
-              placeholder="e.g. “4 days in Korea with kids — Seoul + one more city. What would you do?”"
+              placeholder={service.placeholder}
             />
             {errors.message && (
               <p className={errorClass} role="alert">
@@ -182,7 +254,7 @@ export default function AskALocalPage() {
                   ) : (
                     <Upload className="h-3.5 w-3.5" />
                   )}
-                  <span>{uploading ? "Uploading…" : "Attach dates"}</span>
+                  <span>{uploading ? "Uploading…" : service.attachLabel}</span>
                   <input
                     type="file"
                     accept="image/*,.pdf"
@@ -192,9 +264,6 @@ export default function AskALocalPage() {
                   />
                 </label>
               )}
-              <span className="inline-flex items-center gap-1 rounded-full bg-paper px-3 py-1.5 text-[12.5px] text-muted-2">
-                <Users className="h-3 w-3" /> Group size
-              </span>
             </div>
 
             <button
@@ -207,16 +276,16 @@ export default function AskALocalPage() {
               ) : (
                 <Send className="h-4 w-4" />
               )}
-              {isSubmitting ? "Redirecting…" : "Ask a local — $1 →"}
+              {isSubmitting ? "Redirecting…" : `${service.verb} — $${service.price} →`}
             </button>
           </div>
           <p className="mt-2.5 flex items-center gap-1.5 text-[12px] text-muted-2">
-            <Lock className="h-3 w-3" /> You'll pay $1 on PayPal's secure checkout page. Your question is sent to a
+            <Lock className="h-3 w-3" /> You'll pay ${service.price} on PayPal's secure checkout page. It's sent to a
             local the moment payment goes through.
           </p>
 
-          {/* Contact + categorisation details */}
-          <div className="mt-4 grid grid-cols-1 gap-4 border-t border-ink/10 pt-4 sm:grid-cols-3">
+          {/* Contact details */}
+          <div className="mt-4 grid grid-cols-1 gap-4 border-t border-ink/10 pt-4 sm:grid-cols-2">
             <div>
               <label htmlFor="ask-name" className={labelClass}>
                 Name <span className="text-accent">*</span>
@@ -256,23 +325,6 @@ export default function AskALocalPage() {
                   {errors.email.message}
                 </p>
               )}
-            </div>
-
-            <div>
-              <label htmlFor="ask-category" className={labelClass}>
-                Category
-              </label>
-              <select
-                id="ask-category"
-                {...register("category")}
-                className={fieldClass}
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         </form>

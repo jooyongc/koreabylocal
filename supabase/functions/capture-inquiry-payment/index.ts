@@ -13,10 +13,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { captureOrder, isPayPalConfigured } from "../_shared/paypal.ts";
+import { priceForCategory } from "../_shared/inquiry-pricing.ts";
 import { triageInquiry, type AiTriage } from "../_shared/triage-inquiry.ts";
 import { isWhatsAppConfigured, notifyTeam } from "../_shared/whatsapp.ts";
 
-const PRICE_USD = Deno.env.get("INQUIRY_PRICE_USD") || "1.00";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://koreabylocal.com";
 
 /**
@@ -112,11 +112,22 @@ Deno.serve(async (req: Request) => {
     return json({ error: "unknown_order" }, 422);
   }
 
-  // Underpayment would otherwise buy a $1 service for a cent. Currency is
+  const { data: inquiryLookup, error: lookupError } = await supabase
+    .from("inquiries")
+    .select("category")
+    .eq("id", inquiryId)
+    .maybeSingle();
+  if (lookupError || !inquiryLookup) {
+    console.error("capture-inquiry-payment: unknown inquiry:", orderId, inquiryId);
+    return json({ error: "unknown_order" }, 422);
+  }
+
+  // Underpayment would otherwise buy a paid service for a cent. Currency is
   // checked too, since PayPal will happily complete an order in another one.
-  if (capture.currency !== "USD" || Number(capture.amount) + 1e-9 < Number(PRICE_USD)) {
+  const expectedPrice = priceForCategory(inquiryLookup.category);
+  if (capture.currency !== "USD" || Number(capture.amount) + 1e-9 < Number(expectedPrice)) {
     console.error(
-      `capture-inquiry-payment: amount mismatch on ${orderId}: got ${capture.amount} ${capture.currency}, expected ${PRICE_USD} USD`,
+      `capture-inquiry-payment: amount mismatch on ${orderId}: got ${capture.amount} ${capture.currency}, expected ${expectedPrice} USD for "${inquiryLookup.category}"`,
     );
     return json({ error: "amount_mismatch" }, 402);
   }
