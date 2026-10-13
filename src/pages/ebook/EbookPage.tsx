@@ -179,7 +179,9 @@ function EbookListPage({ ebooks, navigate }: { ebooks: PublicEbook[]; navigate: 
         <h1 className="font-display text-[clamp(28px,4vw,40px)] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink">
           Korean Guide E-book
         </h1>
-        <p className="mt-2 text-[15px] text-muted">Written and checked by real locals — not scraped or AI-written.</p>
+        <p className="mt-2 text-[15px] text-muted">
+          Free guides written and checked by real Koreans — grab the Complete Guidebook when you want even more.
+        </p>
 
         <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           {ebooks.map((ebook) => {
