@@ -6,7 +6,7 @@ import { Pagination } from "swiper/modules";
 import { Gift, Loader2, Lock, Plus, MapPin, TrainFront, Utensils } from "lucide-react";
 import toast from "react-hot-toast";
 import PageSEO from "@/components/common/PageSEO";
-import { useEbooks } from "@/hooks/useEbooks";
+import { useEbooks, type PublicEbook } from "@/hooks/useEbooks";
 import { supabase } from "@/lib/supabase";
 import EmailCaptureModal from "@/components/ebook/EmailCaptureModal";
 // @ts-expect-error -- CSS module imports handled by Vite
@@ -68,61 +68,8 @@ const FREE_FAQS = [
 
 export default function EbookPage() {
   const { data: ebooks, isLoading } = useEbooks();
-  const ebook = ebooks?.[0];
-  const isFree = !!ebook && Number(ebook.price_usd) === 0;
   const navigate = useNavigate();
-  const [buying, setBuying] = useState(false);
   const [showSample, setShowSample] = useState(false);
-  const [showFree, setShowFree] = useState(false);
-  const [openFaq, setOpenFaq] = useState(0);
-  const faqs = isFree ? FREE_FAQS : FAQS;
-
-  // Free books are handed over for an email (claim-free-ebook subscribes it);
-  // the download page then fetches the file.
-  const claimFree = async (email: string) => {
-    if (!ebook) return false;
-    const { data, error } = await supabase.functions.invoke("claim-free-ebook", {
-      body: { ebook_id: ebook.id, email },
-    });
-    if (error || !data?.download_token) {
-      toast.error("Couldn't get your copy. Please try again.");
-      return false;
-    }
-    toast.success("Your download is starting — we've emailed you the link too.");
-    navigate(`/ebook/download/${data.download_token}`);
-    return true;
-  };
-
-  const buyNow = async () => {
-    if (!ebook || buying) return;
-    setBuying(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-ebook-checkout", {
-        body: { ebook_id: ebook.id },
-      });
-      if (error || !data?.url) throw error ?? new Error("No checkout URL returned");
-      window.location.href = data.url;
-    } catch {
-      toast.error("Couldn't start checkout. Please try again.");
-      setBuying(false);
-    }
-  };
-
-  const jsonLd = ebook
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        name: ebook.title,
-        description: ebook.description ?? undefined,
-        image: ebook.cover_image_url ?? undefined,
-        offers: {
-          "@type": "Offer",
-          price: Number(ebook.price_usd),
-          priceCurrency: "USD",
-          availability: "https://schema.org/InStock",
-        },
-      }
-    : undefined;
 
   if (isLoading) {
     return (
@@ -132,7 +79,7 @@ export default function EbookPage() {
     );
   }
 
-  if (!ebook) {
+  if (!ebooks || ebooks.length === 0) {
     return (
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-bold text-ink">E-book coming soon</h1>
@@ -156,6 +103,190 @@ export default function EbookPage() {
       </div>
     );
   }
+
+  // Several books live: a short list, each with its own buy/download button,
+  // rather than the single-book landing page below.
+  if (ebooks.length > 1) {
+    return <EbookListPage ebooks={ebooks} navigate={navigate} />;
+  }
+
+  return <EbookDetail ebook={ebooks[0]} navigate={navigate} />;
+}
+
+function EbookListPage({ ebooks, navigate }: { ebooks: PublicEbook[]; navigate: ReturnType<typeof useNavigate> }) {
+  const [freeEbook, setFreeEbook] = useState<PublicEbook | null>(null);
+  const [buyingId, setBuyingId] = useState<number | null>(null);
+
+  const claimFree = async (ebook: PublicEbook, email: string) => {
+    const { data, error } = await supabase.functions.invoke("claim-free-ebook", {
+      body: { ebook_id: ebook.id, email },
+    });
+    if (error || !data?.download_token) {
+      toast.error("Couldn't get your copy. Please try again.");
+      return false;
+    }
+    toast.success("Your download is starting — we've emailed you the link too.");
+    navigate(`/ebook/download/${data.download_token}`);
+    return true;
+  };
+
+  const buyNow = async (ebook: PublicEbook) => {
+    if (buyingId) return;
+    setBuyingId(ebook.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-ebook-checkout", {
+        body: { ebook_id: ebook.id },
+      });
+      if (error || !data?.url) throw error ?? new Error("No checkout URL returned");
+      window.location.href = data.url;
+    } catch {
+      toast.error("Couldn't start checkout. Please try again.");
+      setBuyingId(null);
+    }
+  };
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: ebooks.map((e, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Product",
+        name: e.title,
+        description: e.description ?? undefined,
+        image: e.cover_image_url ?? undefined,
+        offers: {
+          "@type": "Offer",
+          price: Number(e.price_usd),
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
+      },
+    })),
+  };
+
+  return (
+    <>
+      <PageSEO
+        title="Free E-books & Travel Guides | Korea by Local"
+        description="Our Korea travel e-books — hidden spots, food, transport and practical tips, written by locals."
+        path="/ebook"
+        jsonLd={jsonLd}
+      />
+
+      <div className="mx-auto max-w-[1080px] px-4 py-[clamp(32px,5vw,64px)] sm:px-6 lg:px-8">
+        <h1 className="font-display text-[clamp(28px,4vw,40px)] font-extrabold leading-[1.1] tracking-[-0.02em] text-ink">
+          E-books & Guides
+        </h1>
+        <p className="mt-2 max-w-[60ch] text-[15px] text-muted">
+          Written and checked by people who actually live here — not scraped or AI-written.
+        </p>
+
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {ebooks.map((ebook) => {
+            const isFree = Number(ebook.price_usd) === 0;
+            return (
+              <div
+                key={ebook.id}
+                className="flex flex-col overflow-hidden rounded-[20px] border border-ink/10 bg-white shadow-[0_8px_26px_rgba(26,26,26,0.06)]"
+              >
+                {ebook.cover_image_url && (
+                  <div className="aspect-[16/10] bg-cream-200">
+                    <OptimizedImage src={ebook.cover_image_url} alt={ebook.title} preset="card" className="h-full w-full object-cover" />
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col p-5">
+                  <h2 className="font-display text-[18px] font-extrabold leading-[1.25] text-ink">{ebook.title}</h2>
+                  {ebook.description && (
+                    <p className="mt-2 line-clamp-3 text-[14px] leading-[1.55] text-muted">{ebook.description}</p>
+                  )}
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <span className="font-display text-[18px] font-extrabold text-ink">
+                      {isFree ? "Free" : money(Number(ebook.price_usd))}
+                    </span>
+                    <button
+                      onClick={isFree ? () => setFreeEbook(ebook) : () => buyNow(ebook)}
+                      disabled={buyingId === ebook.id}
+                      className="flex items-center gap-2 rounded-[11px] bg-accent px-5 py-2.5 text-[13.5px] font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                    >
+                      {buyingId === ebook.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      {isFree ? "Download free" : "Buy Now"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {freeEbook && (
+        <EmailCaptureModal
+          title="Get your free copy"
+          description="Enter your email and the download starts right away. We'll email you the link too, plus occasional Korea travel tips — unsubscribe anytime."
+          source="ebook_page"
+          leadMagnet="free_ebook"
+          submitLabel="Download free"
+          onSubmitEmail={(email) => claimFree(freeEbook, email)}
+          onClose={() => setFreeEbook(null)}
+        />
+      )}
+    </>
+  );
+}
+
+function EbookDetail({ ebook, navigate }: { ebook: PublicEbook; navigate: ReturnType<typeof useNavigate> }) {
+  const isFree = Number(ebook.price_usd) === 0;
+  const [buying, setBuying] = useState(false);
+  const [showSample, setShowSample] = useState(false);
+  const [showFree, setShowFree] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
+  const faqs = isFree ? FREE_FAQS : FAQS;
+
+  // Free books are handed over for an email (claim-free-ebook subscribes it);
+  // the download page then fetches the file.
+  const claimFree = async (email: string) => {
+    const { data, error } = await supabase.functions.invoke("claim-free-ebook", {
+      body: { ebook_id: ebook.id, email },
+    });
+    if (error || !data?.download_token) {
+      toast.error("Couldn't get your copy. Please try again.");
+      return false;
+    }
+    toast.success("Your download is starting — we've emailed you the link too.");
+    navigate(`/ebook/download/${data.download_token}`);
+    return true;
+  };
+
+  const buyNow = async () => {
+    if (buying) return;
+    setBuying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-ebook-checkout", {
+        body: { ebook_id: ebook.id },
+      });
+      if (error || !data?.url) throw error ?? new Error("No checkout URL returned");
+      window.location.href = data.url;
+    } catch {
+      toast.error("Couldn't start checkout. Please try again.");
+      setBuying(false);
+    }
+  };
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: ebook.title,
+    description: ebook.description ?? undefined,
+    image: ebook.cover_image_url ?? undefined,
+    offers: {
+      "@type": "Offer",
+      price: Number(ebook.price_usd),
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+    },
+  };
 
   return (
     <>
