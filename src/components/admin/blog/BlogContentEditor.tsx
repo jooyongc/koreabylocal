@@ -3,6 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
+import { TableKit } from "@tiptap/extension-table";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
@@ -57,6 +58,7 @@ export default function BlogContentEditor() {
         blockquote: { HTMLAttributes: { class: "blog-blockquote" } },
       }),
       Image,
+      TableKit.configure({ table: { resizable: true } }),
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: "Write your blog post..." }),
     ],
@@ -167,6 +169,13 @@ export default function BlogContentEditor() {
           <ShoppingBag className="h-4 w-4" />
         </button>
 
+        <span className="mx-1 h-5 w-px bg-gray-200" />
+        <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 4, withHeaderRow: true }).run()} className={btnCls(editor.isActive("table"))} title="Insert table">Table</button>
+        {editor.isActive("table") && <>
+          <button type="button" onClick={() => editor.chain().focus().addRowAfter().run()} className={btnCls(false)} title="Add row">+ Row</button>
+          <button type="button" onClick={() => editor.chain().focus().addColumnAfter().run()} className={btnCls(false)} title="Add column">+ Column</button>
+          <button type="button" onClick={() => editor.chain().focus().deleteTable().run()} className={btnCls(false)} title="Delete table">Delete table</button>
+        </>}
         <div className="ml-auto">
           <button type="button" onClick={toggleHtml} className={btnCls(isHtml)} title="HTML">
             <Code className="h-4 w-4" />
