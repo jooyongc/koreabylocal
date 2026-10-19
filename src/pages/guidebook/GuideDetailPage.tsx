@@ -244,14 +244,16 @@ export default function GuideDetailPage() {
 
           {/* Author bio */}
           <div className="mt-9 flex flex-wrap items-center gap-4 rounded-[20px] bg-ink p-[22px] text-white">
-            <span className="flex h-16 w-16 flex-none items-center justify-center rounded-full bg-white/10 font-display text-[24px] font-extrabold">
-              {author.charAt(0)}
-            </span>
+            <img
+              src="/authors/diana-park.webp"
+              alt="Diana Park"
+              className="h-16 w-16 flex-none rounded-full object-cover [object-position:50%_22%]"
+            />
             <div className="flex-1 basis-[200px]">
-              <div className="font-display text-[18px] font-bold">Written by our Korea by Local writers</div>
+              <div className="font-display text-[18px] font-bold">Diana Park</div>
               <p className="mt-1.5 text-[13.5px] leading-[1.55] text-white/75">
-                We live here, and we fact-check everything before it's published — this isn't
-                scraped or AI-written.
+                Born and raised in Korea — now writing English travel guides and books about it,
+                right here in Seoul. Nothing scraped or AI-written.
               </p>
             </div>
             <Link
