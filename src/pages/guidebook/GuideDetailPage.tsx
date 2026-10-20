@@ -251,7 +251,8 @@ export default function GuideDetailPage() {
             />
             <div className="flex-1 basis-[200px]">
               <div className="font-display text-[18px] font-bold">Diana Park</div>
-              <p className="mt-1.5 text-[13.5px] leading-[1.55] text-white">
+              {/* !text-white: beats the article's global `.kbl-article p { color }` reset, which has equal CSS specificity */}
+              <p className="mt-1.5 text-[13.5px] leading-[1.55] !text-white">
                 Born and raised in Korea, now writing English travel guides and books about it,
                 right here in Seoul. I am NOT AI! I am HUMAN.
               </p>
