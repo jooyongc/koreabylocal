@@ -115,7 +115,7 @@ export default function AboutPage() {
             style={{ fontFamily: "'Caveat', cursive" }}
           >
             {hero?.title ??
-              'Korea tourism products & content, curated through Korean eyes\n"We are NOT AI!!!"'}
+              'Korea tourism products & content,\ncurated through Korean eyes\n"We are NOT AI!!!"'}
           </h1>
         </div>
       </section>
