@@ -19,10 +19,10 @@ export const HOME_FAQS: Faq[] = [
   },
   {
     q: "How do you choose the hotels on Where to Stay?",
-    a: "Every hotel listed is one we've featured in our Instagram Reels — hand-picked by locals and checked for what it's actually good at before we recommend it.",
+    a: "Hotels in Korea's major destinations, personally checked and verified by locals before we list them.",
   },
   {
     q: "How do I pay, and is it secure?",
-    a: "Everything — e-books, Ask a Local, event tickets — goes through PayPal's secure checkout. Paid purchases come with a 7-day refund if it's not for you.",
+    a: "Through PayPal — easy and secure for anyone to use.",
   },
 ];
