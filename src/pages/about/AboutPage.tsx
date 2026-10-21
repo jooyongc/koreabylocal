@@ -107,20 +107,16 @@ export default function AboutPage() {
 
       {/* Hero Section */}
       <section
-        className={`relative flex min-h-[60vh] items-center justify-center px-4 md:min-h-[70vh] bg-gradient-to-br ${hero?.bg_gradient ?? "from-ink to-coral"}`}
+        className={`relative flex min-h-[60vh] items-center justify-center px-4 md:min-h-[70vh] ${hero?.bg_gradient ? `bg-gradient-to-br ${hero.bg_gradient}` : "bg-ink"}`}
       >
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="relative z-10 mx-auto max-w-3xl text-center text-white">
-          <h1 className="whitespace-pre-line text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
-            {hero?.title ?? "More than travel,\nit's connection."}
-          </h1>
-          <p
-            className="mt-6 whitespace-pre-line text-3xl leading-tight text-accent md:text-4xl lg:text-5xl"
+        <div className="relative z-10 mx-auto max-w-3xl text-center">
+          <h1
+            className="whitespace-pre-line text-4xl leading-tight text-accent md:text-5xl lg:text-6xl"
             style={{ fontFamily: "'Caveat', cursive" }}
           >
-            {hero?.subtitle ??
+            {hero?.title ??
               "Korea tourism products & content, curated through Korean eyes —\nwe are NOT AI!!!"}
-          </p>
+          </h1>
         </div>
       </section>
 
