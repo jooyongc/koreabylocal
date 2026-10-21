@@ -107,7 +107,7 @@ export default function AboutPage() {
 
       {/* Hero Section */}
       <section
-        className={`relative flex min-h-[60vh] items-center justify-center px-4 md:min-h-[70vh] ${hero?.bg_gradient ? `bg-gradient-to-br ${hero.bg_gradient}` : "bg-ink"}`}
+        className={`relative flex min-h-[30vh] items-center justify-center px-4 py-12 md:min-h-[35vh] ${hero?.bg_gradient ? `bg-gradient-to-br ${hero.bg_gradient}` : "bg-ink"}`}
       >
         <div className="relative z-10 mx-auto max-w-3xl text-center">
           <h1
