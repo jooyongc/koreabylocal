@@ -6,23 +6,23 @@ export interface Faq {
 
 export const HOME_FAQS: Faq[] = [
   {
-    q: "Are tours private or shared groups?",
-    a: "Most experiences are private by default — just you and your local host. Look for the “Private” badge on each listing. A few signature group tours (capped at 8) are clearly marked so you always know what you’re booking.",
+    q: "Are your travel guides written by AI?",
+    a: "No. Every guide is written and fact-checked by Diana Park and the Korea by Local team, who live here — nothing is scraped or AI-written.",
   },
   {
-    q: "Does the price include hotel pickup?",
-    a: "Yes — for tours and transfers, door-to-door pickup from your Seoul, Busan or Jeju accommodation is included in the listed price. You’ll confirm your address at checkout and your host messages you the evening before.",
+    q: "How does Ask a Local work?",
+    a: "Pick a question type — Ask Anything or Restaurant Reservation for $1, Trip Schedule Check or K-Beauty Shipping Request for $5 — submit it, and a real local replies personally. Average reply time is about 3 hours.",
   },
   {
-    q: "Can I cancel and get a refund?",
-    a: "Absolutely. Cancel up to 24 hours before the start time for a 100% refund, processed back to your original payment method within 3–5 business days. No fees, no forms.",
+    q: "Are the e-books free?",
+    a: "Our starter guides, like the 10-Step Korea Prep Guide, are free — just leave your email. A paid Complete Guidebook with everything in one place is coming for travelers who want more depth.",
   },
   {
-    q: "Which languages do hosts speak?",
-    a: "All hosts are fluent in English. Many also speak Japanese, Chinese (Mandarin) or Spanish — the languages are listed on each host card so you can match before you book.",
+    q: "How do you choose the hotels on Where to Stay?",
+    a: "Every hotel listed is one we've featured in our Instagram Reels — hand-picked by locals and checked for what it's actually good at before we recommend it.",
   },
   {
     q: "How do I pay, and is it secure?",
-    a: "We accept PayPal and all major cards (Visa, Mastercard, Amex) through an SSL-encrypted, PCI-DSS compliant checkout. Your card details never touch our servers.",
+    a: "Everything — e-books, Ask a Local, event tickets — goes through PayPal's secure checkout. Paid purchases come with a 7-day refund if it's not for you.",
   },
 ];
