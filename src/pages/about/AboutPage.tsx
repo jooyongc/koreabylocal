@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -75,6 +76,18 @@ export default function AboutPage() {
   const { data: offers } = useSiteSettings<OffersData>("about_offers");
   const { data: team } = useSiteSettings<TeamData>("about_team");
 
+  // Lazy-loaded here rather than in index.html's global preload: it's only
+  // used on this one page, for the handwritten-note line in the hero.
+  useEffect(() => {
+    const id = "kbl-font-caveat";
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap";
+    document.head.appendChild(link);
+  }, []);
+
   if (heroLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -101,8 +114,12 @@ export default function AboutPage() {
           <h1 className="whitespace-pre-line text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
             {hero?.title ?? "More than travel,\nit's connection."}
           </h1>
-          <p className="mt-6 text-base font-light leading-relaxed tracking-wide text-white/85 md:text-lg lg:text-xl">
-            {hero?.subtitle ?? ""}
+          <p
+            className="mt-6 whitespace-pre-line text-3xl leading-tight text-accent md:text-4xl lg:text-5xl"
+            style={{ fontFamily: "'Caveat', cursive" }}
+          >
+            {hero?.subtitle ??
+              "Korea tourism products & content, curated through Korean eyes —\nwe are NOT AI!!!"}
           </p>
         </div>
       </section>
