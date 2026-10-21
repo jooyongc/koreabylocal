@@ -111,11 +111,11 @@ export default function AboutPage() {
       >
         <div className="relative z-10 mx-auto max-w-3xl text-center">
           <h1
-            className="whitespace-pre-line text-4xl leading-tight text-accent md:text-5xl lg:text-6xl"
+            className="whitespace-pre-line text-4xl leading-tight text-white md:text-5xl lg:text-6xl"
             style={{ fontFamily: "'Caveat', cursive" }}
           >
             {hero?.title ??
-              "Korea tourism products & content, curated through Korean eyes —\nwe are NOT AI!!!"}
+              'Korea tourism products & content, curated through Korean eyes\n"We are NOT AI!!!"'}
           </h1>
         </div>
       </section>
