@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { Check, BarChart3 } from "lucide-react";
 import PageSEO from "@/components/common/PageSEO";
 import { supabase } from "@/lib/supabase";
-import { FONT_PAIRS, applyFontPair, preloadAllFontPairs } from "@/lib/fontPairs";
+import { DEFAULT_FONT_PAIR, FONT_PAIRS, applyFontPair, preloadAllFontPairs } from "@/lib/fontPairs";
 import { useFontPairSetting } from "@/hooks/useSiteFont";
 import { useGa4Setting } from "@/hooks/useSiteAnalytics";
 
@@ -12,7 +12,7 @@ export default function SettingsPage() {
   const qc = useQueryClient();
   const { data: current } = useFontPairSetting();
   const { data: ga4Current } = useGa4Setting();
-  const [selected, setSelected] = useState<string>("modern");
+  const [selected, setSelected] = useState<string>(DEFAULT_FONT_PAIR);
   const [saving, setSaving] = useState<string | null>(null);
   const [ga4, setGa4] = useState("");
   const [ga4Saving, setGa4Saving] = useState(false);

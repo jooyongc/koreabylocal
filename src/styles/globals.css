@@ -4,9 +4,30 @@
 /* ===========================================================================
    Korea by Local — design system (v3 renewal)
    Brand: magazine-first local platform. Bright off-white surface, navy
-   ink, KBL hot pink accent — matching the official logo mark. Display:
-   Bricolage Grotesque · Serif: Newsreader · Body/Korean: Pretendard.
+   ink, KBL hot pink accent — matching the official logo mark. Display + body:
+   KBL Dongne (our own Latin typeface) · Serif: Newsreader · Korean: Pretendard.
    =========================================================================== */
+
+/* KBL Dongne ships two static weights (Latin only, no Hangul — Korean falls
+   through to Pretendard, which the jsDelivr CSS registers as "Pretendard
+   Variable"; plain "Pretendard" stays for a locally installed copy). Weight
+   ranges map Tailwind's 100–500 to Regular and 600–900 to Bold so
+   font-extrabold never gets a synthesized bold. */
+@font-face {
+  font-family: "KBL Dongne";
+  src: url("/fonts/KBLDongne-Regular.woff2") format("woff2");
+  font-weight: 100 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KBL Dongne";
+  src: url("/fonts/KBLDongne-Bold.woff2") format("woff2");
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   /* ── Brand palette (KBL logo colors — navy + hot pink) ────────── */
   --color-ink: #12184a;        /* navy — primary text/surfaces */
@@ -39,9 +60,10 @@
   --color-text-secondary: #6b6757;
 
   /* ── Type ───────────────────────────────────────────────────── */
-  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+  --font-sans: "KBL Dongne", "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: "KBL Dongne", "Pretendard Variable", "Pretendard", system-ui,
     sans-serif;
-  --font-display: "Bricolage Grotesque", "Pretendard", system-ui, sans-serif;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
 
   /* ── Radii / shadow tokens ──────────────────────────────────── */

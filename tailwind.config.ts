@@ -46,8 +46,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
-        display: ["Bricolage Grotesque", "Pretendard", "system-ui", "sans-serif"],
+        sans: ["KBL Dongne", "Pretendard Variable", "Pretendard", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        display: ["KBL Dongne", "Pretendard Variable", "Pretendard", "system-ui", "sans-serif"],
         serif: ["Newsreader", "Georgia", "Times New Roman", "serif"],
       },
     },
