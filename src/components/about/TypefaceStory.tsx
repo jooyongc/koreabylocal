@@ -54,8 +54,15 @@ const RULES: { title: string; text: string }[] = [
   { title: "Arrows from the font, no emoji", text: "Use the typeface's own → and ←, as in \"Book now →\". We don't use emoji." },
 ];
 
-// The zip (public/downloads/fonts) bundles all three formats, the specimen and a README.
-const PACKAGE = { href: "/downloads/fonts/KBL-Dongne.zip", size: "110 KB" };
+// The zip (public/downloads/fonts) bundles all three formats, OFL.txt, the specimen and a README.
+// Every font file also carries the OFL notice in its name table (IDs 0, 13, 14).
+const PACKAGE = { href: "/downloads/fonts/KBL-Dongne.zip", size: "114 KB" };
+const LICENSE = {
+  name: "SIL Open Font License 1.1",
+  url: "https://openfontlicense.org",
+  text: "/downloads/fonts/OFL.txt",
+  notice: 'Copyright (c) 2026, Local Contents Lab (https://koreabylocal.com), with Reserved Font Name "KBL Dongne".',
+};
 
 const FILES: { format: string; label: string; files: { weight: string; href: string }[] }[] = [
   { format: "OTF", label: "Design tools — Figma, Illustrator, Keynote", files: [{ weight: "Regular", href: "/downloads/fonts/KBLDongne-Regular.otf" }, { weight: "Bold", href: "/downloads/fonts/KBLDongne-Bold.otf" }] },
@@ -305,7 +312,8 @@ export default function TypefaceStory() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="rounded-[20px] bg-white p-[clamp(22px,3vw,32px)] shadow-[0_4px_16px_rgba(26,26,26,0.05)]">
             <p className="text-[15px] leading-[1.6] text-[#3a3730]">
-              Regular and Bold in every format, with a README and the full glyph specimen.
+              Regular and Bold in every format, with the license, a README and the full glyph specimen.
+              Free and open under the {LICENSE.name}.
             </p>
             <a
               href={PACKAGE.href}
@@ -360,7 +368,31 @@ export default function TypefaceStory() {
             </p>
           </div>
         </div>
-        <p className="mt-4 text-[13px] text-muted-2">© 2026 Local Contents Lab (Korea By Local)</p>
+        <div className="mt-4 rounded-[20px] bg-white p-[clamp(22px,3vw,32px)] shadow-[0_4px_16px_rgba(26,26,26,0.05)]">
+          <div className="text-[12px] font-bold uppercase tracking-[0.08em] text-muted-2">License</div>
+          <p className="mt-2.5 max-w-[78ch] text-[14.5px] leading-[1.65] text-[#3a3730]">
+            KBL Dongne is licensed under the{" "}
+            <a
+              href={LICENSE.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-ink underline decoration-accent decoration-2 underline-offset-2"
+            >
+              {LICENSE.name}
+            </a>
+            . Use it free of charge in personal and commercial work, embed it in websites, apps and
+            documents, and modify or share it. The fonts can't be sold on their own, and a modified
+            version must stay under the OFL and take a new name — "KBL Dongne" is a Reserved Font
+            Name. Documents you make with the font are yours, under any terms you like.
+          </p>
+          <a
+            href={LICENSE.text}
+            className="mt-4 inline-flex items-center border-b-2 border-accent pb-[3px] text-sm font-bold text-ink"
+          >
+            Read the full license (OFL.txt) →
+          </a>
+          <p className="mt-4 break-words text-[13px] leading-[1.5] text-muted-2">{LICENSE.notice}</p>
+        </div>
       </Block>
     </section>
   );
