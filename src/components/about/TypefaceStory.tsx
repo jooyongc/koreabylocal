@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { Download } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
 
 // The story and rules of KBL Dongne, the brand's own Latin typeface. Copy and
@@ -52,11 +54,43 @@ const RULES: { title: string; text: string }[] = [
   { title: "Arrows from the font, no emoji", text: "Use the typeface's own → and ←, as in \"Book now →\". We don't use emoji." },
 ];
 
-const FILES: { label: string; format: string }[] = [
-  { label: "Web", format: "WOFF2" },
-  { label: "Design tools — Figma, Illustrator, Keynote", format: "OTF" },
-  { label: "Office — Word, PowerPoint, Windows (screen-hinted)", format: "TTF" },
+// The zip (public/downloads/fonts) bundles all three formats, the specimen and a README.
+const PACKAGE = { href: "/downloads/fonts/KBL-Dongne.zip", size: "110 KB" };
+
+const FILES: { format: string; label: string; files: { weight: string; href: string }[] }[] = [
+  { format: "OTF", label: "Design tools — Figma, Illustrator, Keynote", files: [{ weight: "Regular", href: "/downloads/fonts/KBLDongne-Regular.otf" }, { weight: "Bold", href: "/downloads/fonts/KBLDongne-Bold.otf" }] },
+  { format: "TTF", label: "Office — Word, PowerPoint, Windows (screen-hinted)", files: [{ weight: "Regular", href: "/downloads/fonts/KBLDongne-Regular.ttf" }, { weight: "Bold", href: "/downloads/fonts/KBLDongne-Bold.ttf" }] },
+  { format: "WOFF2", label: "Websites", files: [{ weight: "Regular", href: "/fonts/KBLDongne-Regular.woff2" }, { weight: "Bold", href: "/fonts/KBLDongne-Bold.woff2" }] },
 ];
+
+const INSTALL = [
+  "Mac: double-click each .otf file and click Install Font.",
+  "Windows: right-click each .ttf file and choose Install.",
+  "Figma, Illustrator and Keynote pick it up once it's installed.",
+];
+
+// Lines kept under ~40 characters so the snippet fits a phone without wrapping.
+const WEB_SNIPPET = `@font-face {
+  font-family: "KBL Dongne";
+  src: url(KBLDongne-Regular.woff2)
+    format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "KBL Dongne";
+  src: url(KBLDongne-Bold.woff2)
+    format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+body {
+  font-family: "KBL Dongne",
+    "Pretendard", "Apple SD Gothic Neo",
+    "Noto Sans KR", system-ui,
+    sans-serif;
+  font-synthesis: none;
+}`;
 
 function PartShape({ kind }: { kind: PartKind }) {
   if (kind === "circle") return <span className="block h-11 w-11 rounded-full border-[7px] border-ink" />;
@@ -88,10 +122,10 @@ function CoverBlocks() {
   );
 }
 
-function Block({ children, className = "" }: { children: ReactNode; className?: string }) {
+function Block({ id, children, className = "" }: { id?: string; children: ReactNode; className?: string }) {
   const ref = useReveal<HTMLDivElement>();
   return (
-    <div ref={ref} className={`reveal ${className}`}>
+    <div ref={ref} id={id} className={`reveal ${className}`}>
       {children}
     </div>
   );
@@ -109,6 +143,16 @@ function SubHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
 }
 
 export default function TypefaceStory() {
+  // About renders behind a loader, so the browser's own jump to a shared
+  // #typeface / #typeface-download link misses; scroll once the section exists.
+  const { hash } = useLocation();
+  useEffect(() => {
+    const id = hash.slice(1);
+    if (id === "typeface" || id === "typeface-download") {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [hash]);
+
   return (
     <section
       id="typeface"
@@ -125,6 +169,12 @@ export default function TypefaceStory() {
               Dongne
             </h2>
             <p className="mt-4 text-[14px] text-muted">동네 · dongne — the neighborhood</p>
+            <a
+              href="#typeface-download"
+              className="mt-5 inline-flex items-center border-b-2 border-accent pb-[3px] text-sm font-bold text-ink"
+            >
+              Download the font →
+            </a>
           </div>
           <CoverBlocks />
         </div>
@@ -246,15 +296,70 @@ export default function TypefaceStory() {
             </li>
           ))}
         </ol>
-        <div className="mt-4 flex flex-col gap-x-6 gap-y-2 rounded-[20px] bg-white px-6 py-5 text-[13.5px] text-muted shadow-[0_4px_16px_rgba(26,26,26,0.05)] sm:flex-row sm:flex-wrap sm:items-center">
-          <span className="text-[12px] font-bold uppercase tracking-[0.08em] text-muted-2">Files</span>
-          {FILES.map((f) => (
-            <span key={f.format}>
-              <strong className="font-bold text-ink">{f.format}</strong> · {f.label}
-            </span>
-          ))}
-          <span className="text-muted-2 sm:ml-auto">© 2026 Local Contents Lab</span>
+      </Block>
+
+      {/* Download */}
+      <Block id="typeface-download" className="mt-[clamp(36px,5vw,56px)] scroll-mt-24">
+        <SubHeading eyebrow="Download" title="Use KBL Dongne" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div className="rounded-[20px] bg-white p-[clamp(22px,3vw,32px)] shadow-[0_4px_16px_rgba(26,26,26,0.05)]">
+            <p className="text-[15px] leading-[1.6] text-[#3a3730]">
+              Regular and Bold in every format, with a README and the full glyph specimen.
+            </p>
+            <a
+              href={PACKAGE.href}
+              download
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[14px] font-bold text-white transition-opacity hover:opacity-90"
+            >
+              <Download className="h-4 w-4" strokeWidth={2.2} />
+              <span>
+                Download KBL Dongne <span className="whitespace-nowrap">(.zip · {PACKAGE.size})</span>
+              </span>
+            </a>
+            <ul className="mt-6 divide-y divide-ink/8 border-t border-ink/8">
+              {FILES.map((f) => (
+                <li key={f.format} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[14px] font-bold text-ink">{f.format}</div>
+                    <div className="text-[13px] text-muted">{f.label}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    {f.files.map((file) => (
+                      <a
+                        key={file.href}
+                        href={file.href}
+                        download
+                        aria-label={`Download ${f.format} ${file.weight}`}
+                        className="rounded-full border border-ink/15 px-3.5 py-1.5 text-[13px] font-bold text-ink transition-colors hover:border-accent hover:text-accent"
+                      >
+                        {file.weight}
+                      </a>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="min-w-0 rounded-[20px] bg-white p-[clamp(22px,3vw,32px)] shadow-[0_4px_16px_rgba(26,26,26,0.05)]">
+            <div className="text-[12px] font-bold uppercase tracking-[0.08em] text-muted-2">Install</div>
+            <ul className="mt-3 flex flex-col gap-2 text-[14px] leading-[1.55] text-[#3a3730]">
+              {INSTALL.map((line) => (
+                <li key={line} className="flex gap-2.5">
+                  <span aria-hidden className="mt-[8px] h-[5px] w-[5px] flex-none rounded-full bg-accent" />
+                  {line}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 text-[12px] font-bold uppercase tracking-[0.08em] text-muted-2">On a website</div>
+            <pre className="mt-3 overflow-x-auto whitespace-pre-wrap break-words rounded-[12px] bg-ink p-4 font-mono text-[12px] leading-[1.6] sm:text-[12.5px] text-white/90">
+              <code>{WEB_SNIPPET}</code>
+            </pre>
+            <p className="mt-3 text-[13px] leading-[1.55] text-muted">
+              Always set the full stack: KBL Dongne has no Hangul, so Korean falls through to Pretendard.
+            </p>
+          </div>
         </div>
+        <p className="mt-4 text-[13px] text-muted-2">© 2026 Local Contents Lab (Korea By Local)</p>
       </Block>
     </section>
   );
