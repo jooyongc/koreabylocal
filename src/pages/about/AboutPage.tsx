@@ -12,6 +12,7 @@ import PageSEO from "@/components/common/PageSEO";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import TrustBar from "@/components/home/TrustBar";
 import FaqAccordion from "@/components/home/FaqAccordion";
+import TypefaceStory from "@/components/about/TypefaceStory";
 import { HOME_FAQS } from "@/data/homeFaqs";
 
 // AEO/SEO: FAQPage structured data for Google & AI answer engines.
@@ -219,6 +220,7 @@ export default function AboutPage() {
       )}
 
       <TrustBar />
+      <TypefaceStory />
       <FaqAccordion />
 
       {/* CTA Section */}

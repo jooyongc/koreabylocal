@@ -48,7 +48,7 @@ export function applyFontPair(key: string) {
   const pair = FONT_PAIRS.find((p) => p.key === key) ?? FONT_PAIRS[0];
   ensureFontLink(pair);
   const r = document.documentElement;
-  r.style.setProperty("--font-display", `${pair.display}, "Pretendard Variable", "Pretendard", system-ui, sans-serif`);
+  r.style.setProperty("--font-display", `${pair.display}, "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif`);
   r.style.setProperty("--font-serif", `${pair.serif}, Georgia, "Times New Roman", serif`);
-  r.style.setProperty("--font-sans", `${pair.body}, "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif`);
+  r.style.setProperty("--font-sans", `${pair.body}, "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, BlinkMacSystemFont, system-ui, sans-serif`);
 }

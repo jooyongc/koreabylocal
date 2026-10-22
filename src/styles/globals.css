@@ -60,10 +60,11 @@
   --color-text-secondary: #6b6757;
 
   /* ── Type ───────────────────────────────────────────────────── */
-  --font-sans: "KBL Dongne", "Pretendard Variable", "Pretendard", -apple-system,
-    BlinkMacSystemFont, system-ui, sans-serif;
-  --font-display: "KBL Dongne", "Pretendard Variable", "Pretendard", system-ui,
-    sans-serif;
+  --font-sans: "KBL Dongne", "Pretendard Variable", "Pretendard",
+    "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+  --font-display: "KBL Dongne", "Pretendard Variable", "Pretendard",
+    "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
 
   /* ── Radii / shadow tokens ──────────────────────────────────── */
@@ -79,6 +80,8 @@ html {
 
 body {
   font-family: var(--font-sans);
+  /* KBL Dongne has no italic: never let the browser fake one (or a bold). */
+  font-synthesis: none;
   color: var(--color-ink);
   background-color: var(--color-paper);
   -webkit-font-smoothing: antialiased;
