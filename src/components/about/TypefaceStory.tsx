@@ -86,9 +86,10 @@ const WEB_SNIPPET = `@font-face {
 }
 body {
   font-family: "KBL Dongne",
-    "Pretendard", "Apple SD Gothic Neo",
-    "Noto Sans KR", system-ui,
-    sans-serif;
+    "Pretendard",
+    "Apple SD Gothic Neo",
+    "Noto Sans KR",
+    system-ui, sans-serif;
   font-synthesis: none;
 }`;
 
