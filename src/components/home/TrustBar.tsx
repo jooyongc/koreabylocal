@@ -1,12 +1,12 @@
-import { BadgeCheck, ArrowDownToLine, RotateCcw, Phone } from "lucide-react";
+import { MapPin, Eye, UserCheck, Clock } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
 
 const TRUST: { icon: LucideIcon; title: string; desc: string; bg: string }[] = [
-  { icon: BadgeCheck, title: "100% verified locals", desc: "Every host is ID-checked and rated by real travellers — no anonymous resellers.", bg: "rgba(14,140,106,0.1)" },
-  { icon: ArrowDownToLine, title: "Best-price promise", desc: "Book direct and we’ll match any lower price you find for the same experience.", bg: "rgba(91,43,255,0.1)" },
-  { icon: RotateCcw, title: "Free cancellation", desc: "Plans change. Cancel up to 24 hours before for a full, no-questions refund.", bg: "rgba(255,46,151,0.1)" },
-  { icon: Phone, title: "24/7 real support", desc: "Reach a human in English or Korean any time, before and during your trip.", bg: "rgba(242,183,5,0.1)" },
+  { icon: MapPin, title: "100% Korean-owned", desc: "Run and written entirely by people living in Korea — not an overseas agency.", bg: "rgba(14,140,106,0.1)" },
+  { icon: Eye, title: "Firsthand curation", desc: "Every hotel, spot and recommendation comes from real, personal experience — not scraped lists.", bg: "rgba(91,43,255,0.1)" },
+  { icon: UserCheck, title: "Real humans, not AI", desc: "Every guide is written by a real person and fact-checked before it's published.", bg: "rgba(255,46,151,0.1)" },
+  { icon: Clock, title: "Fast, personal answers", desc: "Ask a Local questions get a real reply from a real person — usually within a few hours.", bg: "rgba(242,183,5,0.1)" },
 ];
 
 export default function TrustBar() {
