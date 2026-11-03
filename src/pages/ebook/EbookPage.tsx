@@ -317,9 +317,30 @@ function EbookDetail({ ebook, navigate }: { ebook: PublicEbook; navigate: Return
             </h1>
             {ebook.description && (
               <div className="mt-4 max-w-[60ch] space-y-3 text-[15.5px] leading-[1.65] text-muted">
-                {ebook.description.split(/\n{2,}/).map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
+                {ebook.description.split(/\n{2,}/).map((block, i) => {
+                  const lines = block
+                    .split("\n")
+                    .map((l) => l.trim())
+                    .filter(Boolean);
+                  const bullets = lines.filter((l) => l.startsWith("•"));
+                  // A block with several "•" lines is a bullet list, maybe with a
+                  // heading line above it (e.g. "What's inside:") — rendered as a
+                  // real list rather than running every bullet into one paragraph.
+                  if (bullets.length > 1) {
+                    const heading = lines.find((l) => !l.startsWith("•"));
+                    return (
+                      <div key={i}>
+                        {heading && <p className="font-semibold text-ink">{heading}</p>}
+                        <ul className="mt-1.5 list-disc space-y-1 pl-5">
+                          {bullets.map((b, j) => (
+                            <li key={j}>{b.replace(/^•\s*/, "")}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  }
+                  return <p key={i}>{lines.join(" ")}</p>;
+                })}
               </div>
             )}
 
