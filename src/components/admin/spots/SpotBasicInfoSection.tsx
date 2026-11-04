@@ -108,6 +108,27 @@ export default function SpotBasicInfoSection({ isEdit }: Props) {
         </div>
 
         <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Category (filter on Things to Do)</label>
+          <input
+            {...register("category")}
+            list="spot-category-options"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            placeholder="e.g. Culture & history, Day tours, How to go"
+          />
+          <datalist id="spot-category-options">
+            <option value="Culture & history" />
+            <option value="Day tours" />
+            <option value="Food & drink" />
+            <option value="Nature & hiking" />
+            <option value="How to go" />
+          </datalist>
+          <p className="mt-1 text-xs text-gray-400">
+            Becomes a filter tab on /things-to-do. Use the same text as an existing one to group spots
+            together, or type a new category to start one.
+          </p>
+        </div>
+
+        <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Tagline</label>
           <input
             {...register("tagline")}

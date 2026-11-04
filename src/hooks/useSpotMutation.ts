@@ -15,6 +15,7 @@ function toRow(data: SpotFormData) {
     region: data.region || null,
     area: data.area || null,
     spot_type: data.spot_type || null,
+    category: data.category || null,
     tagline: data.tagline || null,
     description: data.description || null,
     tips: data.tips || null,

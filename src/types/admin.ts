@@ -55,6 +55,7 @@ export interface SpotFormData {
   region: string;
   area: string;
   spot_type: string;
+  category: string;
   tagline: string;
   description: string;
   tips: string;

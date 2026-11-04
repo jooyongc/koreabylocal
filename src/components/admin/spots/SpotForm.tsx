@@ -31,6 +31,7 @@ export default function SpotForm({ mode, spotId, defaultValues }: Props) {
       region: "",
       area: "",
       spot_type: "",
+      category: "",
       tagline: "",
       description: "",
       tips: "",

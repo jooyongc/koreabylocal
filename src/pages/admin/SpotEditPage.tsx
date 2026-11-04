@@ -35,6 +35,7 @@ export default function SpotEditPage() {
     region: spot.region ?? "",
     area: spot.area ?? "",
     spot_type: spot.spot_type ?? "",
+    category: spot.category ?? "",
     tagline: spot.tagline ?? "",
     description: spot.description ?? "",
     tips: spot.tips ?? "",
