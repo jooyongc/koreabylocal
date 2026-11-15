@@ -73,7 +73,9 @@ export function resizedUrl(url: string, width: number, quality = 75): string | n
 /** Preset sizes for srcset generation */
 export const PRESETS = {
   thumbnail: { widths: [200, 400], sizes: "(max-width: 640px) 50vw, 200px" },
-  card: { widths: [300, 600], sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px" },
+  // Cards lay out about 340px wide on desktop (home's Curated Experiences:
+  // 338). Saying 300 made a retina screen settle for 600, softer than the card.
+  card: { widths: [300, 600, 800], sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 340px" },
   detail: { widths: [600, 900, 1200], sizes: "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 600px" },
   full: { widths: [800, 1200, 1600], sizes: "100vw" },
   hero: { widths: [800, 1200, 1920], sizes: "100vw" },
