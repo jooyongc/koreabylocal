@@ -29,8 +29,8 @@ function OptimizedImageInner({
   onClick,
 }: OptimizedImageProps) {
   const [loaded, setLoaded] = useState(false);
-  // Set to the src whose resized copy failed: a host that stops resizing should
-  // cost the size saving, never the picture.
+  // Set to the src whose resized copy failed — a stored copy not made yet, or a
+  // host that stops resizing: that should cost the size saving, never the picture.
   const [fellBack, setFellBack] = useState<string | null>(null);
   const img: ResponsiveImage = fellBack === src ? { src } : responsiveImage(src, preset, quality);
 

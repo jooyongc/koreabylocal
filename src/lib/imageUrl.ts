@@ -3,19 +3,54 @@
 // must produce the same URLs or the preloaded hero gets downloaded twice.
 
 /**
- * Returns a resized variant of an image URL when its host can resize, or null.
+ * Widths of the WebP copies stored for every public Supabase image, at
+ * images/_v/<bucket>/<name>.w<width>.webp. Made once per upload (pg_cron →
+ * the image-variants edge function; scripts/image-variants.mjs for the
+ * backfill), never per view: Supabase bills on-the-fly resizing per original
+ * image per month, and the site shows several hundred. Keep in step with
+ * both of those and supabase/migrations/20261115000000_image_variants.sql.
+ */
+export const VARIANT_WIDTHS = [400, 600, 800, 1200, 1920] as const;
+const VARIANT_BUCKETS = ["images", "product-images", "workboard-media", "magazines"];
+const SUPABASE_PUBLIC = /^\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/;
+
+/** The stored width that stands in for `width`: the next one up, never softer. */
+function variantWidth(width: number): number {
+  return VARIANT_WIDTHS.find((w) => w >= width) ?? VARIANT_WIDTHS[VARIANT_WIDTHS.length - 1];
+}
+
+function storedCopy(u: URL, width: number): string | null {
+  const match = u.pathname.match(SUPABASE_PUBLIC);
+  if (!match) return null;
+  const [, bucket, name] = match;
+  if (!VARIANT_BUCKETS.includes(bucket) || (bucket === "images" && name.startsWith("_v/"))) return null;
+  if (!/\.(jpe?g|png|webp)$/i.test(name)) return null;
+  return `${u.origin}/storage/v1/object/public/images/_v/${bucket}/${name}.w${variantWidth(width)}.webp`;
+}
+
+const isSupabase = (url: string) => {
+  try {
+    return new URL(url).hostname.endsWith(".supabase.co");
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Returns a resized variant of an image URL when one exists or its host can
+ * resize, or null.
  *
+ * - Supabase Storage: the stored WebP copy (above). A copy not made yet —
+ *   an upload from the last few minutes — fails to load and OptimizedImage
+ *   falls back to the original.
  * - Unsplash / Pexels: both resize through their own query params.
- * - Supabase Storage is served as the original. Its resizer
- *   (/storage/v1/render/image/…) is a paid-plan feature: it happened to work on
- *   our Free project until a pause/restore on 2026-11-15 turned it off, and
- *   every card on the site broke with 403 FeatureNotEnabled.
  * - Anything else (e.g. the old imweb CDN) can't be resized here.
  */
 export function resizedUrl(url: string, width: number, quality = 75): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
+    if (u.hostname.endsWith(".supabase.co")) return storedCopy(u, width);
     if (u.hostname === "images.unsplash.com") {
       u.searchParams.set("w", String(width));
       u.searchParams.set("q", String(quality));
@@ -58,9 +93,11 @@ export function responsiveImage(src: string, preset: PresetKey = "card", quality
   const middle = config.widths[Math.floor(config.widths.length / 2)];
   const resized = resizedUrl(src, middle, quality);
   if (!resized) return { src };
+  // Stored copies come in fixed widths: list each once, under its own width.
+  const widths = isSupabase(src) ? [...new Set(config.widths.map(variantWidth))] : config.widths;
   return {
     src: resized,
-    srcSet: config.widths.map((w) => `${resizedUrl(src, w, quality)} ${w}w`).join(", "),
+    srcSet: widths.map((w) => `${resizedUrl(src, w, quality)} ${w}w`).join(", "),
     sizes: config.sizes,
   };
 }
