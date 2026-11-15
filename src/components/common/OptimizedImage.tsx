@@ -1,5 +1,5 @@
 import { useState, memo } from "react";
-import { responsiveImage, type PresetKey } from "@/lib/imageUrl";
+import { responsiveImage, type PresetKey, type ResponsiveImage } from "@/lib/imageUrl";
 
 interface OptimizedImageProps {
   src: string;
@@ -29,7 +29,10 @@ function OptimizedImageInner({
   onClick,
 }: OptimizedImageProps) {
   const [loaded, setLoaded] = useState(false);
-  const img = responsiveImage(src, preset, quality);
+  // Set to the src whose resized copy failed: a host that stops resizing should
+  // cost the size saving, never the picture.
+  const [fellBack, setFellBack] = useState<string | null>(null);
+  const img: ResponsiveImage = fellBack === src ? { src } : responsiveImage(src, preset, quality);
 
   return (
     <img
@@ -41,6 +44,9 @@ function OptimizedImageInner({
       decoding={priority ? "sync" : "async"}
       fetchPriority={priority ? "high" : undefined}
       onLoad={() => setLoaded(true)}
+      onError={() => {
+        if (img.src !== src) setFellBack(src);
+      }}
       onClick={onClick}
       className={`transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-70"} ${className}`}
     />

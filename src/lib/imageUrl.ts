@@ -5,25 +5,17 @@
 /**
  * Returns a resized variant of an image URL when its host can resize, or null.
  *
- * - Supabase Storage: the public object URL ignores size params; resizing lives
- *   at /storage/v1/render/image/public/… (and serves WebP to browsers that take it).
  * - Unsplash / Pexels: both resize through their own query params.
+ * - Supabase Storage is served as the original. Its resizer
+ *   (/storage/v1/render/image/…) is a paid-plan feature: it happened to work on
+ *   our Free project until a pause/restore on 2026-11-15 turned it off, and
+ *   every card on the site broke with 403 FeatureNotEnabled.
  * - Anything else (e.g. the old imweb CDN) can't be resized here.
  */
 export function resizedUrl(url: string, width: number, quality = 75): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
-    if (u.hostname.endsWith(".supabase.co") && u.pathname.includes("/storage/v1/object/public/")) {
-      u.pathname = u.pathname.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
-      u.searchParams.set("width", String(width));
-      u.searchParams.set("quality", String(quality));
-      // The default ("cover") keeps the original height when only a width is
-      // given, so a 1200x750 thumbnail came back as a 300x750 crop. "contain"
-      // scales to the width and keeps the aspect ratio.
-      u.searchParams.set("resize", "contain");
-      return u.toString();
-    }
     if (u.hostname === "images.unsplash.com") {
       u.searchParams.set("w", String(width));
       u.searchParams.set("q", String(quality));
