@@ -8,11 +8,14 @@ const statusBadge: Record<string, string> = {
   draft: "bg-yellow-100 text-yellow-700",
 };
 
+// Categories not listed here (the old site's) show grey.
 const categoryColor: Record<string, string> = {
-  NEWS: "bg-blue-100 text-blue-700",
-  LOCALS: "bg-emerald-100 text-emerald-700",
-  KOREAN: "bg-orange-100 text-orange-700",
+  "HOW-TO": "bg-blue-100 text-blue-700",
+  "LOCAL-LIFE": "bg-emerald-100 text-emerald-700",
   "K-CULTURE": "bg-purple-100 text-purple-700",
+  FESTIVAL: "bg-pink-100 text-pink-700",
+  FOOD: "bg-orange-100 text-orange-700",
+  TRANSPORT: "bg-sky-100 text-sky-700",
 };
 
 interface Props {

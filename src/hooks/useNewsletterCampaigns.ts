@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { functionErrorMessage } from "@/lib/functionError";
 import type { Tables } from "@/types/database";
 
 export type NewsletterCampaign = Tables<"newsletter_campaigns">;
@@ -76,25 +77,11 @@ export function useDeleteCampaign() {
   });
 }
 
-/** Pulls the error message out of a functions.invoke failure (the body carries it). */
-async function invokeError(error: unknown): Promise<string> {
-  const ctx = (error as { context?: Response })?.context;
-  if (ctx && typeof ctx.json === "function") {
-    try {
-      const body = await ctx.json();
-      if (body?.error) return String(body.error);
-    } catch {
-      // fall through
-    }
-  }
-  return error instanceof Error ? error.message : "request_failed";
-}
-
 export async function sendTestNewsletter(campaignId: number): Promise<string> {
   const { data, error } = await supabase.functions.invoke("send-newsletter", {
     body: { action: "test", campaign_id: campaignId },
   });
-  if (error) throw new Error(await invokeError(error));
+  if (error) throw new Error(await functionErrorMessage(error));
   return (data as { to: string }).to;
 }
 
@@ -102,6 +89,6 @@ export async function sendNewsletterBatch(campaignId: number): Promise<SendBatch
   const { data, error } = await supabase.functions.invoke("send-newsletter", {
     body: { action: "send", campaign_id: campaignId },
   });
-  if (error) throw new Error(await invokeError(error));
+  if (error) throw new Error(await functionErrorMessage(error));
   return data as SendBatchResult;
 }

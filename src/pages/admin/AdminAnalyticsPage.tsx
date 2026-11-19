@@ -130,6 +130,8 @@ export default function AdminAnalyticsPage() {
 
   const suspects = raw?.quality.suspects ?? [];
   const botSessions = suspects.reduce((n, s) => n + s.sessions, 0);
+  // The filter drops whole countries, so the few engaged visits from them go too.
+  const botEngaged = suspects.reduce((n, s) => n + Math.round(s.sessions * s.engagementRate), 0);
   const suspectNames = suspects.map((s) => countryKo(s.countryId ?? "", s.country)).join("·");
   const gapDays = gaps.reduce((n, g) => n + g.days, 0);
 
@@ -270,6 +272,7 @@ export default function AdminAnalyticsPage() {
                   {excludeBots ? (
                     <span>
                       <strong>봇 의심 방문 제외 중:</strong> {suspectNames} — {fmtNum(botSessions)}회, 전체 방문의 {fmtPct(ratio(botSessions, botSessions + raw.totals.current.sessions), 0)}. 거의 머물지 않아 사람이 아닌 것으로 봅니다.
+                      {botEngaged > 0 && ` 나라 단위로 빼기 때문에 그 나라의 실제 방문자일 수 있는 참여 세션 약 ${fmtNum(botEngaged)}회도 함께 빠집니다.`}
                     </span>
                   ) : (
                     <span>

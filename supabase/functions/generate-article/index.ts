@@ -36,12 +36,20 @@ const IMAGE_POOL = [
 const slugify = (s: string) =>
   s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 64);
 
+// The guidebook's categories (src/lib/blogCategories.ts). The site filters on
+// these exact values, so a post with any other category sits under no tab.
+const CATEGORIES = ["HOW-TO", "LOCAL-LIFE", "K-CULTURE", "FESTIVAL", "FOOD", "TRANSPORT"];
+const toCategory = (v: unknown) => {
+  const c = String(v ?? "").trim().toUpperCase().replace(/\s+/g, "-");
+  return CATEGORIES.includes(c) ? c : "HOW-TO";
+};
+
 // Structured-output schema (forces valid JSON via Anthropic tool use / Gemini responseSchema).
 const ARTICLE_SCHEMA = {
   type: "object",
   properties: {
     title: { type: "string" },
-    category: { type: "string" },
+    category: { type: "string", description: `One of ${CATEGORIES.join(", ")}` },
     seo_title: { type: "string" },
     seo_description: { type: "string" },
     excerpt: { type: "string" },
@@ -138,7 +146,7 @@ Pick the most relevant hero image URL from this pool (theme → url):
 ${IMAGE_POOL.map(([t, u]) => `- ${t}: ${u}`).join("\n")}
 
 Respond with ONLY a JSON object (no markdown fences):
-{"title": "...", "category": "City Guide|Food|Itinerary|Culture|Transport|Nature|News", "seo_title": "<=60 chars", "seo_description": "<=160 chars", "excerpt": "1-2 sentences", "hero_image_url": "<one url from the pool>", "content": "<HTML>", "faqs": [{"q":"...","a":"..."}]}`;
+{"title": "...", "category": "${CATEGORIES.join("|")}", "seo_title": "<=60 chars", "seo_description": "<=160 chars", "excerpt": "1-2 sentences", "hero_image_url": "<one url from the pool>", "content": "<HTML>", "faqs": [{"q":"...","a":"..."}]}`;
 
   // ── Generate (Anthropic tool-use primary, Gemini structured fallback) ──
   let article: Record<string, unknown>;
@@ -224,7 +232,7 @@ Respond with ONLY a JSON object (no markdown fences):
       title, slug,
       content,
       excerpt: clip(article.excerpt, 400),
-      category: String(article.category || "News"),
+      category: toCategory(article.category),
       author: "Korea by Local",
       status: publish ? "published" : "draft",
       seo_title: clip(article.seo_title, 60),
@@ -242,7 +250,7 @@ Respond with ONLY a JSON object (no markdown fences):
   const job = {
     topic, keywords, tone,
     status: publish ? "published" : "ready",
-    category: String(article.category || "News"),
+    category: toCategory(article.category),
     word_count: wordCount, links_count: linksCount,
     model: modelUsed, generated_title: title, blog_post_id: post.id,
   };

@@ -14,13 +14,24 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { orderId, status, cancelReason } = await req.json();
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
       { db: { schema: "koreabylocal" } }
     );
+
+    // Admin-only. Without this, anyone holding the public anon key could make
+    // the site email a customer a "cancelled" notice with their own text.
+    const deny = (status: number, error: string) =>
+      new Response(JSON.stringify({ error }), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const jwt = (req.headers.get("Authorization") ?? "").replace("Bearer ", "");
+    if (!jwt) return deny(401, "unauthorized");
+    const { data: u } = await supabase.auth.getUser(jwt);
+    if (!u?.user) return deny(401, "unauthorized");
+    const { data: prof } = await supabase.from("profiles").select("role").eq("id", u.user.id).maybeSingle();
+    if (prof?.role !== "admin") return deny(403, "forbidden");
+
+    const { orderId, status, cancelReason } = await req.json();
 
     // Fetch order with items
     const { data: order, error: orderErr } = await supabase

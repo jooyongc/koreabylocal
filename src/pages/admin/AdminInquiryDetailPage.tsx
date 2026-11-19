@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { readTriage, type AiTriage } from "@/types";
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-700",
+  new: "bg-yellow-100 text-yellow-700",
   replied: "bg-emerald-100 text-emerald-700",
 };
 
@@ -17,7 +17,8 @@ export default function AdminInquiryDetailPage() {
   const inquiryId = id ? Number(id) : undefined;
   const { data: inquiry, isLoading, error } = useAdminInquiry(inquiryId);
   const replyMutation = useReplyInquiry();
-  const [reply, setReply] = useState("");
+  // null until the admin types: the box starts with the reply already sent, and can be emptied.
+  const [reply, setReply] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -38,13 +39,18 @@ export default function AdminInquiryDetailPage() {
     );
   }
 
+  const existingReply = inquiry.admin_reply ?? "";
+  const isReplied = inquiry.status === "replied";
+
   const handleReply = async () => {
-    if (!reply.trim()) {
+    const text = reply ?? existingReply;
+    if (!text.trim()) {
       toast.error("Please enter a reply");
       return;
     }
+    if (isReplied && !window.confirm("This traveler already has a reply. Email them again?")) return;
     try {
-      const result = await replyMutation.mutateAsync({ id: inquiry.id, reply });
+      const result = await replyMutation.mutateAsync({ id: inquiry.id, reply: text });
       toast.success(
         result.recorded
           ? `Reply emailed to ${result.to ?? "the traveler"}`
@@ -56,8 +62,6 @@ export default function AdminInquiryDetailPage() {
     }
   };
 
-  const existingReply = inquiry.admin_reply ?? "";
-  const isReplied = inquiry.status === "replied";
   const triage = readTriage(inquiry.ai_triage);
 
   return (
@@ -177,7 +181,7 @@ export default function AdminInquiryDetailPage() {
             )}
 
             <textarea
-              value={reply || existingReply}
+              value={reply ?? existingReply}
               onChange={(e) => setReply(e.target.value)}
               rows={5}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"

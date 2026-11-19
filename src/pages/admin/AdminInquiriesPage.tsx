@@ -8,7 +8,7 @@ import { useAdminInquiryList, type AdminInquiryListRow } from "@/hooks/useAdminI
 import { readTriage, type Inquiry } from "@/types";
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-700",
+  new: "bg-yellow-100 text-yellow-700",
   replied: "bg-emerald-100 text-emerald-700",
 };
 
@@ -160,7 +160,7 @@ export default function AdminInquiriesPage() {
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
             >
               <option value="">All Status</option>
-              <option value="pending">Pending</option>
+              <option value="new">New</option>
               <option value="replied">Replied</option>
             </select>
           </div>

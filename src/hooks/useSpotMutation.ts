@@ -101,6 +101,10 @@ export function useSetSpotActive() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, is_active }: { id: number; is_active: boolean }) => setSpotActive(id, is_active),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-spots"] }),
+    // The edit form caches the spot too; a stale is_active there would be saved back.
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-spots"] });
+      qc.invalidateQueries({ queryKey: ["admin-spot"] });
+    },
   });
 }

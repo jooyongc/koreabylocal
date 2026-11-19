@@ -9,16 +9,9 @@ import { BlogListSkeleton } from "@/components/blog";
 import Pagination from "@/components/product/Pagination";
 import NewsletterCta from "@/components/home/NewsletterCta";
 import type { BlogCategory, BlogPost } from "@/types";
+import { BLOG_CATEGORIES } from "@/lib/blogCategories";
 
-const CATEGORIES: { label: string; value?: BlogCategory }[] = [
-  { label: "All" },
-  { label: "How-To", value: "HOW-TO" },
-  { label: "Local Life", value: "LOCAL-LIFE" },
-  { label: "K-Culture", value: "K-CULTURE" },
-  { label: "Festival", value: "FESTIVAL" },
-  { label: "Food", value: "FOOD" },
-  { label: "Transport", value: "TRANSPORT" },
-];
+const CATEGORIES: { label: string; value?: BlogCategory }[] = [{ label: "All" }, ...BLOG_CATEGORIES];
 
 export default function GuidebookPage() {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -1,13 +1,8 @@
 import { Search, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { BLOG_CATEGORIES, LEGACY_BLOG_CATEGORIES } from "@/lib/blogCategories";
 
-const CATEGORIES = [
-  { value: "", label: "All Categories" },
-  { value: "NEWS", label: "NEWS" },
-  { value: "LOCALS", label: "LOCALS" },
-  { value: "KOREAN", label: "KOREAN" },
-  { value: "K-CULTURE", label: "K-CULTURE" },
-];
+const CATEGORIES = [{ value: "", label: "All Categories" }, ...BLOG_CATEGORIES, ...LEGACY_BLOG_CATEGORIES];
 
 interface Props {
   search: string;

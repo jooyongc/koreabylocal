@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Lightbulb, Loader2, Sparkles, ArrowRight, AlertTriangle, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
+import { functionErrorMessage } from "@/lib/functionError";
 
 interface DuplicateVerdict {
   probability: number;
@@ -36,12 +37,7 @@ export default function TopicIdeas({ onPick }: { onPick: (title: string, keyword
         body: { focus: focus.trim(), count: 6 },
       });
       if (error) {
-        let msg = error.message;
-        try {
-          const ctx = (error as { context?: Response }).context;
-          if (ctx) msg = (await ctx.json())?.error ?? msg;
-        } catch { /* keep */ }
-        toast.error(msg, { id: t });
+        toast.error(await functionErrorMessage(error), { id: t });
       } else {
         const next = (data?.topics as Topic[]) ?? [];
         const overlapping = next.filter((tp) => tp.duplicate).length;

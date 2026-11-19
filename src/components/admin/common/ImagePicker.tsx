@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from "react";
 import { Search, Upload, X, Loader2, ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase";
+import { functionErrorMessage } from "@/lib/functionError";
 import { uploadImage } from "@/lib/uploadImage";
 
 interface ImageResult {
@@ -41,12 +42,7 @@ export default function ImagePicker({ open, onClose, onSelect, orientation = "la
         body: { query: term, orientation },
       });
       if (error) {
-        let msg = error.message;
-        try {
-          const ctx = (error as { context?: Response }).context;
-          if (ctx) msg = (await ctx.json())?.error ?? msg;
-        } catch { /* keep */ }
-        toast.error(msg);
+        toast.error(await functionErrorMessage(error));
       } else {
         setResults((data?.images as ImageResult[]) ?? []);
         if (!data?.images?.length) toast("No images found");

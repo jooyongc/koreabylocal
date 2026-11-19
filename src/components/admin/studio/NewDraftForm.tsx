@@ -1,9 +1,10 @@
 import { useState, type FormEvent, type KeyboardEvent, type Dispatch, type SetStateAction } from "react";
 import { AlertTriangle, CheckCircle2, Clock3 } from "lucide-react";
-import { Sparkles, Check, X, Plus, Loader2 } from "lucide-react";
+import { Sparkles, X, Plus, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { functionErrorMessage } from "@/lib/functionError";
 
 type Tone = "informative" | "editorial";
 
@@ -36,8 +37,6 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
   const [busy, setBusy] = useState(false);
   const [keywordDraft, setKeywordDraft] = useState("");
   const [tone, setTone] = useState<Tone>("informative");
-  const [autoLink, setAutoLink] = useState(true);
-  const [genSchema, setGenSchema] = useState(true);
   // What the pre-publish check made of the last draft. Null means it did not run.
   const [review, setReview] = useState<ArticleReview | null>(null);
 
@@ -73,12 +72,7 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
         body: { topic: topic.trim(), keywords, tone, publish: false },
       });
       if (error) {
-        let msg = error.message;
-        try {
-          const ctx = (error as { context?: Response }).context;
-          if (ctx) msg = (await ctx.json())?.error ?? msg;
-        } catch { /* keep msg */ }
-        toast.error(msg, { id: t });
+        toast.error(await functionErrorMessage(error), { id: t });
       } else if (data?.success) {
         const r = (data.review ?? null) as ArticleReview | null;
         setReview(r);
@@ -88,7 +82,9 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
             : "Draft created — review & publish it in Blog admin.",
           { id: t },
         );
+        // The draft is a new blog_posts row too: refresh the Blog list and the studio's counts.
         qc.invalidateQueries({ queryKey: ["admin", "content-jobs"] });
+        qc.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       } else {
         toast.error("Generation failed.", { id: t });
       }
@@ -107,7 +103,7 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
     >
       <div className="font-display text-lg font-bold text-white">New AI draft</div>
       <p className="mb-4 mt-1 text-[12.5px] text-white/50">
-        Claude writes a sourced, schema-ready article.
+        Claude writes the article and its FAQs; it's saved to Blog as a draft.
       </p>
 
       {/* Topic */}
@@ -197,18 +193,6 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
         })}
       </div>
 
-      {/* Checkboxes */}
-      <ToggleCheckbox
-        checked={autoLink}
-        onChange={setAutoLink}
-        label="Auto-insert Experiences + Shop links"
-      />
-      <ToggleCheckbox
-        checked={genSchema}
-        onChange={setGenSchema}
-        label="Generate FAQ + Article JSON-LD"
-      />
-
       {/* Generate button */}
       <button
         type="submit"
@@ -218,7 +202,7 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
         {busy ? (
           <>
             <Loader2 className="h-[18px] w-[18px] animate-spin" />
-            Generating with Claude Haiku…
+            Generating with Claude…
           </>
         ) : (
           <>
@@ -231,37 +215,6 @@ export default function NewDraftForm({ topic, setTopic, keywords, setKeywords }:
     </form>
   );
 }
-
-function ToggleCheckbox({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  label: string;
-}) {
-  return (
-    <label className="mt-2.5 flex cursor-pointer select-none items-center gap-[9px] text-[13px] text-white/75 first-of-type:mt-4">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="sr-only"
-      />
-      <span
-        aria-hidden="true"
-        className={`flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[11px] text-white transition-colors ${
-          checked ? "bg-accent" : "border border-white/25 bg-white/[0.06]"
-        }`}
-      >
-        {checked && <Check className="h-3 w-3" strokeWidth={3} />}
-      </span>
-      {label}
-    </label>
-  );
-}
-
 
 /**
  * What the pre-publish check found. Jev cannot tell whether a figure is right —

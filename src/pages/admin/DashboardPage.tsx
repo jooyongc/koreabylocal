@@ -31,7 +31,11 @@ interface DashboardStats {
   recentQuestions: RecentQuestion[];
 }
 
-const count = (res: { count: number | null }) => res.count ?? 0;
+// A failed query must not read as zero: the card would say "0" when the truth is "unknown".
+const count = (res: { count: number | null; error: unknown }) => {
+  if (res.error) throw res.error;
+  return res.count ?? 0;
+};
 
 function useDashboardStats() {
   return useQuery<DashboardStats>({
@@ -48,7 +52,7 @@ function useDashboardStats() {
           .from("inquiries")
           .select("id", { count: "exact", head: true })
           .eq("payment_status", "paid")
-          .eq("status", "pending"),
+          .eq("status", "new"),
         supabase
           .from("ebook_purchases")
           .select("id", { count: "exact", head: true })
@@ -62,6 +66,7 @@ function useDashboardStats() {
           .limit(5),
       ]);
 
+      if (recent.error) throw recent.error;
       return {
         publishedPosts: count(posts),
         activeSpots: count(spots),
@@ -105,7 +110,7 @@ function QuickLink({ to, icon, label }: { to: string; icon: React.ReactNode; lab
 
 // ── Dashboard Page ──────────────────────────────────────────────
 export default function DashboardPage() {
-  const { data: stats, isLoading } = useDashboardStats();
+  const { data: stats, isLoading, error } = useDashboardStats();
 
   return (
     <>
@@ -117,16 +122,22 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-primary">Dashboard</h1>
         <p className="mt-1 text-sm text-text-secondary">Overview of your site&apos;s activity</p>
 
+        {error && (
+          <p className="mt-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
+            Couldn&apos;t load the numbers: {(error as Error).message}
+          </p>
+        )}
+
         {/* Stat cards */}
         <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {isLoading || !stats ? (
+          {error ? null : isLoading || !stats ? (
             Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="h-[108px] rounded-xl" />)
           ) : (
             <>
               <StatCard
                 label="Open paid questions"
                 value={stats.openQuestions}
-                to="/admin/inquiries?status=pending"
+                to="/admin/inquiries?status=new"
                 icon={<MessageSquare className="h-5 w-5 text-accent" />}
               />
               <StatCard

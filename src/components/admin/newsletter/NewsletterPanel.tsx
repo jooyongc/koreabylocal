@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import toast from "react-hot-toast";
@@ -201,6 +201,10 @@ function Composer({
   const [body, setBody] = useState(campaign?.body_html ?? "");
   const [testing, setTesting] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  // A second click while the first is saving would start a second send loop,
+  // and every subscriber would get the newsletter twice.
+  const sendingRef = useRef(false);
+  const [sending, setSending] = useState(false);
 
   const ready = subject.trim().length > 0 && !isBlank(body);
 
@@ -233,11 +237,16 @@ function Composer({
   };
 
   const onConfirmSend = async () => {
+    if (sendingRef.current) return;
+    sendingRef.current = true;
+    setSending(true);
     try {
       const saved = await persist();
       onSend(saved);
     } catch {
       toast.error("Could not save before sending");
+      sendingRef.current = false;
+      setSending(false);
     }
   };
 
@@ -286,8 +295,8 @@ function Composer({
             <button onClick={() => setConfirming(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100">
               Cancel
             </button>
-            <button onClick={onConfirmSend} className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-              <Send className="h-4 w-4" /> Yes, send
+            <button onClick={onConfirmSend} disabled={sending} className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Yes, send
             </button>
           </>
         ) : (

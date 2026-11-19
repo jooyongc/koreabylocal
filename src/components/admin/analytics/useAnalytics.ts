@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { functionErrorMessage } from "@/lib/functionError";
 import type { DrillReport, DrillTarget, RangeParams, Realtime, Report } from "./types";
 
 /**
@@ -8,17 +9,7 @@ import type { DrillReport, DrillTarget, RangeParams, Realtime, Report } from "./
  */
 async function invoke<T>(body: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.functions.invoke("ga4-report", { body });
-  if (error) {
-    let detail = error.message;
-    try {
-      const ctx = (error as { context?: Response }).context;
-      if (ctx) {
-        const b = await ctx.json();
-        detail = b?.detail ?? b?.error ?? detail;
-      }
-    } catch { /* keep the original message */ }
-    throw new Error(detail);
-  }
+  if (error) throw new Error(await functionErrorMessage(error, "detail"));
   return data as T;
 }
 

@@ -138,6 +138,10 @@ const TRAFFIC_METRICS = [
   "screenPageViews", "keyEvents",
 ];
 const AUDIENCE_METRICS = ["activeUsers", "newUsers", "sessions", "engagedSessions", "userEngagementDuration", "screenPageViews", "keyEvents"];
+const PAGE_METRICS = [
+  "screenPageViews", "activeUsers", "newUsers", "userEngagementDuration", "engagedSessions", "sessions", "eventCount", "keyEvents",
+];
+const DRILL_PAGE_METRICS = ["screenPageViews", "activeUsers", "userEngagementDuration"];
 
 interface Opts {
   filter?: Expr;
@@ -182,9 +186,11 @@ export function mainReports(r: Ranges, scope: Scope, cohortWeeks: DateRange[]): 
       filter: notIn("sessionCampaignName", ["(direct)", "(organic)", "(referral)", "(not set)"]),
     }),
     spec("firstUser", C, ["firstUserDefaultChannelGroup"], ["newUsers", "engagedSessions"], s, { limit: 30 }),
-    spec("pages", C, ["pagePath", "pageTitle"],
-      ["screenPageViews", "activeUsers", "newUsers", "userEngagementDuration", "engagedSessions", "sessions", "eventCount", "keyEvents"],
-      s, { filter: NOT_ADMIN, limit: 1000 }),
+    // Users and sessions are counted per path. Splitting by title as well would
+    // count one visitor once per title the path carried (an SPA often reports
+    // the previous page's title), so titles come from a report of their own.
+    spec("pages", C, ["pagePath"], PAGE_METRICS, s, { filter: NOT_ADMIN, limit: 1000 }),
+    spec("pageTitles", C, ["pagePath", "pageTitle"], ["screenPageViews"], s, { filter: NOT_ADMIN, limit: 3000 }),
     spec("landing", CP, ["landingPage"], TRAFFIC_METRICS, s, { filter: NOT_ADMIN_LANDING, limit: 500 }),
     spec("scroll", C, ["pagePath"], ["eventCount"], s, { filter: all(event("scroll"), NOT_ADMIN), limit: 1000 }),
     spec("search", C, ["searchTerm"], ["eventCount", "totalUsers"], s, { filter: event("view_search_results"), limit: 200 }),
@@ -255,7 +261,8 @@ export function drillReports(r: Ranges, scope: Scope): ReportSpec[] {
   const specs: ReportSpec[] = [
     spec("totals", CP, [], TOTAL_METRICS, s),
     spec("dailyCur", C, ["date"], DAILY_METRICS, s, { orderByDim: "date", limit: 1000 }),
-    spec("pages", C, ["pagePath", "pageTitle"], ["screenPageViews", "activeUsers", "userEngagementDuration"], s, { filter: NOT_ADMIN, limit: 50 }),
+    spec("pages", C, ["pagePath"], DRILL_PAGE_METRICS, s, { filter: NOT_ADMIN, limit: 50 }),
+    spec("pageTitles", C, ["pagePath", "pageTitle"], ["screenPageViews"], s, { filter: NOT_ADMIN, limit: 500 }),
     spec("landing", C, ["landingPage"], ["sessions", "engagedSessions"], s, { filter: NOT_ADMIN_LANDING, limit: 25 }),
     spec("sources", C, ["sessionSource", "sessionMedium"], ["sessions", "engagedSessions", "activeUsers"], s, { limit: 25 }),
     spec("countries", C, ["country", "countryId"], ["activeUsers", "sessions", "engagedSessions"], s, { limit: 25 }),
@@ -437,6 +444,22 @@ export function quotaOf(report: GaReport | undefined) {
   };
 }
 
+/**
+ * Page rows with a title each. A path can carry several titles (a renamed post,
+ * or the previous page's title on an SPA navigation); the one with the most
+ * views names the row. The metrics come from the path-only report, so a
+ * visitor is never counted once per title.
+ */
+export function pagesWithTitles(pages: GaReport | undefined, titles: GaReport | undefined, mets: string[]) {
+  const best = new Map<string, { title: string; views: number }>();
+  for (const t of flat(titles, ["pagePath", "pageTitle"], ["screenPageViews"])) {
+    const path = String(t.pagePath), views = Number(t.screenPageViews);
+    const cur = best.get(path);
+    if (!cur || views > cur.views) best.set(path, { title: String(t.pageTitle), views });
+  }
+  return flat(pages, ["pagePath"], mets).map((p) => ({ ...p, pageTitle: best.get(String(p.pagePath))?.title ?? "" }));
+}
+
 /** The whole dashboard payload, from the reports keyed by spec. */
 export function shapeMain(
   reports: Record<string, GaReport | undefined>,
@@ -446,18 +469,6 @@ export function shapeMain(
 ) {
   const T = TRAFFIC_METRICS, A = AUDIENCE_METRICS;
 
-  // A path can carry several titles (a renamed post, a translated title); the
-  // one with the most views names the row.
-  const pageRows = flat(reports.pages, ["pagePath", "pageTitle"],
-    ["screenPageViews", "activeUsers", "newUsers", "userEngagementDuration", "engagedSessions", "sessions", "eventCount", "keyEvents"]);
-  const pages = new Map<string, Row & { titleViews: number }>();
-  for (const p of pageRows) {
-    const path = String(p.pagePath);
-    const cur = pages.get(path);
-    if (!cur) { pages.set(path, { ...p, titleViews: Number(p.screenPageViews) }); continue; }
-    for (const [k, v] of Object.entries(p)) if (typeof v === "number") cur[k] = Number(cur[k] ?? 0) + v;
-    if (Number(p.screenPageViews) > cur.titleViews) { cur.pageTitle = p.pageTitle; cur.titleViews = Number(p.screenPageViews); }
-  }
   const prevViews = new Map(flat(reports.pagesPrev, ["pagePath"], ["screenPageViews", "activeUsers"]).map((p) => [String(p.pagePath), p]));
   const scroll = new Map(flat(reports.scroll, ["pagePath"], ["eventCount"]).map((p) => [String(p.pagePath), Number(p.eventCount)]));
 
@@ -478,17 +489,15 @@ export function shapeMain(
     sources: ranged(reports.sources, ["sessionSource", "sessionMedium"], T),
     campaigns: flat(reports.campaigns, ["sessionCampaignName", "sessionSource", "sessionMedium"], T),
     firstUser: flat(reports.firstUser, ["firstUserDefaultChannelGroup"], ["newUsers", "engagedSessions"]),
-    pages: [...pages.values()].map((p) => {
+    pages: pagesWithTitles(reports.pages, reports.pageTitles, PAGE_METRICS).map((p) => {
       const path = String(p.pagePath);
       const prev = prevViews.get(path);
-      const row: Row = {
+      return {
         ...p,
         scrolls: scroll.get(path) ?? 0,
         prevViews: Number(prev?.screenPageViews ?? 0),
         prevUsers: Number(prev?.activeUsers ?? 0),
       };
-      delete row.titleViews;
-      return row;
     }).sort((a, b) => Number(b.screenPageViews) - Number(a.screenPageViews)),
     landing: ranged(reports.landing, ["landingPage"], T),
     search: flat(reports.search, ["searchTerm"], ["eventCount", "totalUsers"]),
@@ -517,7 +526,7 @@ export function shapeDrill(reports: Record<string, GaReport | undefined>, r: Ran
       current: fillDaily(reports.dailyCur, r.current),
       previous: r.previous ? fillDaily(reports.dailyPrev, r.previous) : [],
     },
-    pages: flat(reports.pages, ["pagePath", "pageTitle"], ["screenPageViews", "activeUsers", "userEngagementDuration"]),
+    pages: pagesWithTitles(reports.pages, reports.pageTitles, DRILL_PAGE_METRICS),
     landing: flat(reports.landing, ["landingPage"], ["sessions", "engagedSessions"]),
     sources: flat(reports.sources, ["sessionSource", "sessionMedium"], ["sessions", "engagedSessions", "activeUsers"]),
     countries: flat(reports.countries, ["country", "countryId"], ["activeUsers", "sessions", "engagedSessions"]),

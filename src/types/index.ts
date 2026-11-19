@@ -109,4 +109,4 @@ export type PaymentStatus = "unpaid" | "paid" | "refunded" | "partial_refund";
 export type UserRole = "customer" | "admin";
 export type ProductBadge = "NEW" | "BEST" | "HOT" | "MD" | "SALE";
 export type InquiryCategory = "General" | "Tour Inquiry" | "Transportation" | "Custom Request" | "Other";
-export type InquiryStatus = "pending" | "replied";
+export type InquiryStatus = "new" | "replied";

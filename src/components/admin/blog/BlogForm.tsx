@@ -9,22 +9,13 @@ import ImagePicker from "@/components/admin/common/ImagePicker";
 import { useCreateBlogPost, useUpdateBlogPost } from "@/hooks/useBlogMutation";
 import { slugify } from "@/lib/slugify";
 import type { BlogFormData } from "@/types/admin";
-import type { BlogCategory } from "@/types";
+import { BLOG_CATEGORIES } from "@/lib/blogCategories";
 
 interface Props {
   mode: "create" | "edit";
   postId?: number;
   defaultValues?: Partial<BlogFormData>;
 }
-
-const CATEGORIES: { value: BlogCategory; label: string }[] = [
-  { value: "HOW-TO", label: "How-To" },
-  { value: "LOCAL-LIFE", label: "Local Life" },
-  { value: "K-CULTURE", label: "K-Culture" },
-  { value: "FESTIVAL", label: "Festival" },
-  { value: "FOOD", label: "Food" },
-  { value: "TRANSPORT", label: "Transport" },
-];
 
 export default function BlogForm({ mode, postId, defaultValues }: Props) {
   const navigate = useNavigate();
@@ -98,6 +89,8 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
       toast.error("Title and slug are required");
       return;
     }
+    // Saving a live post as a draft takes it off the site.
+    if (defaultValues?.status === "published" && !window.confirm("This post is live. Saving it as a draft takes it off the site. Continue?")) return;
     await doSubmit({ ...data, status: "draft" });
   };
 
@@ -218,7 +211,7 @@ export default function BlogForm({ mode, postId, defaultValues }: Props) {
                     {...register("category")}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   >
-                    {CATEGORIES.map((c) => (
+                    {BLOG_CATEGORIES.map((c) => (
                       <option key={c.value} value={c.value}>
                         {c.label}
                       </option>

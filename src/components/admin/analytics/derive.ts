@@ -4,7 +4,7 @@ import { isBrokenTitle, isJunkSearch, partnerOf, ratio, sectionOf } from "./form
 import type { Report } from "./types";
 
 export interface PartnerTotal { name: string; clicks: number; prevClicks: number; users: number; domains: string[] }
-export interface SectionTotal { label: string; views: number; prevViews: number; users: number; engagement: number; pages: number }
+export interface SectionTotal { label: string; views: number; prevViews: number; engagement: number; pages: number }
 
 export function derive(r: Report) {
   // ── partner clicks (outbound links to affiliate programmes) ──
@@ -47,10 +47,9 @@ export function derive(r: Report) {
   for (const p of r.pages) {
     if (isBrokenTitle(p.pageTitle)) continue;
     const label = sectionOf(p.pagePath);
-    const s = sectionMap.get(label) ?? { label, views: 0, prevViews: 0, users: 0, engagement: 0, pages: 0 };
+    const s = sectionMap.get(label) ?? { label, views: 0, prevViews: 0, engagement: 0, pages: 0 };
     s.views += p.screenPageViews;
     s.prevViews += p.prevViews;
-    s.users += p.activeUsers; // a sum over pages: a visitor of two pages counts twice
     s.engagement += p.userEngagementDuration;
     s.pages += 1;
     sectionMap.set(label, s);

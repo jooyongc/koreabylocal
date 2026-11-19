@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { functionErrorBody } from "@/lib/functionError";
 import type { Inquiry } from "@/types";
 
 export function useAdminInquiry(id: number | undefined) {
@@ -46,11 +47,7 @@ export function useReplyInquiry() {
       });
 
       if (error) {
-        let code = "";
-        try {
-          const ctx = (error as { context?: Response }).context;
-          if (ctx) code = (await ctx.json())?.error ?? "";
-        } catch { /* fall through to the generic message */ }
+        const code = String((await functionErrorBody(error))?.error ?? "");
         throw new Error(SEND_ERRORS[code] ?? "Could not send the reply. Nothing was sent.");
       }
       if (!data?.success) throw new Error("Could not send the reply. Nothing was sent.");

@@ -55,30 +55,35 @@ export default function AdminThumbnailsPage() {
 
   const withPhoto = useMemo(() => (rows ?? []).filter((r) => firstBodyImage(r.content)), [rows]);
 
-  async function generate(row: Row) {
+  async function generate(row: Row): Promise<boolean> {
     setStates((s) => ({ ...s, [row.id]: { kind: "working" } }));
     try {
       const { url } = await buildThumbnail(row);
       await saveThumbnail(row.id, url);
       setStates((s) => ({ ...s, [row.id]: { kind: "done", url } }));
       setRows((rs) => (rs ?? []).map((r) => (r.id === row.id ? { ...r, thumbnail_url: url } : r)));
+      return true;
     } catch (e) {
       setStates((s) => ({ ...s, [row.id]: { kind: "failed", message: (e as Error).message } }));
+      return false;
     }
   }
 
   async function generateAll(targets: Row[]) {
     if (running || targets.length === 0) return;
+    if (!window.confirm(`Replace the card image of ${targets.length} article${targets.length === 1 ? "" : "s"}? Hand-picked thumbnails are overwritten too.`)) return;
     cancelled.current = false;
     setRunning(true);
-    let ok = 0;
+    let ok = 0, failed = 0;
     for (const row of targets) {
       if (cancelled.current) break;
-      await generate(row);
-      ok++;
+      if (await generate(row)) ok++;
+      else failed++;
     }
     setRunning(false);
-    toast.success(`Regenerated ${ok} thumbnail${ok === 1 ? "" : "s"}`);
+    const msg = `Regenerated ${ok} thumbnail${ok === 1 ? "" : "s"}`;
+    if (failed) toast.error(`${msg}, ${failed} failed`);
+    else toast.success(msg);
   }
 
   return (
