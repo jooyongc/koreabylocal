@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Facebook, Loader2, ArrowRight } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { subscribe } from "@/lib/subscribe";
-import { markSubscribed } from "@/lib/subscription";
 import { useRegions } from "@/hooks/useConcepts";
 import Logo from "@/components/layout/Header/Logo";
 
@@ -36,10 +34,6 @@ function FooterNewsletterForm() {
       setStatus("idle");
       return;
     }
-    supabase.functions.invoke("send-welcome-email", { body: { email: trimmedEmail } }).catch(() => {
-      // Email failure should not block the subscribe confirmation.
-    });
-    markSubscribed();
     setStatus("success");
     setEmail("");
   };

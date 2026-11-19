@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "./hooks";
 
 /**
@@ -59,13 +59,4 @@ export function CountUp({ value, format, duration = 900 }: { value: number; form
   }, [value, duration, reduce]);
 
   return <>{format(reduce ? value : shown)}</>;
-}
-
-/** A block that rises in; `i` staggers siblings. */
-export function Reveal({ i = 0, className = "", children }: { i?: number; className?: string; children: ReactNode }) {
-  return (
-    <div className={`ga-rise ${className}`} style={{ "--i": i } as CSSProperties}>
-      {children}
-    </div>
-  );
 }

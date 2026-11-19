@@ -253,9 +253,3 @@ export async function renderThumbnail(opts: ThumbnailOptions): Promise<Blob> {
     );
   });
 }
-
-/** First <img> in the article body — the photo the writer already chose. */
-export function firstImageIn(html: string | null | undefined): string | null {
-  const m = String(html ?? "").match(/<img[^>]+src=["']([^"']+)["']/i);
-  return m ? m[1] : null;
-}

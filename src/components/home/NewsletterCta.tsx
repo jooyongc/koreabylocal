@@ -2,9 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 import { useReveal } from "@/hooks/useReveal";
-import { supabase } from "@/lib/supabase";
 import { subscribe as addSubscriber } from "@/lib/subscribe";
-import { markSubscribed } from "@/lib/subscription";
 
 export default function NewsletterCta() {
   const ref = useReveal<HTMLElement>();
@@ -22,10 +20,6 @@ export default function NewsletterCta() {
       toast.error("Something went wrong — please try again.");
       return;
     }
-    supabase.functions.invoke("send-welcome-email", { body: { email: trimmedEmail } }).catch(() => {
-      // Email failure should not block the subscribe confirmation.
-    });
-    markSubscribed();
     toast.success("You’re on the list — see you in your inbox.");
     setEmail("");
   };

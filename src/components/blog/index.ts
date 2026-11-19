@@ -1,4 +1,3 @@
-export { default as CategoryTabs } from "./CategoryTabs";
 export { default as BlogListCard } from "./BlogListCard";
 export { default as BlogListSkeleton } from "./BlogListSkeleton";
 export { default as EmbeddedProductCard } from "./EmbeddedProductCard";

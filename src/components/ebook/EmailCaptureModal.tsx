@@ -1,9 +1,7 @@
 import { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { supabase } from "@/lib/supabase";
-import { subscribe } from "@/lib/subscribe";
-import { markSubscribed } from "@/lib/subscription";
+import { subscribe, markSubscribed } from "@/lib/subscribe";
 
 interface EmailCaptureModalProps {
   title: string;
@@ -54,12 +52,6 @@ export default function EmailCaptureModal({
       toast.error("Something went wrong — please try again.");
       return;
     }
-    supabase.functions
-      .invoke("send-welcome-email", { body: { email: trimmedEmail, lead_magnet: leadMagnet } })
-      .catch(() => {
-        // Email failure should not block the subscribe confirmation.
-      });
-    markSubscribed();
     toast.success(successMessage);
     onClose();
   };

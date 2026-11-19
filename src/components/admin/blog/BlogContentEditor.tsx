@@ -4,7 +4,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
   Bold,
@@ -53,13 +52,14 @@ export default function BlogContentEditor() {
 
   const editor = useEditor({
     extensions: [
+      // StarterKit v3 includes Link; adding it again registered it twice.
       StarterKit.configure({
         codeBlock: { HTMLAttributes: { class: "blog-code-block" } },
         blockquote: { HTMLAttributes: { class: "blog-blockquote" } },
+        link: { openOnClick: false },
       }),
       Image,
       TableKit.configure({ table: { resizable: true } }),
-      Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: "Write your blog post..." }),
     ],
     content,

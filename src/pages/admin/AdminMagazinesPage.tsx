@@ -125,8 +125,8 @@ export default function AdminMagazinesPage() {
         toast.success("Magazine created");
       }
       setFormOpen(false);
-    } catch {
-      toast.error("Failed to save magazine");
+    } catch (err) {
+      toast.error(`Failed to save magazine: ${err instanceof Error ? err.message : String((err as { message?: string })?.message ?? err)}`);
     }
   };
 

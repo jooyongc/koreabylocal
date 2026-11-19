@@ -3,7 +3,6 @@ import { useFormContext } from "react-hook-form";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
   Bold,
@@ -25,9 +24,9 @@ export default function ContentEditor() {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      // StarterKit v3 includes Link; adding it again registered it twice.
+      StarterKit.configure({ link: { openOnClick: false } }),
       Image,
-      Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: "Write product description..." }),
     ],
     content,

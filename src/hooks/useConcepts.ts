@@ -2,14 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Tables } from "@/types/database";
 import type { BlogPost } from "@/types";
-import { SPOT_CARD_COLUMNS, type SpotRow } from "./useSpots";
 import {
   AFFILIATE_EXPERIENCE_COLUMNS,
   type AffiliateExperienceRow,
 } from "@/components/experiences/AffiliateExperienceCard";
 
 export type ExperienceRow = Tables<"experiences">;
-export type HostRow = Tables<"hosts">;
 export type RegionRow = Tables<"regions">;
 
 export function useExperiences(opts?: { region?: string; category?: string; limit?: number }) {
@@ -31,22 +29,6 @@ export function useExperiences(opts?: { region?: string; category?: string; limi
   });
 }
 
-export function useExperience(slug: string | undefined) {
-  return useQuery({
-    queryKey: ["experience", slug],
-    enabled: !!slug,
-    queryFn: async (): Promise<ExperienceRow | null> => {
-      const { data, error } = await supabase
-        .from("experiences")
-        .select("*")
-        .eq("slug", slug!)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-}
-
 /** Active partner experiences that have a booking link — the only ones worth showing as affiliate cards. */
 export function useAffiliateExperiences(opts?: { region?: string; category?: string; limit?: number }) {
   return useQuery({
@@ -64,24 +46,6 @@ export function useAffiliateExperiences(opts?: { region?: string; category?: str
       const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as AffiliateExperienceRow[];
-    },
-  });
-}
-
-export function useEditorPickSpot() {
-  return useQuery({
-    queryKey: ["editor-pick-spot"],
-    queryFn: async (): Promise<SpotRow | null> => {
-      const { data, error } = await supabase
-        .from("experiences")
-        .select(SPOT_CARD_COLUMNS)
-        .eq("is_active", true)
-        .eq("editor_pick", true)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) throw error;
-      return data as SpotRow | null;
     },
   });
 }
@@ -115,23 +79,6 @@ export function useHeroPosts(count = 5) {
         if (!rows.some((r) => r.slug === p.slug)) rows.push({ ...p, featured: false });
       }
       return rows;
-    },
-  });
-}
-
-export function useHosts(limit?: number) {
-  return useQuery({
-    queryKey: ["hosts", limit ?? null],
-    queryFn: async (): Promise<HostRow[]> => {
-      let q = supabase
-        .from("hosts")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
-      if (limit) q = q.limit(limit);
-      const { data, error } = await q;
-      if (error) throw error;
-      return data ?? [];
     },
   });
 }
@@ -183,40 +130,6 @@ export function useRegionGuides(name: string | undefined) {
         .limit(6);
       if (error) throw error;
       return (data as BlogPost[]) ?? [];
-    },
-  });
-}
-
-export interface SiteStats {
-  posts: number;
-  experiences: number;
-  hosts: number;
-}
-
-/** Live counts for the hero stats (no fabricated marketing numbers). */
-export function useSiteStats() {
-  return useQuery({
-    queryKey: ["site-stats"],
-    staleTime: 10 * 60 * 1000,
-    queryFn: async (): Promise<SiteStats> => {
-      const count = async (
-        table: "blog_posts" | "experiences" | "hosts",
-        col: "status" | "is_active",
-        val: string | boolean,
-      ) => {
-        const { count, error } = await supabase
-          .from(table)
-          .select("*", { count: "exact", head: true })
-          .eq(col, val as never);
-        if (error) throw error;
-        return count ?? 0;
-      };
-      const [posts, experiences, hosts] = await Promise.all([
-        count("blog_posts", "status", "published"),
-        count("experiences", "is_active", true),
-        count("hosts", "is_active", true),
-      ]);
-      return { posts, experiences, hosts };
     },
   });
 }

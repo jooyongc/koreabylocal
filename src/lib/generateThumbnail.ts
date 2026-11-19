@@ -82,14 +82,6 @@ export async function buildThumbnail(post: GenerateInput): Promise<GenerateResul
   return { url, photo, credit };
 }
 
-/** Renders a preview without uploading anything. Caller revokes the object URL. */
-export async function previewThumbnail(post: GenerateInput): Promise<{ objectUrl: string; photo: string | null }> {
-  let photo = firstBodyImage(post.content);
-  if (!photo) photo = (await findPhoto(`${post.title} South Korea`))?.url ?? null;
-  const blob = await renderThumbnail({ title: post.title, category: post.category, imageUrl: photo });
-  return { objectUrl: URL.createObjectURL(blob), photo };
-}
-
 export async function saveThumbnail(postId: number, url: string): Promise<void> {
   const { error } = await supabase.from("blog_posts").update({ thumbnail_url: url }).eq("id", postId);
   if (error) throw error;

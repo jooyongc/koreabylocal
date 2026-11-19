@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { X, Loader2, BookOpen } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { subscribe } from "@/lib/subscribe";
-import { hasSubscribed, markSubscribed } from "@/lib/subscription";
+import { subscribe, hasSubscribed } from "@/lib/subscribe";
 
 const SESSION_KEY = "kbl_exit_popup_shown";
 const SCROLL_THRESHOLD = 0.7;
@@ -70,12 +68,6 @@ export default function ExitIntentPopup() {
       setStatus("idle");
       return;
     }
-    supabase.functions
-      .invoke("send-welcome-email", { body: { email: trimmedEmail, lead_magnet: "ebook_sample" } })
-      .catch(() => {
-        // Email failure should not block the subscribe confirmation.
-      });
-    markSubscribed();
     setStatus("success");
   };
 

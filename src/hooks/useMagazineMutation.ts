@@ -10,11 +10,14 @@ interface MagazineFormData {
   is_active?: boolean;
 }
 
+// The form keeps an empty date as "", which a `date` column rejects.
+const toRow = (data: MagazineFormData) => ({ ...data, issue_date: data.issue_date || null });
+
 export function useCreateMagazine() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (data: MagazineFormData) => {
-      const { error } = await supabase.from("digital_magazines").insert(data);
+      const { error } = await supabase.from("digital_magazines").insert(toRow(data));
       if (error) throw error;
     },
     onSuccess: () => {
@@ -36,7 +39,7 @@ export function useUpdateMagazine() {
     }) => {
       const { error } = await supabase
         .from("digital_magazines")
-        .update(data)
+        .update(toRow(data))
         .eq("id", id);
       if (error) throw error;
     },
@@ -60,25 +63,6 @@ export function useDeleteMagazine() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin-magazines"] });
       qc.invalidateQueries({ queryKey: ["magazines"] });
-    },
-  });
-}
-
-export function useMagazineDownload() {
-  return useMutation({
-    mutationFn: async ({
-      email,
-      magazineId,
-    }: {
-      email: string;
-      magazineId: number;
-    }) => {
-      const { data, error } = await supabase.functions.invoke(
-        "send-magazine-download",
-        { body: { email, magazineId } },
-      );
-      if (error) throw error;
-      return data as { success: boolean; file_url: string; title: string };
     },
   });
 }
