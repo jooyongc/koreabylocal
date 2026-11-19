@@ -27,7 +27,7 @@ const SERVICES: Record<ServiceKey, Service> = {
     category: "General",
     price: 1,
     verb: "Ask a local",
-    tagline: "$1 per question, no account needed. A verified Korean host replies — usually within a few hours — with honest, specific advice for your trip.",
+    tagline: "$1 per question, no account needed. Someone on our team in Korea replies by email with honest, specific advice for your trip.",
     placeholder: "e.g. “4 days in Korea with kids — Seoul + one more city. What would you do?”",
     attachLabel: "Attach a file",
     icon: MessageCircle,
@@ -67,8 +67,8 @@ const SERVICES: Record<ServiceKey, Service> = {
 // Kept in sync with the trust row below — FAQPage structured data must match visible content.
 const FAQS = [
   { q: "How much does it cost?", a: "$1 for a question or a restaurant reservation, $5 for a schedule check or a shipping request — it goes to the local who helps you. No account needed." },
-  { q: "How fast will I get a reply?", a: "Usually within a few hours. Our average reply time is about 3 hours." },
-  { q: "Who actually answers my question?", a: "A verified local host in Korea — never a bot or an algorithm." },
+  { q: "How fast will I get a reply?", a: "By email, once someone on our team has looked into your question. Every answer is written by hand, so it isn't instant, and we can't promise a set time." },
+  { q: "Who actually answers my question?", a: "Someone on the Korea by Local team, who live in Korea — never a bot or an algorithm." },
 ];
 
 const FAQ_SCHEMA = {
@@ -331,9 +331,10 @@ export default function AskALocalPage() {
 
         {/* Trust row */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[12.5px] text-muted-2">
-          <span>Avg reply 3h</span>
-          <span>4.9 helpfulness</span>
-          <span>60 verified hosts</span>
+          <span>From $1</span>
+          <span>No account needed</span>
+          <span>Reply by email</span>
+          <span>Refund if we can’t help</span>
         </div>
 
         {/* FAQ (mirrors the FAQPage structured data above) */}

@@ -5,8 +5,8 @@ import { useReveal } from "@/hooks/useReveal";
 const TRUST: { icon: LucideIcon; title: string; desc: string; bg: string }[] = [
   { icon: MapPin, title: "100% Korean-owned", desc: "Run and written entirely by people living in Korea — not an overseas agency.", bg: "rgba(14,140,106,0.1)" },
   { icon: Eye, title: "Firsthand curation", desc: "Every hotel, spot and recommendation comes from real, personal experience — not scraped lists.", bg: "rgba(91,43,255,0.1)" },
-  { icon: UserCheck, title: "Real humans, not AI", desc: "Every guide is written by a real person and fact-checked before it's published.", bg: "rgba(255,46,151,0.1)" },
-  { icon: Clock, title: "Fast, personal answers", desc: "Ask a Local questions get a real reply from a real person — usually within a few hours.", bg: "rgba(242,183,5,0.1)" },
+  { icon: UserCheck, title: "Checked by real people", desc: "Every guide is reviewed by someone on our team before it's published. A few start as an AI draft; none are scraped.", bg: "rgba(255,46,151,0.1)" },
+  { icon: Clock, title: "Personal answers", desc: "Ask a Local questions get a reply by email, written by a real person on our team.", bg: "rgba(242,183,5,0.1)" },
 ];
 
 export default function TrustBar() {

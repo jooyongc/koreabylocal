@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { useBlogPosts } from "@/hooks/useBlogPosts";
 
-/** Real answered questions — pulled from the blog (canonical home) and linked out. */
+/**
+ * The newest guidebook articles. Questions asked through Ask a Local are
+ * answered privately by email, so they are never shown here.
+ */
 export default function RecentlyAnswered() {
   const { data: posts } = useBlogPosts(undefined, 6);
   if (!posts || posts.length === 0) return null;
@@ -15,7 +18,7 @@ export default function RecentlyAnswered() {
         id="recently-answered-heading"
         className="mb-6 text-center font-display text-[clamp(22px,3vw,32px)] font-extrabold tracking-[-0.01em] text-ink"
       >
-        Recently answered
+        Latest from the guidebook
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
@@ -31,7 +34,7 @@ export default function RecentlyAnswered() {
               {post.excerpt}
             </p>
             <p className="mt-auto text-[12px] font-semibold text-accent">
-              Answered by {post.author || "Korea by Local"}
+              By {post.author || "Korea by Local"}
             </p>
           </Link>
         ))}

@@ -10,7 +10,7 @@ interface TripGenieBannerProps {
 
 export default function TripGenieBanner({
   title = "Have a question about your trip?",
-  subtitle = "Ask a real local in Korea — personal, honest answers for just $1.",
+  subtitle = "Ask a real local in Korea — personal, honest answers from $1.",
   ctaLabel = "Ask a Local",
   to = "/ask-a-local",
 }: TripGenieBannerProps) {

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import PageSEO from "@/components/common/PageSEO";
 
-const UPDATED = "6 October 2026";
+const UPDATED = "19 November 2026";
 const CONTACT = "koreabylocal@gmail.com";
 
 function Section({ id, title, children }: { id?: string; title: string; children: React.ReactNode }) {
@@ -86,8 +86,9 @@ export default function TermsPage() {
 
         <Section id="ask-a-local" title="Ask a Local">
           <p>
-            Each question costs US$1, paid before it is sent. A person on our team reads it and
-            answers by email, usually within a few hours, though we cannot promise a time. Our answer
+            A question or a restaurant reservation costs US$1; a trip schedule check or a K-Beauty
+            shipping request costs US$5. You pay before it is sent. A person on our team reads it and
+            answers by email, though we cannot promise a time. Our answer
             is honest, practical travel advice — it is not legal, medical, immigration or financial
             advice.
           </p>
@@ -103,7 +104,7 @@ export default function TermsPage() {
             will refund you in full. No reason needed.
           </p>
           <p>
-            <strong>Ask a Local:</strong> if we cannot answer your question, we refund the $1 in full.
+            <strong>Ask a Local:</strong> if we cannot answer your question, we refund what you paid in full.
             If you were charged twice or by mistake, tell us and we will refund the extra charge.
           </p>
           <p>

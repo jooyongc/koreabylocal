@@ -76,8 +76,8 @@ export default function AskSuccessPage() {
               <span className="font-serif-accent font-medium italic text-accent">A local’s on it.</span>
             </h1>
             <p className="mx-auto mt-4 max-w-[46ch] text-[16px] text-muted">
-              Your payment went through and your question is with a verified Korean host. Expect a reply by
-              email — usually within a few hours.
+              Your payment went through and your question is with our team in Korea. You’ll get the
+              reply by email.
             </p>
             <Link
               to="/"

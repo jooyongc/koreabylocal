@@ -59,7 +59,7 @@ export default function GuidebookPage() {
     <>
       <PageSEO
         title="Korea Travel Guidebook — Tips & Guides by Locals"
-        description="Korea, written by the people who actually live here — honest city guides, food, itineraries and culture from verified local hosts."
+        description="Korea, written by the people who actually live here — honest city guides, food, itineraries and culture."
         path="/guidebook"
       />
 
